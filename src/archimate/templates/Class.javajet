@@ -28,5 +28,11 @@ package <%= params.packageName() %>;
 	}
 %>
 public class <%= params.className() %> <%= interfaces %>{
+<% for (Iterator<String> iter = params.methods(); iter.hasNext();) { %>
+
+	public void <%= iter.next() %>() {
+		
+	}
+<% } %>
 
 }

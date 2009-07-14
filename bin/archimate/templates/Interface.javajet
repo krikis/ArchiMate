@@ -18,5 +18,9 @@ package <%= params.packageName() %>;
 <% } %>
  */
 public interface <%= params.className() %>{
+<% for (Iterator<String> iter = params.methods(); iter.hasNext();) { %>
+
+	public void <%= iter.next() %>();
+<% } %>
 
 }

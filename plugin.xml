@@ -43,14 +43,14 @@
                icon="icons/spiral.png"
                id="ArchiMate.UMLEditor.GenerateCode"
                label="Generate Code"
-               menubarPath="additions-end">
+               menubarPath="additions">
          </action>
          <action
                class="archimate.actions.Validate"
                icon="icons/spiral.png"
                id="ArchiMate.UMLEditor.Validate"
                label="Validate"
-               menubarPath="additions-end">
+               menubarPath="additions">
          </action>
       </viewerContribution>
       <viewerContribution

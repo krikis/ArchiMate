@@ -101,4 +101,20 @@ public class Model {
 		return dInterfaces.iterator();
 	}
 
+	public void addMethod(String method) {
+		dMethods.add(method);
+	}
+
+	public void addMethods(ArrayList<String> methods) {
+		dMethods.addAll(methods);
+	}
+
+	public boolean methodsDefined() {
+		return dMethods.size() > 0;
+	}
+
+	public Iterator<String> methods() {
+		return dMethods.iterator();
+	}
+
 }
