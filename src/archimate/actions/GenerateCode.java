@@ -69,7 +69,7 @@ public class GenerateCode extends ArchiMateAction {
 			if (name.equals("MVC")) {
 				pattern = new MVCPattern(myPack, root);
 			} else if (name.equals("MVCSeq")) {
-				pattern = new MVCSeqPattern(myPack, root);
+				pattern = new MVCPattern(myPack, root);
 			} else if (name.equals("Callback")) {
 				pattern = new CallbackPrimitive();
 			} else if (name.equals("CallbackSeq")) {

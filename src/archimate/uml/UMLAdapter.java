@@ -10,9 +10,9 @@ import org.eclipse.uml2.uml.Namespace;
 import org.eclipse.uml2.uml.Stereotype;
 
 public class UMLAdapter {
-	
+
 	private org.eclipse.uml2.uml.Package myPackage;
-	
+
 	public UMLAdapter(org.eclipse.uml2.uml.Package myPackage) {
 		this.myPackage = myPackage;
 	}
@@ -23,6 +23,7 @@ public class UMLAdapter {
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			if (!(element.getName() == null || element.getName().equals(""))) {
+				System.out.println(element.getName());
 				EList<Stereotype> stereotypes = element.getAppliedStereotypes();
 				for (int inde2 = 0; inde2 < stereotypes.size(); inde2++) {
 					Stereotype stereotype = stereotypes.get(inde2);
@@ -32,12 +33,14 @@ public class UMLAdapter {
 				}
 			}
 			if (element instanceof Namespace) {
-				return traverseSome((Namespace) element, stereotypeName);
+				name = traverseSome((Namespace) element, stereotypeName);
+				if (!name.equals(""))
+					return name;
 			}
 		}
 		return name;
 	}
-	
+
 	private String traverseSome(Namespace UMLElement, String stereotypeName) {
 		String name = "";
 		EList<NamedElement> elements = UMLElement.getOwnedMembers();
@@ -53,12 +56,14 @@ public class UMLAdapter {
 				}
 			}
 			if (element instanceof Namespace) {
-				return traverseSome((Namespace) element, stereotypeName);
+				name = traverseSome((Namespace) element, stereotypeName);
+				if (!name.equals(""))
+					return name;
 			}
 		}
 		return name;
 	}
-	
+
 	public ArrayList<String> getElementNames(String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();
 		EList<NamedElement> elements = myPackage.getOwnedMembers();
@@ -79,8 +84,9 @@ public class UMLAdapter {
 		}
 		return names;
 	}
-	
-	private ArrayList<String> traverseAll(Namespace UMLElement, String stereotypeName) {
+
+	private ArrayList<String> traverseAll(Namespace UMLElement,
+			String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();
 		EList<NamedElement> elements = UMLElement.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
