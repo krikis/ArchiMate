@@ -1,13 +1,8 @@
 package archimate.patterns.mvc;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.codegen.jet.JETException;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.uml2.uml.NamedElement;
-import org.eclipse.uml2.uml.Stereotype;
 
 import archimate.jet.Config;
 import archimate.jet.JETEngine;
