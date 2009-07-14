@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.actionSets">
+      <actionSet
+            id="ArchiMate.actionSet"
+            label="ArchiMate"
+            visible="true">
+         <menu
+               label="ArchiMate"
+               id="archiMateMenu">
+            <separator
+                  name="archiMateGroup">
+            </separator>
+         </menu>
+         <action
+               class="archimate.actions.GenerateCode"
+               icon="icons/spiral.png"
+               id="archimate.actions.GenerateCode"
+               label="Generate Code"
+               menubarPath="archiMateMenu/archiMateGroup"
+               tooltip="Generate Code">
+         </action>
+         <action
+               class="archimate.actions.Validate"
+               icon="icons/spiral.png"
+               id="archimate.actions.Validate"
+               label="Validate"
+               menubarPath="archiMateMenu/archiMateGroup"
+               tooltip="Validate">
+         </action>
+      </actionSet>
+   </extension>
+   <extension
+         point="org.eclipse.ui.popupMenus">
+      <viewerContribution
+            id="ArchiMate.viewerContribution1"
+            targetID="org.eclipse.uml2.uml.editor.presentation.UMLEditorID">
+         <action
+               class="archimate.Action1"
+               id="ArchiMate.action1"
+               label="Validate">
+         </action>
+         <action
+               class="archimate.actions.GenerateCode2"
+               icon="icons/spiral.png"
+               id="ArchiMate.action1"
+               label="Generate Code"
+               menubarPath="additions-end">
+         </action>
+      </viewerContribution>
+      <viewerContribution
+            id="ArchiMate.viewerContribution1"
+            targetID="org.eclipse.gmf.runtime.diagram.ui.DiagramEditorContextMenu">
+         <action
+               class="archimate.actions.GenerateCode2"
+               icon="icons/spiral.png"
+               id="ArchiMate.action1"
+               label="Generate Code"
+               menubarPath="additions">
+         </action>
+      </viewerContribution>
+   </extension>
+
+</plugin>

@@ -1,0 +1,22 @@
+<%@ jet package="translated" imports="java.util.* archimate.jet.*" class="ControlCommand" %>
+<% Model params = (Model) argument; %>
+<% if (params.packageDefined()) { %>
+package <%= params.packageName() %>;
+<% } %>
+
+/**
+ * This class implements the ControlCommandPort of the MVC Pattern
+ * 
+<% if (params.authorDefined()) { %>
+ * @author <%= params.author() %>
+<% } %>
+<% if (params.versionDefined()) { %>
+ * @version <%= params.version() %>
+<% } %>
+<% if (params.archiMateTagDefined()) { %>
+ * @archiMateTag <%= params.archiMateTag() %>
+<% } %>
+ */
+public interface <%= params.className() %>{
+
+}
