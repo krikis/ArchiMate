@@ -134,8 +134,6 @@ public class ArchiMateAction extends ActionDelegate implements
 
 			myPackage = getSelectedPackage();
 
-			setupContextMenu(action);
-
 			// IJavaElement jelem = getInitialJavaElement((IStructuredSelection)
 			// selection);
 			// System.out.println(jelem);
@@ -231,92 +229,25 @@ public class ArchiMateAction extends ActionDelegate implements
 	protected org.eclipse.uml2.uml.Package getSelectedPackage() {
 		if (getEditor() instanceof UMLDiagramEditor) {
 			UMLDiagramEditor editor = (UMLDiagramEditor) getEditor();
-			// PartSite site = (PartSite) editor.getEditorSite();
-			// System.out.println(site.getContextMenuIds()[0]);
-			// System.out.println(site.getContextMenuIds()[1]);
 			return (org.eclipse.uml2.uml.Package) editor.getDiagram()
 					.getElement();
 		}
-
-		if (collection.iterator().hasNext()) {
-			Object element = collection.iterator().next();
-			if (element instanceof org.eclipse.uml2.uml.Package) {
-				return (org.eclipse.uml2.uml.Package) element;
-			}
-			if (element instanceof UMLResource) {
-				UMLResource resource = (UMLResource) element;
-				EList<EObject> contents = resource.getContents();
-				EObject object = contents.get(0);
-				if (object instanceof org.eclipse.uml2.uml.Package) {
-					return (org.eclipse.uml2.uml.Package) object;
-				}
-			}
-		}
 		if (getEditor() instanceof UMLEditor) {
 			UMLEditor editor = (UMLEditor) getEditor();
-			PartSite site = (PartSite) editor.getEditorSite();
-			// System.out.println(site.getContextMenuIds()[0]);
-
-			// UMLActionBarContributor actionbarcontributor =
-			// (UMLActionBarContributor) editor
-			// .getActionBarContributor();
-			// MenuManager menuManager = new
-			// MenuManager(UMLEditorPlugin.INSTANCE
-			// .getString("_UI_UMLEditor_menu"),
-			// "org.eclipse.uml2.umlMenuID");
-			// menuManager.add(action);
-			// actionbarcontributor.contributeToMenu(menuManager);
-		}
-
-		// If all else fails
-		if (workbenchPart != null) {
-			URI fileUri = URI.createFileURI(getEditorFile().getRawLocation()
-					.toString());
-			ResourceSet resourceSet = new ResourceSetImpl();
-			Resource resource = resourceSet.getResource(fileUri, true);
+			UML2AdapterFactoryEditingDomain domain = (UML2AdapterFactoryEditingDomain) editor
+					.getEditingDomain();
+			Resource resource = domain.getResourceSet().getResources()
+					.iterator().next();
 			try {
 				return (org.eclipse.uml2.uml.Package) EcoreUtil
 						.getObjectByType(resource.getContents(),
 								UMLPackage.Literals.PACKAGE);
-			} catch (Exception we) {
-				we.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
 		}
 
 		return null;
-	}
-
-	public void setupContextMenu(IAction action) {
-		// System.out.println("test");
-		if (getEditor() instanceof UMLEditor) {
-			// UMLEditor editor = (UMLEditor) getEditor();
-			// MenuManager manager = (MenuManager)
-			// editor.getActionBars().getMenuManager();
-			// UMLActionBarContributor actionbarcontributor =
-			// (UMLActionBarContributor) editor
-			// .getActionBarContributor();
-			// MenuManager menuManager = new
-			// MenuManager(UMLEditorPlugin.INSTANCE
-			// .getString("_UI_UMLEditor_menu"),
-			// "org.eclipse.uml2.umlMenuID");
-			// menuManager.add(action);
-			// actionbarcontributor.contributeToMenu(menuManager);
-		}
-		// if (workbenchPart.getSite().getPage().getActiveEditor() instanceof
-		// UMLEditor) {
-		// UMLEditor editor = (UMLEditor) workbenchPart.getSite().getPage()
-		// .getActiveEditor();
-		// IContributionItem[] items = editor.getActionBars().getMenuManager()
-		// .getItems();
-		// for (int i = 0; i < items.length; i++) {
-		// IContributionItem contributionItem = items[i];
-		// if (contributionItem instanceof ActionContributionItem) {
-		// IAction new_action = ((ActionContributionItem) contributionItem)
-		// .getAction();
-		// System.out.println(new_action);
-		// }
-		// }
-		// }
 	}
 
 	protected Command createActionCommand(EditingDomain editingDomain,

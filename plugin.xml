@@ -63,6 +63,13 @@
                label="Generate Code"
                menubarPath="additions">
          </action>
+         <action
+               class="archimate.actions.Validate"
+               icon="icons/spiral.png"
+               id="ArchiMate.GMFEditor.Validate"
+               label="Validate"
+               menubarPath="additions">
+         </action>
       </viewerContribution>
    </extension>
 
