@@ -18,7 +18,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.*;
-import org.eclipse.ui.internal.EditorActionBars;
+import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.ui.internal.PartSite;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.views.contentoutline.ContentOutline;
@@ -46,15 +46,13 @@ import org.eclipse.emf.edit.command.CommandActionDelegate;
 import org.eclipse.emf.edit.domain.*;
 import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.gef.tools.AbstractTool.Input;
-import org.eclipse.gmf.runtime.diagram.ui.editparts.GraphicalEditPart;
-import org.eclipse.gmf.runtime.diagram.ui.editparts.IGraphicalEditPart;
-import org.eclipse.gmf.runtime.notation.Diagram;
-import org.eclipse.gmf.runtime.notation.impl.DiagramImpl;
+import org.eclipse.gmf.runtime.diagram.ui.resources.editor.parts.DiagramDocumentEditor;
 
 import archimate.presentation.ArchiMateActionBarContributor;
 import archimate.Activator;
 
-public class ArchiMateAction implements IWorkbenchWindowActionDelegate {
+public class ArchiMateAction extends ActionDelegate implements
+		IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 
 	protected static IWorkbenchWindow window;
 
@@ -220,7 +218,10 @@ public class ArchiMateAction implements IWorkbenchWindowActionDelegate {
 	}
 
 	protected IEditorPart getEditor() {
-		return workbenchPart.getSite().getPage().getActiveEditor();
+		if (workbenchPart != null) {
+			return workbenchPart.getSite().getPage().getActiveEditor();
+		}
+		return null;
 	}
 
 	protected IFile getEditorFile() {
@@ -268,15 +269,18 @@ public class ArchiMateAction implements IWorkbenchWindowActionDelegate {
 		}
 
 		// If all else fails
-		URI fileUri = URI.createFileURI(getEditorFile().getRawLocation()
-				.toString());
-		ResourceSet resourceSet = new ResourceSetImpl();
-		Resource resource = resourceSet.getResource(fileUri, true);
-		try {
-			return (org.eclipse.uml2.uml.Package) EcoreUtil.getObjectByType(
-					resource.getContents(), UMLPackage.Literals.PACKAGE);
-		} catch (Exception we) {
-			we.printStackTrace();
+		if (workbenchPart != null) {
+			URI fileUri = URI.createFileURI(getEditorFile().getRawLocation()
+					.toString());
+			ResourceSet resourceSet = new ResourceSetImpl();
+			Resource resource = resourceSet.getResource(fileUri, true);
+			try {
+				return (org.eclipse.uml2.uml.Package) EcoreUtil
+						.getObjectByType(resource.getContents(),
+								UMLPackage.Literals.PACKAGE);
+			} catch (Exception we) {
+				we.printStackTrace();
+			}
 		}
 
 		return null;
@@ -405,7 +409,13 @@ public class ArchiMateAction implements IWorkbenchWindowActionDelegate {
 					editingDomain = ((IEditingDomainProvider) workbenchPart)
 							.getEditingDomain();
 				}
+				if (workbenchPart instanceof DiagramDocumentEditor) {
+					editingDomain = ((DiagramDocumentEditor) workbenchPart)
+							.getEditingDomain();
+				}
 			}
+
+			this.window = workbenchPart.getSite().getWorkbenchWindow();
 
 			// Record the part.
 			//
@@ -421,7 +431,12 @@ public class ArchiMateAction implements IWorkbenchWindowActionDelegate {
 	 */
 	public void init(IWorkbenchWindow window) {
 		this.window = window;
-		setActiveWorkbenchPart(window.getActivePage().getActivePart());
+		this.editorPart = window.getActivePage().getActiveEditor();
+		setActiveWorkbenchPart(window.getActivePage().getActiveEditor());
+	}
+
+	public void init(IAction action) {
+		this.action = action;
 	}
 
 	/**

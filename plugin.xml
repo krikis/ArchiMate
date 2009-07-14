@@ -18,7 +18,7 @@
          <action
                class="archimate.actions.GenerateCode"
                icon="icons/spiral.png"
-               id="archimate.actions.GenerateCode"
+               id="ArchiMate.Menu.GenerateCode"
                label="Generate Code"
                menubarPath="archiMateMenu/archiMateGroup"
                tooltip="Generate Code">
@@ -26,7 +26,7 @@
          <action
                class="archimate.actions.Validate"
                icon="icons/spiral.png"
-               id="archimate.actions.Validate"
+               id="ArchiMate.Menu.Validate"
                label="Validate"
                menubarPath="archiMateMenu/archiMateGroup"
                tooltip="Validate">
@@ -36,28 +36,30 @@
    <extension
          point="org.eclipse.ui.popupMenus">
       <viewerContribution
-            id="ArchiMate.viewerContribution1"
+            id="ArchiMate.UMLEditorContribution"
             targetID="org.eclipse.uml2.uml.editor.presentation.UMLEditorID">
          <action
-               class="archimate.Action1"
-               id="ArchiMate.action1"
-               label="Validate">
+               class="archimate.actions.GenerateCode"
+               icon="icons/spiral.png"
+               id="ArchiMate.UMLEditor.GenerateCode"
+               label="Generate Code"
+               menubarPath="additions-end">
          </action>
          <action
-               class="archimate.actions.GenerateCode2"
+               class="archimate.actions.Validate"
                icon="icons/spiral.png"
-               id="ArchiMate.action1"
-               label="Generate Code"
+               id="ArchiMate.UMLEditor.Validate"
+               label="Validate"
                menubarPath="additions-end">
          </action>
       </viewerContribution>
       <viewerContribution
-            id="ArchiMate.viewerContribution1"
+            id="ArchiMate.GMFEditorContribution"
             targetID="org.eclipse.gmf.runtime.diagram.ui.DiagramEditorContextMenu">
          <action
-               class="archimate.actions.GenerateCode2"
+               class="archimate.actions.GenerateCode"
                icon="icons/spiral.png"
-               id="ArchiMate.action1"
+               id="ArchiMate.GMFEditor.GenerateCode"
                label="Generate Code"
                menubarPath="additions">
          </action>

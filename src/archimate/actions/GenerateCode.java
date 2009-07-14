@@ -20,7 +20,7 @@ import archimate.templates.*;
 
 import org.eclipse.emf.codegen.ecore.genmodel.impl.GenPackageImpl;
 
-import org.eclipse.gmf.runtime.diagram.ui.editparts.*;
+//import org.eclipse.gmf.runtime.diagram.ui.editparts.*;
 import org.eclipse.uml2.diagram.csd.edit.parts.*;
 
 /**
