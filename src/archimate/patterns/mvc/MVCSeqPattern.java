@@ -1,4 +1,6 @@
-package archimate.templates;
+package archimate.patterns.mvc;
+
+import archimate.templates.Pattern;
 
 public class MVCSeqPattern extends Pattern {
 	
