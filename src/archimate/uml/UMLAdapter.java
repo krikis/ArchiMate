@@ -23,7 +23,6 @@ public class UMLAdapter {
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			if (!(element.getName() == null || element.getName().equals(""))) {
-				System.out.println(element.getName());
 				EList<Stereotype> stereotypes = element.getAppliedStereotypes();
 				for (int inde2 = 0; inde2 < stereotypes.size(); inde2++) {
 					Stereotype stereotype = stereotypes.get(inde2);

@@ -16,7 +16,6 @@ import org.eclipse.uml2.uml.ValueSpecification;
 import org.eclipse.uml2.uml.editor.UMLEditorPlugin;
 
 import archimate.patterns.mvc.MVCPattern;
-import archimate.patterns.mvc.MVCSeqPattern;
 import archimate.templates.*;
 
 import org.eclipse.emf.codegen.ecore.genmodel.impl.GenPackageImpl;

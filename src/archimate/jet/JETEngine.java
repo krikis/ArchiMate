@@ -131,7 +131,7 @@ public class JETEngine {
 	 * @throws CoreException
 	 * @throws JETException
 	 */
-	protected IFile save(IProgressMonitor monitor, byte[] contents)
+	public IFile save(IProgressMonitor monitor, byte[] contents)
 			throws CoreException, JETException {
 		monitor = createIfNull(monitor);
 
@@ -159,7 +159,7 @@ public class JETEngine {
 		return result;
 	}
 
-	private IContainer findOrCreateContainer(IProgressMonitor progressMonitor,
+	public IContainer findOrCreateContainer(IProgressMonitor progressMonitor,
 			String targetDirectory, String packageName) throws CoreException {
 
 		IPath outputPath = new Path(targetDirectory + "/"

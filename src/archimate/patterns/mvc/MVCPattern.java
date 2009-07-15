@@ -1,10 +1,24 @@
 package archimate.patterns.mvc;
 
+import java.io.*;
+import java.util.List;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.emf.codegen.jet.JETException;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.*;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.Document;
+import org.eclipse.text.edits.TextEdit;
 
+import archimate.codegen.JavaEdit;
+import archimate.codegen.JavaVisitor;
+import archimate.codegen.TestAST;
 import archimate.jet.Config;
 import archimate.jet.JETEngine;
 import archimate.jet.Model;
@@ -44,7 +58,96 @@ public class MVCPattern extends Pattern {
 		createSource(configControlUpdate(mvcModel));
 		createSource(configCommandInterface(mvcModel));
 		createSource(configModelCommand(mvcModel));
-		createSource(configControlCommand(mvcModel));		
+		createSource(configControlCommand(mvcModel));
+		testAST(mvcModel);
+	}
+
+	public void testAST(MVCModel mvcmodel) {
+		this.config = new Config();
+		String packageName = "model";
+		config.setPackageName(packageBase + "." + packageName);
+		config.setTargetFile(mvcmodel.dataInterface() + ".java");
+		config.setTargetFolder(root + "/src");
+		config.setClasspathVariable("ARCHIMATE");
+		config.setPluginId(pluginId);
+		config
+				.setTemplateRelativeUri("src/archimate/templates/Interface.javajet");
+		engine = new JETEngine(config);
+		IContainer container = null;
+		try {
+			container = engine.findOrCreateContainer(new NullProgressMonitor(),
+					config.getTargetFolder(), config.getPackageName());
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		IFile targetFile = container.getFile(new Path(config.getTargetFile()));
+		InputStream contents = null;
+		try {
+			contents = targetFile.getContents();
+		} catch (CoreException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				contents));
+		StringBuilder sb = new StringBuilder();
+
+		String line = null;
+		try {
+			while ((line = reader.readLine()) != null) {
+				sb.append(line + "\n");
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				contents.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		String text = sb.toString();
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(text.toCharArray());
+//		parser.setSource("".toCharArray());
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		unit.recordModifications();
+//		AST ast = unit.getAST();
+
+		JavaEdit editElements = new JavaEdit();
+		JavaVisitor visitor = new JavaVisitor(editElements);
+		unit.accept(visitor);
+//		TestAST tester = new TestAST(unit);
+//		tester.test();
+		
+
+
+
+		String sourceCode = "";
+		try {
+			Document doc = new Document(text);
+//			Document doc = new Document();
+			TextEdit edits = unit.rewrite(doc, null);
+			System.out.println(edits);
+			edits.apply(doc);
+			sourceCode += doc.get();
+			System.out.println("Test" + sourceCode);
+		} catch (BadLocationException e) {
+			throw new RuntimeException(e);
+		}
+
+		try {
+			engine.save(new NullProgressMonitor(), sourceCode.getBytes());
+		} catch (JETException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	protected void createSource(Config config) {
