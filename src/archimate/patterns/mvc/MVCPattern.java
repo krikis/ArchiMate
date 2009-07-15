@@ -131,10 +131,8 @@ public class MVCPattern extends Pattern {
 			Document doc = new Document(text);
 //			Document doc = new Document();
 			TextEdit edits = unit.rewrite(doc, null);
-			System.out.println(edits);
 			edits.apply(doc);
 			sourceCode += doc.get();
-			System.out.println("Test" + sourceCode);
 		} catch (BadLocationException e) {
 			throw new RuntimeException(e);
 		}
