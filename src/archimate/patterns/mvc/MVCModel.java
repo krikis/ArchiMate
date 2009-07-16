@@ -16,11 +16,11 @@ public class MVCModel {
 	private String dataInterface = "";
 	private String updateInterface = "";
 	private String commandInterface = "";
-	
+
 	private ArrayList<String> dataMethods;
 	private ArrayList<String> updateMethods;
 	private ArrayList<String> commandMethods;
-	
+
 	private UMLAdapter umlreader;
 
 	public MVCModel(org.eclipse.uml2.uml.Package myPackage) {
@@ -42,8 +42,17 @@ public class MVCModel {
 			commandInterface = "Command";
 		}
 		dataMethods = umlreader.getElementNames("DataMessage");
+		if (dataMethods.size() == 0) {
+			dataMethods.add("getData");
+		}
 		updateMethods = umlreader.getElementNames("UpdateMessage");
-		commandMethods = umlreader.getElementNames("CommandMessage");		
+		if (updateMethods.size() == 0) {
+			updateMethods.add("update");
+		}
+		commandMethods = umlreader.getElementNames("CommandMessage");
+		if (commandMethods.size() == 0) {
+			commandMethods.add("command");
+		}
 	}
 
 	public String dataInterface() {

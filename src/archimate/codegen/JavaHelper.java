@@ -28,5 +28,22 @@ public class JavaHelper {
 		}
 		return null;
 	}
+		
+	private void setModifier(AST ast, BodyDeclaration classType, int modifier){
+		switch (modifier) {
+		case Modifier.PUBLIC:
+			classType.modifiers().add(
+					ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
+			break;
+		case Modifier.PRIVATE:
+			classType.modifiers().add(
+					ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+			break;
+		case Modifier.STATIC:
+			classType.modifiers().add(
+					ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+			break;
+		}		
+	}
 
 }
