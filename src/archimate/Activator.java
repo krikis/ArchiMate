@@ -1,5 +1,6 @@
 package archimate;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -19,8 +20,12 @@ public class Activator extends AbstractUIPlugin {
 	// The shared instance
 	private static Activator plugin;
 
+	// The OCL objects used for model validation
 	private static OCL myOcl;
 	private static Helper oclHelper;
+	
+	// The project root accessible to all plugin classes
+	public static IPath projectRoot;
 
 	/**
 	 * The constructor

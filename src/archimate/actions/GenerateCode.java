@@ -15,6 +15,7 @@ import org.eclipse.uml2.uml.Profile;
 import org.eclipse.uml2.uml.ValueSpecification;
 import org.eclipse.uml2.uml.editor.UMLEditorPlugin;
 
+import archimate.Activator;
 import archimate.patterns.mvc.MVCPattern;
 import archimate.templates.*;
 
@@ -58,7 +59,7 @@ public class GenerateCode extends ArchiMateAction {
 			Pattern pattern;
 
 			// Get editor file path
-			IPath root = getEditorFile().getProject().getFullPath();
+			Activator.projectRoot = getEditorFile().getProject().getFullPath();
 
 			// IJavaProject jproject = (IJavaProject)
 			// file.getProject().getAdapter(IJavaProject.class);
@@ -66,13 +67,13 @@ public class GenerateCode extends ArchiMateAction {
 
 			String name = profile.getName();
 			if (name.equals("MVC")) {
-				pattern = new MVCPattern(myPack, root);
+				pattern = new MVCPattern(myPack);
 			} else if (name.equals("MVCSeq")) {
-				pattern = new MVCPattern(myPack, root);
+				pattern = new MVCPattern(myPack);
 			} else if (name.equals("Callback")) {
 				pattern = new CallbackPrimitive();
 			} else if (name.equals("CallbackSeq")) {
-				pattern = new CallbackSeqPrimitive(root);
+				pattern = new CallbackPrimitive();
 			} else {
 				pattern = new Pattern();
 			}

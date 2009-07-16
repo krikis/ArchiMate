@@ -136,11 +136,11 @@ public class JETEngine {
 		monitor = createIfNull(monitor);
 
 		IContainer container = findOrCreateContainer(monitor, config
-				.getTargetFolder(), config.getPackageName());
+				.getTargetFolder(), config.getPackage());
 		if (container == null) {
 			throw new JETException(
 					"Cound not find or create container for package "
-							+ config.getPackageName() + " in "
+							+ config.getPackage() + " in "
 							+ config.getTargetFolder());
 		}
 		IFile targetFile = container.getFile(new Path(config.getTargetFile()));

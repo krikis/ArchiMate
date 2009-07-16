@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 public class JavaState {
 
-	private ArrayList<String> archiMateTags = new ArrayList<String>();
+	private ArrayList<String> archiMateTags;
 
 	public JavaState() {
-
+		archiMateTags = new ArrayList<String>();
 	}
 
 	public ArrayList<String> archiMateTags() {

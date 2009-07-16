@@ -18,6 +18,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
+import archimate.codegen.resource.FileHandler;
 import archimate.patterns.mvc.MVCModel;
 
 public class ASTEngine {
@@ -31,39 +32,12 @@ public class ASTEngine {
 	}	
 
 	public void getArchimateTags() {
-		InputStream contents = null;
-		try {
-			contents = targetFile.getContents();
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				contents));
-		StringBuilder sb = new StringBuilder();
-
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				contents.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		String text = sb.toString();
+		FileHandler handler = new FileHandler();
+		String text = handler.getSource(targetFile);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(text.toCharArray());
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-		unit.recordModifications();
-
 		JavaInspector visitor = new JavaInspector(state);
 		unit.accept(visitor);
 	}
