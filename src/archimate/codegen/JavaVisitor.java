@@ -16,7 +16,9 @@ public class JavaVisitor extends ASTVisitor {
 	}
 	
 	public boolean visit(TypeDeclaration node) {
-		System.out.println(node);
+		JavaHelper helper = new JavaHelper();
+		String archiMateTag = helper.getArchiMateTag(node);
+		System.out.println(archiMateTag);
 		AST ast = node.getAST(); 
 		
 		// private Point minimumSize;
