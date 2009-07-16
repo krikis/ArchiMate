@@ -44,11 +44,19 @@ public class MVCPattern extends Pattern {
 	}
 
 	public void generate_code() {
+		// Check the state of the source code
+		JavaState state = new JavaState();
+		SourceInspector inspector = new SourceInspector(root, state);
+		inspector.inspect();
+		System.out.println(state.archiMateTags());
+
+		// Create the necessary source modifications
+		JavaEdit edit = new JavaEdit(state);
+		
 		// Read out UML package
 		MVCModel mvcModel = new MVCModel(myPackage);
-		// Check which code is present
-		CodeState state = new CodeState(root);
-		state.traverseCode();
+		
+		
 		
 		createSource(configDataInterface(mvcModel));
 		createSource(configModelData(mvcModel));
@@ -117,8 +125,8 @@ public class MVCPattern extends Pattern {
 		unit.recordModifications();
 //		AST ast = unit.getAST();
 
-		JavaEdit editElements = new JavaEdit();
-		JavaVisitor visitor = new JavaVisitor(editElements);
+		JavaState state = new JavaState();
+		JavaInspector visitor = new JavaInspector(state);
 		unit.accept(visitor);
 //		TestAST tester = new TestAST(unit);
 //		tester.test();

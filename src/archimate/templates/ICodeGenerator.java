@@ -1,6 +1,6 @@
 package archimate.templates;
 
-public interface CodeTemplate {
+public interface ICodeGenerator {
 	
 	public void generate_code();
 	

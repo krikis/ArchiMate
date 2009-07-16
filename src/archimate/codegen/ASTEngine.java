@@ -23,9 +23,11 @@ import archimate.patterns.mvc.MVCModel;
 public class ASTEngine {
 	
 	private IFile targetFile;
+	private JavaState state;
 	
-	public ASTEngine(IFile targetFile){
+	public ASTEngine(IFile targetFile, JavaState state){
 		this.targetFile = targetFile;
+		this.state = state;
 	}	
 
 	public void getArchimateTags() {
@@ -59,13 +61,10 @@ public class ASTEngine {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(text.toCharArray());
-//		parser.setSource("".toCharArray());
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		unit.recordModifications();
-//		AST ast = unit.getAST();
 
-		JavaEdit editElements = new JavaEdit();
-		JavaVisitor visitor = new JavaVisitor(editElements);
+		JavaInspector visitor = new JavaInspector(state);
 		unit.accept(visitor);
 	}
 }

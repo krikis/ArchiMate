@@ -8,23 +8,25 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-public class CodeState {
+public class SourceInspector {
 
 	private IPath root;
 	Config config;
 	private JETEngine jetEngine;
+	private JavaState state;
 	private ASTEngine astEngine;
 	private ArrayList<String> tags = new ArrayList<String>();
 
-	public CodeState(IPath root) {
+	public SourceInspector(IPath root, JavaState state) {
 		this.root = root;
 		config = new Config();
 		config.setTargetFolder(root + "/src");
 		config.setPackageName("");
 		jetEngine = new JETEngine(config);
+		this.state = state;
 	}
 
-	public void traverseCode() {
+	public void inspect() {
 		IContainer container = null;
 		try {
 			container = jetEngine.findOrCreateContainer(new NullProgressMonitor(),
@@ -40,10 +42,10 @@ public class CodeState {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		traverseMembers(members);
+		traverseSourceFiles(members);
 	}
 
-	private void traverseMembers(IResource[] members) {
+	private void traverseSourceFiles(IResource[] members) {
 		for (int index = 0; index < members.length; index++) {
 			IResource resource = members[index];
 			if (resource instanceof IContainer){
@@ -55,10 +57,10 @@ public class CodeState {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				traverseMembers(newMembers);
+				traverseSourceFiles(newMembers);
 			}
 			if (resource instanceof IFile){
-				astEngine = new ASTEngine((IFile) resource);
+				astEngine = new ASTEngine((IFile) resource, state);
 				astEngine.getArchimateTags();
 			}			
 		}

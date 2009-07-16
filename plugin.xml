@@ -17,7 +17,7 @@
          </menu>
          <action
                class="archimate.actions.GenerateCode"
-               icon="icons/spiral.png"
+               icon="icons/red.png"
                id="ArchiMate.Menu.GenerateCode"
                label="Generate Code"
                menubarPath="archiMateMenu/archiMateGroup"
@@ -25,7 +25,7 @@
          </action>
          <action
                class="archimate.actions.Validate"
-               icon="icons/spiral.png"
+               icon="icons/green.png"
                id="ArchiMate.Menu.Validate"
                label="Validate"
                menubarPath="archiMateMenu/archiMateGroup"
@@ -40,14 +40,14 @@
             targetID="org.eclipse.uml2.uml.editor.presentation.UMLEditorID">
          <action
                class="archimate.actions.GenerateCode"
-               icon="icons/spiral.png"
+               icon="icons/red.png"
                id="ArchiMate.UMLEditor.GenerateCode"
                label="Generate Code"
                menubarPath="additions">
          </action>
          <action
                class="archimate.actions.Validate"
-               icon="icons/spiral.png"
+               icon="icons/green.png"
                id="ArchiMate.UMLEditor.Validate"
                label="Validate"
                menubarPath="additions">
@@ -58,14 +58,14 @@
             targetID="org.eclipse.gmf.runtime.diagram.ui.DiagramEditorContextMenu">
          <action
                class="archimate.actions.GenerateCode"
-               icon="icons/spiral.png"
+               icon="icons/red.png"
                id="ArchiMate.GMFEditor.GenerateCode"
                label="Generate Code"
                menubarPath="additions">
          </action>
          <action
                class="archimate.actions.Validate"
-               icon="icons/spiral.png"
+               icon="icons/green.png"
                id="ArchiMate.GMFEditor.Validate"
                label="Validate"
                menubarPath="additions">
