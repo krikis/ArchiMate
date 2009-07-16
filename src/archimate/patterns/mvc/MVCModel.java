@@ -47,11 +47,11 @@ public class MVCModel {
 		}
 		updateMethods = umlreader.getElementNames("UpdateMessage");
 		if (updateMethods.size() == 0) {
-			updateMethods.add("update");
+			updateMethods.add("triggerUpdate");
 		}
 		commandMethods = umlreader.getElementNames("CommandMessage");
 		if (commandMethods.size() == 0) {
-			commandMethods.add("command");
+			commandMethods.add("executeCommand");
 		}
 	}
 

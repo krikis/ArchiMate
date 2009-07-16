@@ -198,6 +198,9 @@
     <ownedEnd xmi:type="uml:ExtensionEnd" xmi:id="_r8SwEQj7Ed6Up9Iq_uAkVA" name="extension_ModelCommandPort" type="_NdKUIAj7Ed6Up9Iq_uAkVA" aggregation="composite" association="_r8SwEAj7Ed6Up9Iq_uAkVA"/>
   </packagedElement>
   <packagedElement xmi:type="uml:Stereotype" xmi:id="_wM_wQAj7Ed6Up9Iq_uAkVA" name="DataInterface">
+    <ownedComment xmi:id="_ec3IwHHxEd6Ck-ZaomKjrg" annotatedElement="_wM_wQAj7Ed6Up9Iq_uAkVA">
+      <body>MVC_DataInterface</body>
+    </ownedComment>
     <ownedAttribute xmi:id="_2wItIgj7Ed6Up9Iq_uAkVA" name="base_Interface" association="_2wItIAj7Ed6Up9Iq_uAkVA">
       <type xmi:type="uml:Class" href="pathmap://UML_METAMODELS/UML.metamodel.uml#Interface"/>
     </ownedAttribute>

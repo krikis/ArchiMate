@@ -1,4 +1,4 @@
-<%@ jet package="translated" imports="java.util.* archimate.jet.*" class="GeneralInterface" %>
+<%@ jet package="translated" imports="java.util.* archimate.codegen.*" class="GeneralInterface" %>
 <% Model params = (Model) argument; %>
 <% if (params.packageDefined()) { %>
 package <%= params.packageName() %>;

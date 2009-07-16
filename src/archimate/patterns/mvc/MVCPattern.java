@@ -44,7 +44,12 @@ public class MVCPattern extends Pattern {
 	}
 
 	public void generate_code() {
+		// Read out UML package
 		MVCModel mvcModel = new MVCModel(myPackage);
+		// Check which code is present
+		CodeState state = new CodeState(root);
+		state.traverseCode();
+		
 		createSource(configDataInterface(mvcModel));
 		createSource(configModelData(mvcModel));
 		createSource(configViewData(mvcModel));
@@ -54,7 +59,7 @@ public class MVCPattern extends Pattern {
 		createSource(configCommandInterface(mvcModel));
 		createSource(configModelCommand(mvcModel));
 		createSource(configControlCommand(mvcModel));
-		testAST(mvcModel);
+//		testAST(mvcModel);
 	}
 
 	public void testAST(MVCModel mvcmodel) {
