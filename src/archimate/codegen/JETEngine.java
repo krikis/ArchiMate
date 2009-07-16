@@ -1,4 +1,4 @@
-package archimate.jet;
+package archimate.codegen;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

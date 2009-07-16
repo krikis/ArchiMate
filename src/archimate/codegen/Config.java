@@ -1,4 +1,4 @@
-package archimate.jet;
+package archimate.codegen;
 
 
 import org.eclipse.core.runtime.Platform;

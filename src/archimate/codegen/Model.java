@@ -1,4 +1,4 @@
-package archimate.jet;
+package archimate.codegen;
 
 import java.util.ArrayList;
 import java.util.Iterator;

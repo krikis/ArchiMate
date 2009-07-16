@@ -16,12 +16,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
-import archimate.codegen.JavaEdit;
-import archimate.codegen.JavaVisitor;
-import archimate.codegen.TestAST;
-import archimate.jet.Config;
-import archimate.jet.JETEngine;
-import archimate.jet.Model;
+import archimate.codegen.*;
 import archimate.templates.Pattern;
 
 public class MVCPattern extends Pattern {
