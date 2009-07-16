@@ -1,6 +1,6 @@
 package archimate.templates;
 
-public class Primitive implements CodeTemplate{
+public class Primitive extends Pattern implements CodeTemplate{
 	
 	public Primitive () {}
 
