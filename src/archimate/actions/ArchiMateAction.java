@@ -48,7 +48,6 @@ import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.gef.tools.AbstractTool.Input;
 import org.eclipse.gmf.runtime.diagram.ui.resources.editor.parts.DiagramDocumentEditor;
 
-import archimate.presentation.ArchiMateActionBarContributor;
 import archimate.Activator;
 
 public class ArchiMateAction extends ActionDelegate implements

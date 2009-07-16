@@ -8,8 +8,6 @@ import org.eclipse.ocl.uml.OCL.Helper;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import archimate.presentation.ArchiMateActionBarContributor;
-
 /**
  * The activator class controls the plug-in life cycle
  */
