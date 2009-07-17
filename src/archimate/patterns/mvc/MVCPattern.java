@@ -148,15 +148,15 @@ public class MVCPattern extends Pattern {
 		ArrayList<String> tags = tree.getUnvisited(tree.root());
 		createSourceFiles(tags);
 
-		// createSource(configDataInterface(mvcModel));
-		// createSource(configModelData(mvcModel));
-		// createSource(configViewData(mvcModel));
-		// createSource(configUpdateInterface(mvcModel));
-		// createSource(configViewUpdate(mvcModel));
-		// createSource(configControlUpdate(mvcModel));
-		// createSource(configCommandInterface(mvcModel));
-		// createSource(configModelCommand(mvcModel));
-		// createSource(configControlCommand(mvcModel));
+//		 createSource(configDataInterface(mvcModel));
+//		 createSource(configModelData(mvcModel));
+//		 createSource(configViewData(mvcModel));
+//		 createSource(configUpdateInterface(mvcModel));
+//		 createSource(configViewUpdate(mvcModel));
+//		 createSource(configControlUpdate(mvcModel));
+//		 createSource(configCommandInterface(mvcModel));
+//		 createSource(configModelCommand(mvcModel));
+//		 createSource(configControlCommand(mvcModel));
 //		testAST(mvcModel);
 	}
 
