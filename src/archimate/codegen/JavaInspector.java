@@ -1,24 +1,57 @@
 package archimate.codegen;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.dom.*;
 
+import archimate.patterns.mvc.MVCPattern;
+import archimate.util.*;
+
 public class JavaInspector extends ASTVisitor {
-	
-	private JavaState state;
+
+	private TagTree tree;
+	private ICodeGenerator generator;
 	private JavaHelper helper;
-	
-	public JavaInspector(JavaState state){
+
+	public JavaInspector(ICodeGenerator generator) {
 		super(true);
-		this.state = state;
+		this.tree = generator.tree();
+		this.generator = generator;
 		helper = new JavaHelper();
 	}
-	
-	public void preVisit(ASTNode node) {	
+
+	public void preVisit(ASTNode node) {
+
 	}
-	
+
 	public boolean visit(TypeDeclaration node) {
-		String archiMateTag = helper.getArchiMateTag(node);
-		state.addTag(archiMateTag);
-		return true;
+		String tag = helper.getArchiMateTag(node);
+		TagNode current = tree.current();
+		if ((!tag.equals("")) && current.hasChild(tag)) {
+			TagNode self = tree.getNode(current, tag);
+			self.setVisited(true);
+			tree.setCurrent(self);
+			System.out.println(self.tag());
+			if (self.hasChildren()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public void endVisit(TypeDeclaration node) {
+		String tag = helper.getArchiMateTag(node);
+		TagNode current = tree.current();
+		if ((!tag.equals("")) && current.parent().hasChild(tag)) {
+			if (current.hasChildren()) {
+				ArrayList<String> tags = tree.getUnvisited(current);
+				generator.addSourceElements(node, tags);
+			}
+			tree.setCurrent(current.parent());
+		}
+	}
+
+	public void postVisit(ASTNode node) {
+
 	}
 }

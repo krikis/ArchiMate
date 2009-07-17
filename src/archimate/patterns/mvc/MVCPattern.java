@@ -1,17 +1,14 @@
 package archimate.patterns.mvc;
 
 import java.io.*;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.emf.codegen.jet.JETException;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.*;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
@@ -19,77 +16,179 @@ import org.eclipse.text.edits.TextEdit;
 import archimate.Activator;
 import archimate.codegen.*;
 import archimate.templates.Pattern;
+import archimate.util.*;
 
 public class MVCPattern extends Pattern {
 
+	// Cosntants for the key elements of the MVC pattern
 	static final String DATA_INTERFACE = "MVC_DataInterface";
+	static final String DATA_MESSAGE = "MVC_DataMessage";
 	static final String MODEL_DATA = "MVC_ModelDataPort";
+	static final String DATA_METHOD = "MVC_DataMethod";
 	static final String VIEW_DATA = "MVC_ViewDataPort";
+	static final String DATA_INVOCATION = "MVC_DataInvocation";
 	static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
+	static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
 	static final String VIEW_UPDATE = "MVC_ViewUpdatePort";
+	static final String UPDATE_METHOD = "MVC_UpdateMethod";
 	static final String CONTROL_UPDATE = "MVC_ControlUpdatePort";
+	static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
 	static final String COMMAND_INTERFACE = "MVC_CommandInterface";
-	static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
+	static final String COMMAND_MESSAGE = "MVC_CommandMessage";
 	static final String MODEL_COMMAND = "MVC_ModelCommandPort";
-	private IPath root;
-	private static String pluginId = "ArchiMate";
+	static final String COMMAND_METHOD = "MVC_CommandMethod";
+	static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
+	static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
+	// Tree defining the structure of the MVC pattern key elements
+	private static TagTree tree = constructTree();
+	// Data structure containing all settings of the current project
 	private Config config;
-	private JETEngine engine;
-	private String packageBase;
-	private org.eclipse.uml2.uml.Package myPackage;
+	// Model containing all data for the MVC framework to create
+	private MVCModel mvcModel;
 
+	/**
+	 * Constructs a tree defining the structure of the MVC pattern key elements
+	 * 
+	 * @return tree defining the structure of the MVC pattern key elements
+	 */
+	private static TagTree constructTree() {
+		TagTree tree = new TagTree();
+		TagNode root = tree.root();
+		TagNode dataInterface = new TagNode(DATA_INTERFACE);
+		dataInterface.addChild(new TagNode(DATA_MESSAGE));
+		root.addChild(dataInterface);
+		TagNode modelData = new TagNode(MODEL_DATA);
+		modelData.addChild(new TagNode(DATA_METHOD));
+		root.addChild(modelData);
+		TagNode viewData = new TagNode(VIEW_DATA);
+		viewData.addChild(new TagNode(DATA_INVOCATION));
+		root.addChild(viewData);
+		TagNode updateInterface = new TagNode(UPDATE_INTERFACE);
+		updateInterface.addChild(new TagNode(UPDATE_MESSAGE));
+		root.addChild(updateInterface);
+		TagNode viewUpdate = new TagNode(VIEW_UPDATE);
+		viewUpdate.addChild(new TagNode(UPDATE_METHOD));
+		root.addChild(viewUpdate);
+		TagNode controlUpdate = new TagNode(CONTROL_UPDATE);
+		controlUpdate.addChild(new TagNode(UPDATE_INVOCATION));
+		root.addChild(controlUpdate);
+		TagNode commandInterface = new TagNode(COMMAND_INTERFACE);
+		commandInterface.addChild(new TagNode(COMMAND_MESSAGE));
+		root.addChild(commandInterface);
+		TagNode modelCommand = new TagNode(MODEL_COMMAND);
+		modelCommand.addChild(new TagNode(COMMAND_METHOD));
+		root.addChild(modelCommand);
+		TagNode controlCommand = new TagNode(CONTROL_COMMAND);
+		controlCommand.addChild(new TagNode(COMMAND_INVOCATION));
+		root.addChild(controlCommand);
+		return tree;
+	}
+
+	/**
+	 * Constructor for the MVC pattern. Initializes a <code>Config</code> object
+	 * with all settings for the current Java Project.
+	 * 
+	 * @param myPackage
+	 *            The UML package in the open UML or GMF editor
+	 */
 	public MVCPattern(org.eclipse.uml2.uml.Package myPackage) {
+		// Configure settings for current Java project
+		setupConfig();
+		// Read out UML model
+		mvcModel = new MVCModel(myPackage);
+	}
+
+	private void setupConfig() {
 		config = new Config();
 		config.setPackageBase("app");
 		config.setTargetFolder(Activator.projectRoot + "/src");
 		config.setClasspathVariable("ARCHIMATE");
-		config.setPluginId(pluginId);
+		config.setPluginId(Activator.PLUGIN_ID);
 		config.setInterfaceTemplateRelativeUri("src/archimate/"
 				+ "templates/Interface.javajet");
 		config.setClassTemplateRelativeUri("src/archimate/"
 				+ "templates/Class.javajet");
-		this.myPackage = myPackage;
 	}
 
+	/**
+	 * Returns the <code>TagTree</code> object of the MVC pattern.
+	 */
+	public TagTree tree() {
+		return tree;
+	}
+
+	/**
+	 * Returns the <code>Config</code> object of the MVC pattern.
+	 */
+	public Config config() {
+		return config;
+	}
+
+	/**
+	 * Returns the <code>MVCModel</code> object containing all data for the MVC
+	 * framework to create.
+	 */
+	public MVCModel model() {
+		return mvcModel;
+	}
+
+	/**
+	 * Generates code for the MVC pattern.
+	 */
 	public void generate_code() {
-		// Check the state of the source code
-		JavaState state = new JavaState();
-		SourceInspector inspector = new SourceInspector(config, state);
-		inspector.inspect();
+		// Reset the tree containing MVC pattern key elements
+		tree.resetVisited();
+		tree.printTree();
+		
+		// Traverses the source and calls back when source additions are needed
+		SourceInspector inspector = new SourceInspector(this);
+		inspector.inspect();		
 
-		// Create the necessary source modifications
-		JavaEdit edit = new JavaEdit(state);
-		edit.compile();
+		// Adds the missing source files
+		tree.printTree();
+		ArrayList<String> tags = tree.getUnvisited(tree.root());
+		System.out.println(tags);
+		createSourceFiles(tags);
 
-		// Read out UML package
-		MVCModel mvcModel = new MVCModel(myPackage);
-
-		createSource(configDataInterface(mvcModel));
-		createSource(configModelData(mvcModel));
-		createSource(configViewData(mvcModel));
-		createSource(configUpdateInterface(mvcModel));
-		createSource(configViewUpdate(mvcModel));
-		createSource(configControlUpdate(mvcModel));
-		createSource(configCommandInterface(mvcModel));
-		createSource(configModelCommand(mvcModel));
-		createSource(configControlCommand(mvcModel));
+//		createSource(configDataInterface(mvcModel));
+//		createSource(configModelData(mvcModel));
+//		createSource(configViewData(mvcModel));
+//		createSource(configUpdateInterface(mvcModel));
+//		createSource(configViewUpdate(mvcModel));
+//		createSource(configControlUpdate(mvcModel));
+//		createSource(configCommandInterface(mvcModel));
+//		createSource(configModelCommand(mvcModel));
+//		createSource(configControlCommand(mvcModel));
 		// testAST(mvcModel);
 	}
 
+	/**
+	 * Creates source files for every tag in the list.
+	 */
+	public void createSourceFiles(ArrayList<String> tags) {
+		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
+			String tag = iter.next();
+			if (tag.equals(DATA_INTERFACE)) {
+				new MVCDataInterface(this);
+			}
+		}
+	}
+
+	/**
+	 * Creates source elements in the node for every tag in the list.
+	 */
+	public void addSourceElements(ASTNode node, ArrayList<String> tags) {
+
+	}
+
 	public void testAST(MVCModel mvcmodel) {
+		FileHandler handler = new FileHandler();
 		Config conf = new Config(config);
 		conf.setPackageName("model");
 		conf.setTargetFile(mvcmodel.dataInterface() + ".java");
-		conf.setTargetFolder(root + "/src");
-		engine = new JETEngine(conf);
 		IContainer container = null;
-		try {
-			container = engine.findOrCreateContainer(new NullProgressMonitor(),
-					conf.getTargetFolder(), conf.getPackageName());
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		container = handler.findOrCreateContainer(conf.getTargetFolder(), conf
+				.getPackageName());
 		IFile targetFile = container.getFile(new Path(conf.getTargetFile()));
 		InputStream contents = null;
 		try {
@@ -126,8 +225,7 @@ public class MVCPattern extends Pattern {
 		unit.recordModifications();
 		// AST ast = unit.getAST();
 
-		JavaState state = new JavaState();
-		JavaInspector visitor = new JavaInspector(state);
+		JavaInspector visitor = new JavaInspector(this);
 		unit.accept(visitor);
 		// TestAST tester = new TestAST(unit);
 		// tester.test();
@@ -142,30 +240,13 @@ public class MVCPattern extends Pattern {
 		} catch (BadLocationException e) {
 			throw new RuntimeException(e);
 		}
-
-		try {
-			engine.save(new NullProgressMonitor(), sourceCode.getBytes());
-		} catch (JETException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		handler.save(sourceCode.getBytes(), config.getTargetFolder(), config
+				.getPackage(), config.getTargetFile());
 	}
 
 	protected void createSource(Config config) {
-		engine = new JETEngine(config);
-
-		try {
-			engine.handleSourceFile();
-		} catch (JETException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CoreException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ASTEngine engine = new ASTEngine();
+		engine.createSourceFile(config);
 	}
 
 	/**

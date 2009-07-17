@@ -23,13 +23,14 @@ public class JavaHelper {
 					for (Iterator<TextElement> ite2 = fragments.iterator(); ite2
 							.hasNext();) {
 						TextElement name = ite2.next();
-						archiMateTag += name.getText().substring(1);
+						if (name.getText().length() > 0)
+							archiMateTag += name.getText().substring(1);
 					}
 					return archiMateTag;
 				}
 			}
 		}
-		return null;
+		return "";
 	}
 
 	private void setModifier(AST ast, BodyDeclaration classType, int modifier) {

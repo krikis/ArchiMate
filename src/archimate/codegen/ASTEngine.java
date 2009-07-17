@@ -1,44 +1,43 @@
 package archimate.codegen;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
-import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.emf.codegen.jet.JETException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
 
-import archimate.codegen.resource.FileHandler;
-import archimate.patterns.mvc.MVCModel;
+import archimate.util.FileHandler;
 
 public class ASTEngine {
-	
-	private IFile targetFile;
-	private JavaState state;
-	
-	public ASTEngine(IFile targetFile, JavaState state){
-		this.targetFile = targetFile;
-		this.state = state;
-	}	
 
-	public void getArchimateTags() {
+	private IFile targetFile;
+	private ICodeGenerator generator;
+
+	public ASTEngine() {
+
+	}
+
+	public ASTEngine(IFile targetFile, ICodeGenerator generator) {
+		this.targetFile = targetFile;
+		this.generator = generator;
+	}
+
+	public void traverseSource() {
 		FileHandler handler = new FileHandler();
 		String text = handler.getSource(targetFile);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(text.toCharArray());
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-		JavaInspector visitor = new JavaInspector(state);
+		JavaInspector visitor = new JavaInspector(generator);
 		unit.accept(visitor);
+	}
+
+	public void createSourceFile(Config config) {
+		FileHandler handler = new FileHandler();
+		JETEngine engine = new JETEngine(config);
+		String source = engine.generate();
+		IFile file = handler.save(source.getBytes(), config.getTargetFolder(),
+				config.getPackage(), config.getTargetFile());
+		handler.selectAndReveal(file);
 	}
 }

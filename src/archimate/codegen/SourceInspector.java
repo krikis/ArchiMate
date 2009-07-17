@@ -7,21 +7,20 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
 
-import archimate.codegen.resource.FileHandler;
+import archimate.util.FileHandler;
 
 public class SourceInspector {
 
-	Config config;
-	private JavaState state;
+	ICodeGenerator generator;
 	private ASTEngine astEngine;
 
-	public SourceInspector(Config config, JavaState state) {
-		this.config = config;
-		this.state = state;
+	public SourceInspector(ICodeGenerator generator) {
+		this.generator = generator;
 	}
 
 	public void inspect() {
 		FileHandler handler = new FileHandler();
+		Config config = generator.config();
 		IContainer container = handler.findOrCreateContainer(config
 				.getTargetFolder(), config.getPackage());
 		IResource[] members = null;
@@ -52,8 +51,8 @@ public class SourceInspector {
 				traverseSourceFiles(newMembers);
 			}
 			if (resource instanceof IFile) {
-				astEngine = new ASTEngine((IFile) resource, state);
-				astEngine.getArchimateTags();
+				astEngine = new ASTEngine((IFile) resource, generator);
+				astEngine.traverseSource();
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package archimate.templates;
 
+import archimate.codegen.ICodeGenerator;
+
 public class Primitive extends Pattern implements ICodeGenerator{
 	
 	public Primitive () {}

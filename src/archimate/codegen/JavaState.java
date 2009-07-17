@@ -20,4 +20,8 @@ public class JavaState {
 		}
 	}
 
+	public void addTags(ArrayList<String> tags) {
+		archiMateTags.addAll(tags);
+	}
+
 }

@@ -1,4 +1,4 @@
-package archimate.codegen.resource;
+package archimate.util;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -8,9 +8,14 @@ import java.io.InputStreamReader;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.emf.codegen.jet.JETException;
 import org.eclipse.emf.codegen.util.CodeGenUtil;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
+import archimate.Activator;
 import archimate.codegen.Config;
 
 public class FileHandler {
@@ -83,7 +88,7 @@ public class FileHandler {
 		}
 		return container;
 	}
-		
+
 	/**
 	 * Saves the specified contents to a location specified by the targetFolder,
 	 * packageName and targetFile parameters. The location of the file to save
@@ -91,7 +96,7 @@ public class FileHandler {
 	 * the target folder. The name of the file to save is the target file.
 	 * 
 	 * @param contents
-	 * 			the byte contents of the file to save
+	 *            the byte contents of the file to save
 	 * @param targetFolder
 	 * @param packageName
 	 * @param targetFile
@@ -162,8 +167,42 @@ public class FileHandler {
 		return targetFile;
 	}
 
-	public void writeSource(IFile file) {
+	/**
+	 * Reveals the newly created file in the Eclipse Package Explorer
+	 * 
+	 * @param newResource
+	 */
+	public void selectAndReveal(IResource newResource) {
+		BasicNewResourceWizard.selectAndReveal(newResource,
+				archimate.actions.ArchiMateAction.getWindow());
+	}
 
+	/**
+	 * Opens the newly created file in a new editor in Eclipse
+	 * 
+	 * @param resource
+	 */
+	public void openResource(final IResource resource) {
+		if (resource.getType() == IResource.FILE) {
+			final IWorkbenchPage activePage = archimate.actions.ArchiMateAction
+					.getWindow().getActivePage();
+			if (activePage != null) {
+				final Display display = archimate.actions.ArchiMateAction
+						.getWindow().getShell().getDisplay();
+				if (display != null) {
+					display.asyncExec(new Runnable() {
+						public void run() {
+							try {
+								IDE.openEditor(activePage, (IFile) resource,
+										true);
+							} catch (PartInitException e) {
+								Activator.log(e);
+							}
+						}
+					});
+				}
+			}
+		}
 	}
 
 }
