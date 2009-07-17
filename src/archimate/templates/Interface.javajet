@@ -17,10 +17,16 @@ package <%= params.packageName() %>;
  * @archiMateTag <%= params.archiMateTag() %>
 <% } %>
  */
-public interface <%= params.className() %>{
-<% for (Iterator<String> iter = params.methods(); iter.hasNext();) { %>
+public interface <%= params.className() %> {
+<% 
+	for (Iterator<Method> iter = params.methods(); iter.hasNext();) { 
+		Method method = iter.next();
+%>
 
-	public void <%= iter.next() %>();
+	/**
+	 * @archiMateTag <%= method.archiMateTag() %>
+	 */
+	public void <%= method.name() %>();
 <% } %>
 
 }

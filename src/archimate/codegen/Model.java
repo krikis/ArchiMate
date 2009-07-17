@@ -23,7 +23,7 @@ public class Model {
 
 	private ArrayList<String> dInterfaces = new ArrayList<String>();
 
-	private ArrayList<String> dMethods = new ArrayList<String>();
+	private ArrayList<Method> dMethods = new ArrayList<Method>();
 
 	public Model() {
 		super();
@@ -101,11 +101,11 @@ public class Model {
 		return dInterfaces.iterator();
 	}
 
-	public void addMethod(String method) {
+	public void addMethod(Method method) {
 		dMethods.add(method);
 	}
 
-	public void addMethods(ArrayList<String> methods) {
+	public void addMethods(ArrayList<Method> methods) {
 		dMethods.addAll(methods);
 	}
 
@@ -113,7 +113,7 @@ public class Model {
 		return dMethods.size() > 0;
 	}
 
-	public Iterator<String> methods() {
+	public Iterator<Method> methods() {
 		return dMethods.iterator();
 	}
 

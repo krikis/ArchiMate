@@ -1,11 +1,14 @@
 package archimate.codegen;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 
 public class JavaHelper {
+	
+	public static final String ARCHIMATETAG = "@archiMateTag";
 
 	public JavaHelper() {
 
@@ -17,7 +20,7 @@ public class JavaHelper {
 			for (Iterator<TagElement> iter = tags.iterator(); iter.hasNext();) {
 				TagElement tag = iter.next();
 				if (tag.getTagName() != null
-						&& tag.getTagName().equals("@archiMateTag")) {
+						&& tag.getTagName().equals(ARCHIMATETAG)) {
 					List<TextElement> fragments = tag.fragments();
 					String archiMateTag = "";
 					for (Iterator<TextElement> ite2 = fragments.iterator(); ite2
@@ -31,6 +34,39 @@ public class JavaHelper {
 			}
 		}
 		return "";
+	}
+	
+	public void addMethods(IGenModel model, TypeDeclaration node,
+			String archiMateTag){
+		ArrayList<String> methods = model.methods(archiMateTag);
+		AST ast = node.getAST(); 
+		MethodDeclaration md;
+		for (Iterator<String> iter = methods.iterator(); iter.hasNext();) {
+			md = ast.newMethodDeclaration();
+			md.setConstructor(false);
+			setModifier(ast, md, Modifier.PUBLIC);
+			md.setName(ast.newSimpleName(iter.next()));
+			node.bodyDeclarations().add(md);
+			Block methodBlock = ast.newBlock();
+			md.setBody(methodBlock);
+			Javadoc jc = ast.newJavadoc();
+			TagElement tag = ast.newTagElement();
+			tag.setTagName(ARCHIMATETAG);
+			tag.fragments().add(ast.newSimpleName(archiMateTag));
+			jc.tags().add(tag);
+			md.setJavadoc(jc);
+		}
+	}
+	
+	public void addMethod(TypeDeclaration node, String name, String tag){
+		AST ast = node.getAST(); 
+		MethodDeclaration md = ast.newMethodDeclaration();
+		md.setConstructor(false);
+		setModifier(ast, md, Modifier.PUBLIC);
+		md.setName(ast.newSimpleName("getData"));
+		node.bodyDeclarations().add(md);
+		Block methodBlock = ast.newBlock();
+		md.setBody(methodBlock);
 	}
 
 	private void setModifier(AST ast, BodyDeclaration classType, int modifier) {

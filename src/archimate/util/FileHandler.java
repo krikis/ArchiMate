@@ -132,6 +132,29 @@ public class FileHandler {
 		}
 		return result;
 	}
+	
+	public IFile save(byte[] contents, IFile file) {
+		IFile result = null;
+		try {
+			result = getWritableTargetFile(file, file.getParent(), file.getName());
+		} catch (CoreException e) {
+			System.out.println("Could not open the targetfile.");
+			e.printStackTrace();
+		}
+
+		InputStream newContents = new ByteArrayInputStream(contents);
+		try {
+			if (result.exists()) {
+				result.setContents(newContents, true, true,
+						new NullProgressMonitor());
+			} else {
+				result.create(newContents, true, new NullProgressMonitor());
+			}
+		} catch (CoreException e) {
+			System.out.println("Could not write to targetfile.");
+		}
+		return result;
+	}
 
 	/**
 	 * Returns a <code>IFile</code> that can be written to. If the specified

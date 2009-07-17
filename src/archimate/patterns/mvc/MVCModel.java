@@ -3,6 +3,7 @@ package archimate.patterns.mvc;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import archimate.codegen.IGenModel;
 import archimate.uml.*;
 
 /**
@@ -11,7 +12,7 @@ import archimate.uml.*;
  * @author Samuel Esposito
  * 
  */
-public class MVCModel {
+public class MVCModel implements IGenModel {
 
 	private String dataInterface = "";
 	private String updateInterface = "";
@@ -77,6 +78,19 @@ public class MVCModel {
 
 	public ArrayList<String> commandMethods() {
 		return commandMethods;
+	}
+	
+	public ArrayList<String> methods(String archiMateTag){
+		if (archiMateTag.equals(MVCPattern.DATA_MESSAGE)){
+			return dataMethods;
+		}
+		if (archiMateTag.equals(MVCPattern.DATA_METHOD)){
+			return dataMethods;
+		}
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)){
+			return dataMethods;
+		}
+		return new ArrayList<String>();
 	}
 
 }

@@ -135,36 +135,35 @@ public class MVCPattern extends Pattern {
 	/**
 	 * Generates code for the MVC pattern.
 	 */
+	@Override
 	public void generate_code() {
 		// Reset the tree containing MVC pattern key elements
 		tree.resetVisited();
-		tree.printTree();
-		
+
 		// Traverses the source and calls back when source additions are needed
 		SourceInspector inspector = new SourceInspector(this);
-		inspector.inspect();		
+		inspector.inspect();
 
 		// Adds the missing source files
-		tree.printTree();
 		ArrayList<String> tags = tree.getUnvisited(tree.root());
-		System.out.println(tags);
 		createSourceFiles(tags);
 
-//		createSource(configDataInterface(mvcModel));
-//		createSource(configModelData(mvcModel));
-//		createSource(configViewData(mvcModel));
-//		createSource(configUpdateInterface(mvcModel));
-//		createSource(configViewUpdate(mvcModel));
-//		createSource(configControlUpdate(mvcModel));
-//		createSource(configCommandInterface(mvcModel));
-//		createSource(configModelCommand(mvcModel));
-//		createSource(configControlCommand(mvcModel));
-		// testAST(mvcModel);
+		// createSource(configDataInterface(mvcModel));
+		// createSource(configModelData(mvcModel));
+		// createSource(configViewData(mvcModel));
+		// createSource(configUpdateInterface(mvcModel));
+		// createSource(configViewUpdate(mvcModel));
+		// createSource(configControlUpdate(mvcModel));
+		// createSource(configCommandInterface(mvcModel));
+		// createSource(configModelCommand(mvcModel));
+		// createSource(configControlCommand(mvcModel));
+//		testAST(mvcModel);
 	}
 
 	/**
 	 * Creates source files for every tag in the list.
 	 */
+	@Override
 	public void createSourceFiles(ArrayList<String> tags) {
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
 			String tag = iter.next();
@@ -177,18 +176,24 @@ public class MVCPattern extends Pattern {
 	/**
 	 * Creates source elements in the node for every tag in the list.
 	 */
-	public void addSourceElements(ASTNode node, ArrayList<String> tags) {
+	@Override
+	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
+		JavaHelper helper = new JavaHelper();
+		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
+			helper.addMethods(mvcModel, node, iter.next());
+		}
 
 	}
 
 	public void testAST(MVCModel mvcmodel) {
 		FileHandler handler = new FileHandler();
 		Config conf = new Config(config);
-		conf.setPackageName("model");
-		conf.setTargetFile(mvcmodel.dataInterface() + ".java");
+		conf.setPackageBase("");
+		conf.setPackageName("");
+		conf.setTargetFile("Test" + ".java");
 		IContainer container = null;
 		container = handler.findOrCreateContainer(conf.getTargetFolder(), conf
-				.getPackageName());
+				.getPackage());
 		IFile targetFile = container.getFile(new Path(conf.getTargetFile()));
 		InputStream contents = null;
 		try {
@@ -225,23 +230,24 @@ public class MVCPattern extends Pattern {
 		unit.recordModifications();
 		// AST ast = unit.getAST();
 
-		JavaInspector visitor = new JavaInspector(this);
-		unit.accept(visitor);
-		// TestAST tester = new TestAST(unit);
-		// tester.test();
+		// JavaInspector visitor = new JavaInspector(this);
+		// unit.accept(visitor);
+		TestAST tester = new TestAST(unit);
+		tester.test();
 
 		String sourceCode = "";
-		try {
-			Document doc = new Document(text);
-			// Document doc = new Document();
-			TextEdit edits = unit.rewrite(doc, null);
-			edits.apply(doc);
+		Document doc = new Document(text);
+		TextEdit edits = unit.rewrite(doc, null);
+		if (edits.hasChildren()) {
+			try {
+				edits.apply(doc);
+			} catch (BadLocationException e) {
+				System.out.println("Unable to apply changes to source.");
+				e.printStackTrace();
+			}
 			sourceCode += doc.get();
-		} catch (BadLocationException e) {
-			throw new RuntimeException(e);
+			handler.save(sourceCode.getBytes(), targetFile);
 		}
-		handler.save(sourceCode.getBytes(), config.getTargetFolder(), config
-				.getPackage(), config.getTargetFile());
 	}
 
 	protected void createSource(Config config) {
@@ -265,7 +271,8 @@ public class MVCPattern extends Pattern {
 		model.setClass(mvcmodel.dataInterface());
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(DATA_INTERFACE);
-		model.addMethods(mvcmodel.dataMethods());
+		model.addMethods(Method.create(mvcModel.dataMethods(),
+				MVCPattern.DATA_MESSAGE));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);
@@ -282,7 +289,8 @@ public class MVCPattern extends Pattern {
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(MODEL_DATA);
 		model.addInterface(mvcmodel.dataInterface());
-		model.addMethods(mvcmodel.dataMethods());
+		model.addMethods(Method.create(mvcModel.dataMethods(),
+				MVCPattern.DATA_METHOD));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);
@@ -314,7 +322,8 @@ public class MVCPattern extends Pattern {
 		model.setClass(mvcmodel.updateInterface());
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(UPDATE_INTERFACE);
-		model.addMethods(mvcmodel.updateMethods());
+		model.addMethods(Method.create(mvcModel.updateMethods(),
+				MVCPattern.UPDATE_MESSAGE));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);
@@ -331,7 +340,8 @@ public class MVCPattern extends Pattern {
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(VIEW_UPDATE);
 		model.addInterface(mvcmodel.updateInterface());
-		model.addMethods(mvcmodel.updateMethods());
+		model.addMethods(Method.create(mvcModel.updateMethods(),
+				MVCPattern.UPDATE_METHOD));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);
@@ -363,7 +373,8 @@ public class MVCPattern extends Pattern {
 		model.setClass(mvcmodel.commandInterface());
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(COMMAND_INTERFACE);
-		model.addMethods(mvcmodel.commandMethods());
+		model.addMethods(Method.create(mvcModel.commandMethods(),
+				MVCPattern.COMMAND_MESSAGE));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);
@@ -380,7 +391,8 @@ public class MVCPattern extends Pattern {
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(MODEL_COMMAND);
 		model.addInterface(mvcmodel.commandInterface());
-		model.addMethods(mvcmodel.commandMethods());
+		model.addMethods(Method.create(mvcModel.commandMethods(),
+				MVCPattern.COMMAND_METHOD));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);

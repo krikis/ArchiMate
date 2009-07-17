@@ -2,6 +2,7 @@ package archimate.patterns.mvc;
 
 import archimate.codegen.ASTEngine;
 import archimate.codegen.Config;
+import archimate.codegen.Method;
 import archimate.codegen.Model;
 
 public class MVCDataInterface {
@@ -27,7 +28,7 @@ public class MVCDataInterface {
 		model.setClass(mvcModel.dataInterface());
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(MVCPattern.DATA_INTERFACE);
-		model.addMethods(mvcModel.dataMethods());
+		model.addMethods(Method.create(mvcModel.dataMethods(), MVCPattern.DATA_MESSAGE));
 
 		conf.setTargetFile(model.className() + ".java");
 		conf.setModel(model);

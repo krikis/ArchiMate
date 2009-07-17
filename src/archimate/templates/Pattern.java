@@ -3,6 +3,7 @@ package archimate.templates;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.codegen.Config;
 import archimate.codegen.ICodeGenerator;
@@ -31,8 +32,8 @@ public class Pattern implements ICodeGenerator {
 
 	}
 
-	public void addSourceElements(ASTNode node, ArrayList<String> tags) {
-
+	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
+		
 	}
 
 }

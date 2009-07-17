@@ -28,9 +28,15 @@ package <%= params.packageName() %>;
 	}
 %>
 public class <%= params.className() %> <%= interfaces %>{
-<% for (Iterator<String> iter = params.methods(); iter.hasNext();) { %>
+<% 
+	for (Iterator<Method> iter = params.methods(); iter.hasNext();) { 
+		Method method = iter.next();
+%>
 
-	public void <%= iter.next() %>() {
+	/**
+	 * @archiMateTag <%= method.archiMateTag() %>
+	 */
+	public void <%= method.name() %>() {
 		
 	}
 <% } %>
