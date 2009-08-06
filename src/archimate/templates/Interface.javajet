@@ -5,8 +5,10 @@ package <%= params.packageName() %>;
 <% } %>
 
 /**
- * This class implements the ControlCommandPort of the MVC Pattern
+<% if (params.commentDefined()) { %>
+ * <%= params.comment() %>
  * 
+<% } %>
 <% if (params.authorDefined()) { %>
  * @author <%= params.author() %>
 <% } %>

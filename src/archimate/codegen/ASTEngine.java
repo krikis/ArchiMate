@@ -15,8 +15,8 @@ public class ASTEngine {
 	private IFile targetFile;
 	private ICodeGenerator generator;
 
-	public ASTEngine() {
-
+	public ASTEngine(ICodeGenerator generator) {
+		this.generator = generator;
 	}
 
 	public ASTEngine(IFile targetFile, ICodeGenerator generator) {
@@ -51,10 +51,28 @@ public class ASTEngine {
 
 	public void createSourceFile(Config config) {
 		FileHandler handler = new FileHandler();
-		JETEngine engine = new JETEngine(config);
-		String source = engine.generate();
-		IFile file = handler.save(source.getBytes(), config.getTargetFolder(),
-				config.getPackage(), config.getTargetFile());
-		handler.selectAndReveal(file);
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource("".toCharArray());
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		unit.recordModifications();
+		JavaHelper helper = new JavaHelper();
+		helper.addClass(unit, config);
+		String sourceCode = "";
+		Document doc = new Document("");
+		TextEdit edits = unit.rewrite(doc, null);
+		if (edits.hasChildren()){
+			try {
+				edits.apply(doc);
+			} catch (BadLocationException e) {
+				System.out.println("Unable to apply changes to source.");
+				e.printStackTrace();
+			}
+			sourceCode += doc.get();
+			targetFile = handler.save(sourceCode.getBytes(), config.getTargetFolder(),
+					config.getPackage(), config.getTargetFile());
+			handler.selectAndReveal(targetFile);
+		}
+		traverseSource();
 	}
 }

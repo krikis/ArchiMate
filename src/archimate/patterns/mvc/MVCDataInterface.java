@@ -12,7 +12,7 @@ public class MVCDataInterface {
 	private Config config;
 	
 	public MVCDataInterface(MVCPattern mvc) {
-		engine = new ASTEngine();
+		engine = new ASTEngine(mvc);
 		this.mvcModel = mvc.model();
 		this.config = configDataInterface(mvc.config());
 		engine.createSourceFile(config);
@@ -27,6 +27,7 @@ public class MVCDataInterface {
 		model.setAuthor("Samuel Esposito");
 		model.setClass(mvcModel.dataInterface());
 		model.setPackage(conf.getPackage());
+		model.setComment("This interface specifies the Data interface of the MVC Pattern");
 		model.setArchiMateTag(MVCPattern.DATA_INTERFACE);
 		model.addMethods(Method.create(mvcModel.dataMethods(), MVCPattern.DATA_MESSAGE));
 

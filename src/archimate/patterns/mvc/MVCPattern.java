@@ -20,7 +20,7 @@ import archimate.util.*;
 
 public class MVCPattern extends Pattern {
 
-	// Cosntants for the key elements of the MVC pattern
+	// Constants for the key elements of the MVC pattern
 	static final String DATA_INTERFACE = "MVC_DataInterface";
 	static final String DATA_MESSAGE = "MVC_DataMessage";
 	static final String MODEL_DATA = "MVC_ModelDataPort";
@@ -95,7 +95,7 @@ public class MVCPattern extends Pattern {
 		// Configure settings for current Java project
 		setupConfig();
 		// Read out UML model
-		mvcModel = new MVCModel(myPackage);
+		mvcModel = new MVCModel(myPackage, config);
 	}
 
 	private void setupConfig() {
@@ -169,6 +169,8 @@ public class MVCPattern extends Pattern {
 			String tag = iter.next();
 			if (tag.equals(DATA_INTERFACE)) {
 				new MVCDataInterface(this);
+			} else if (tag.equals(VIEW_DATA)){
+				new MVCViewDataPort(this);
 			}
 		}
 	}
@@ -180,7 +182,22 @@ public class MVCPattern extends Pattern {
 	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
 		JavaHelper helper = new JavaHelper();
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
-			helper.addMethods(mvcModel, node, iter.next());
+			String tag = iter.next();
+			if (tag.equals(DATA_MESSAGE)){
+				helper.addMethodDeclarations(mvcModel, node, tag);
+			} else if (tag.equals(UPDATE_MESSAGE)) {
+				helper.addMethodDeclarations(mvcModel, node, tag);	
+			} else if (tag.equals(COMMAND_MESSAGE)) {
+				helper.addMethodDeclarations(mvcModel, node, tag);	
+			} else if (tag.equals(DATA_INVOCATION)) {
+				helper.addMethodInvocations(mvcModel, node, tag);	
+			} else if (tag.equals(UPDATE_INVOCATION)) {
+				helper.addMethodInvocations(mvcModel, node, tag);	
+			} else if (tag.equals(COMMAND_INVOCATION)) {
+				helper.addMethodInvocations(mvcModel, node, tag);				
+			} else {
+				helper.addMethods(mvcModel, node, tag);
+			}
 		}
 
 	}
@@ -251,7 +268,7 @@ public class MVCPattern extends Pattern {
 	}
 
 	protected void createSource(Config config) {
-		ASTEngine engine = new ASTEngine();
+		ASTEngine engine = new ASTEngine(this);
 		engine.createSourceFile(config);
 	}
 
@@ -284,8 +301,9 @@ public class MVCPattern extends Pattern {
 		conf.setPackageName("model");
 
 		Model model = new Model();
+		model.setComment("This class implements the ModelDataPort of the MVC Pattern");
 		model.setAuthor("Samuel Esposito");
-		model.setClass("ModelDataPort");
+		model.setClass(mvcModel.modelDataPort());
 		model.setPackage(conf.getPackage());
 		model.setArchiMateTag(MODEL_DATA);
 		model.addInterface(mvcmodel.dataInterface());
@@ -302,9 +320,11 @@ public class MVCPattern extends Pattern {
 		conf.setPackageName("view");
 
 		Model model = new Model();
+		model.setComment("This class implements the ViewDataPort of the MVC Pattern");
 		model.setAuthor("Samuel Esposito");
 		model.setClass("ViewDataPort");
 		model.setPackage(conf.getPackage());
+		model.addImport(conf.getPackageBase() + ".model." + mvcModel.modelDataPort());
 		model.setArchiMateTag(VIEW_DATA);
 
 		conf.setTargetFile(model.className() + ".java");

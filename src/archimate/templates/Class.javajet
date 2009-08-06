@@ -3,10 +3,18 @@
 <% if (params.packageDefined()) { %>
 package <%= params.packageName() %>;
 <% } %>
+<% if (params.importsDefined()) { %>
+
+<% for (Iterator<String> iter = params.imports(); iter.hasNext();) { %>
+import <%= iter.next() %>;
+<% } %>
+<% } %>
 
 /**
- * This class implements the ControlCommandPort of the MVC Pattern
+<% if (params.commentDefined()) { %>
+ * <%= params.comment() %>
  * 
+<% } %>
 <% if (params.authorDefined()) { %>
  * @author <%= params.author() %>
 <% } %>

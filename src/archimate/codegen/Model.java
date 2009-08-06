@@ -12,6 +12,10 @@ import java.util.Iterator;
 public class Model {
 
 	private String dPackageName = "";
+	
+	private ArrayList<String> dImports = new ArrayList<String>();
+
+	private String dComment = "";
 
 	private String dAuthor = "";
 
@@ -22,6 +26,8 @@ public class Model {
 	private String dClassName = "";
 
 	private ArrayList<String> dInterfaces = new ArrayList<String>();
+	
+	private ArrayList<Variable> dVariables = new ArrayList<Variable>();
 
 	private ArrayList<Method> dMethods = new ArrayList<Method>();
 
@@ -39,6 +45,30 @@ public class Model {
 
 	public String packageName() {
 		return dPackageName;
+	}
+
+	public void addImport(String importName) {
+		dImports.add(importName);
+	}
+
+	public boolean importsDefined() {
+		return dImports.size() > 0;
+	}
+
+	public Iterator<String> imports() {
+		return dImports.iterator();
+	}
+
+	public void setComment(String comment) {
+		dComment = comment;
+	}
+
+	public boolean commentDefined() {
+		return dComment.length() > 0;
+	}
+
+	public String comment() {
+		return dComment;
 	}
 
 	public void setAuthor(String author) {

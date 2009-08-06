@@ -17,7 +17,6 @@ public class JavaVisitor extends ASTVisitor {
 	public boolean visit(TypeDeclaration node) {
 		JavaHelper helper = new JavaHelper();
 		String archiMateTag = helper.getArchiMateTag(node);
-		System.out.println(archiMateTag);
 		return true;
 	}
 }
