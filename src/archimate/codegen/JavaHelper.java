@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.swt.widgets.DateTime;
 
 public class JavaHelper {
 
@@ -37,9 +38,9 @@ public class JavaHelper {
 		return "";
 	}
 
-	public void addImports(CompilationUnit unit, Iterator<String> imports) {
+	public void addImports(CompilationUnit unit, ArrayList<String> imports) {
 		AST ast = unit.getAST();
-		for (Iterator<String> iter = imports; iter.hasNext();) {
+		for (Iterator<String> iter = imports.iterator(); iter.hasNext();) {
 			String importName = iter.next();
 			if (!hasImport(unit, importName)) {
 				ImportDeclaration importDeclaration = ast
@@ -67,20 +68,22 @@ public class JavaHelper {
 		return false;
 	}
 
-	public void addClass(CompilationUnit unit, Config config) {
+	public void addClass(CompilationUnit unit, IGenModel model,
+			String archiMateTag) {
 		AST ast = unit.getAST();
-		Model model = (Model) config.getModel();
 		PackageDeclaration packageDeclaration = ast.newPackageDeclaration();
 		unit.setPackage(packageDeclaration);
-		packageDeclaration.setName(ast.newName(model.packageName()));
+		packageDeclaration
+				.setName(ast.newName(model.packageName(archiMateTag)));
 
-		addImports(unit, model.imports());
+		addImports(unit, model.imports(archiMateTag));
 
 		TypeDeclaration classType = ast.newTypeDeclaration();
-		classType.setInterface(false);
+		classType.setInterface(model.isInterface(archiMateTag));
 		setModifier(ast, classType, Modifier.PUBLIC);
-		classType.setName(ast.newSimpleName(model.className()));
-		for (Iterator<String> iter = model.interfaces(); iter.hasNext();) {
+		classType.setName(ast.newSimpleName(model.className(archiMateTag)));
+		for (Iterator<String> iter = model.interfaces(archiMateTag).iterator(); iter
+				.hasNext();) {
 			classType.superInterfaceTypes().add(
 					ast.newSimpleType(ast.newSimpleName(iter.next())));
 		}
@@ -90,7 +93,7 @@ public class JavaHelper {
 		TagElement tag = ast.newTagElement();
 		TextElement te = ast.newTextElement();
 		tag.fragments().add(te);
-		te.setText(model.comment());
+		te.setText(model.classComment(archiMateTag));
 		jc.tags().add(tag);
 		tag = ast.newTagElement();
 		te = ast.newTextElement();
@@ -98,16 +101,10 @@ public class JavaHelper {
 		te.setText("");
 		jc.tags().add(tag);
 		tag = ast.newTagElement();
-		tag.setTagName(TagElement.TAG_AUTHOR);
-		te = ast.newTextElement();
-		tag.fragments().add(te);
-		te.setText(model.author());
-		jc.tags().add(tag);
-		tag = ast.newTagElement();
 		tag.setTagName(ARCHIMATETAG);
 		te = ast.newTextElement();
 		tag.fragments().add(te);
-		te.setText(model.archiMateTag());
+		te.setText(archiMateTag);
 		jc.tags().add(tag);
 		classType.setJavadoc(jc);
 	}
@@ -168,9 +165,10 @@ public class JavaHelper {
 	public void addMethodInvocations(IGenModel model, TypeDeclaration node,
 			String archiMateTag) {
 		CompilationUnit unit = (CompilationUnit) node.getRoot();
-		addImports(unit, model.imports(archiMateTag).iterator());
+		addImports(unit, model.imports(archiMateTag));
 		ArrayList<String> methods = model.methods(archiMateTag);
-		ArrayList<String> methodInvocations = model.methodInvocations(archiMateTag);
+		ArrayList<String> methodInvocations = model
+				.methodInvocations(archiMateTag);
 		Iterator<String> iter = methodInvocations.iterator();
 		AST ast = node.getAST();
 		MethodDeclaration md;
@@ -181,12 +179,13 @@ public class JavaHelper {
 			md.setName(ast.newSimpleName(iter2.next()));
 			node.bodyDeclarations().add(md);
 			Block methodBlock = ast.newBlock();
-			md.setBody(methodBlock);		
+			md.setBody(methodBlock);
 			String objectClass = model.objectClass(archiMateTag);
 			String objectName = model.objectName(archiMateTag);
 			addObject(methodBlock, objectClass, objectName,
 					new ArrayList<String>());
-			addMethodInvocation(methodBlock, objectName, iter.next(), new ArrayList<String>());
+			addMethodInvocation(methodBlock, objectName, iter.next(),
+					new ArrayList<String>());
 			Javadoc jc = ast.newJavadoc();
 			TagElement tag = ast.newTagElement();
 			tag.setTagName(ARCHIMATETAG);

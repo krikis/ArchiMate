@@ -3,6 +3,7 @@ package archimate.patterns.mvc;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import archimate.Activator;
 import archimate.codegen.Config;
 import archimate.codegen.IGenModel;
 import archimate.codegen.JavaHelper;
@@ -34,11 +35,9 @@ public class MVCModel implements IGenModel {
 	private ArrayList<String> commandInvocationMethods = new ArrayList<String>();
 
 	private UMLAdapter umlreader;
-	private Config config;
 
-	public MVCModel(org.eclipse.uml2.uml.Package myPackage, Config config) {
+	public MVCModel(org.eclipse.uml2.uml.Package myPackage) {
 		umlreader = new UMLAdapter(myPackage);
-		this.config = config;
 		initialize();
 	}
 
@@ -95,125 +94,228 @@ public class MVCModel implements IGenModel {
 		}
 		setInvocation(commandMethods, commandInvocationMethods);
 	}
-	
-	private void setInvocation(ArrayList<String> methods, ArrayList<String> invocations) {
+
+	private void setInvocation(ArrayList<String> methods,
+			ArrayList<String> invocations) {
 		for (Iterator<String> iter = methods.iterator(); iter.hasNext();) {
 			invocations.add(iter.next() + "Invocation");
 		}
 	}
 
-	public String dataInterface() {
-		return dataInterface;
+	// returns the name of the containing folder for a source file
+	public String targetFolder(String archiMateTag) {
+		return Activator.projectRoot + "/src";
 	}
 
-	public String modelDataPort() {
-		return modelDataPort;
+	// returns the file name for a source file
+	public String targetFile(String archiMateTag) {
+		return className(archiMateTag) + ".java";
 	}
 
-	public String viewDataPort() {
-		return viewDataPort;
-	}
-
-	public String updateInterface() {
-		return updateInterface;
-	}
-
-	public String viewUpdatePort() {
-		return viewUpdatePort;
-	}
-
-	public String controlUpdatePort() {
-		return controlUpdatePort;
-	}
-
-	public String commandInterface() {
-		return commandInterface;
-	}
-
-	public String modelCommandPort() {
-		return modelCommandPort;
-	}
-
-	public String controlCommandPort() {
-		return controlCommandPort;
-	}
-
-	public ArrayList<String> dataMethods() {
-		return dataMethods;
-	}
-
-	public ArrayList<String> updateMethods() {
-		return updateMethods;
-	}
-
-	public ArrayList<String> commandMethods() {
-		return commandMethods;
-	}
-		
-	public ArrayList<String> imports(String archiMateTag){
-		ArrayList<String> imports = new ArrayList<String>();
-		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)){
-			imports.add(config.getPackageBase() + ".model." + objectClass(archiMateTag));
+	// returns the package name for a source file
+	public String packageName(String archiMateTag) {
+		String packageBase = "app";
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			return packageBase + ".model";
 		}
-		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)){
-			imports.add(config.getPackageBase() + ".update." + objectClass(archiMateTag));
+		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
+			return packageBase + ".model";
 		}
-		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)){
-			imports.add(config.getPackageBase() + ".command." + objectClass(archiMateTag));
+		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
+			return packageBase + ".view";
 		}
-		return imports;
-	}
-	
-	public String objectClass(String archiMateTag){
-		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)){
-			return modelDataPort;
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			return packageBase + ".view";
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
+			return packageBase + ".view";
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
+			return packageBase + ".controller";
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			return packageBase + ".model";
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
+			return packageBase + ".model";
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
+			return packageBase + ".controller";
 		}
 		return "";
 	}
-	
-	public String objectName(String archiMateTag){
+
+	// returns the imports for a snippet of code
+	public ArrayList<String> imports(String archiMateTag) {
+		ArrayList<String> imports = new ArrayList<String>();
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)) {
+			imports.add(packageName(MVCPattern.MODEL_DATA) + "."
+					+ objectClass(archiMateTag));
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)) {
+			imports.add(packageName(MVCPattern.VIEW_UPDATE) + "."
+					+ objectClass(archiMateTag));
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
+			imports.add(packageName(MVCPattern.MODEL_COMMAND) + "."
+					+ objectClass(archiMateTag));
+		}
+		return imports;
+	}
+
+	// returns the comments for a class
+	public String classComment(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			return "This interface specifies the Data interface of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
+			return "This class implements the ModelDataPort of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
+			return "This class implements the ViewDataPort of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			return "This interface specifies the Update interface of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
+			return "This class implements the ViewUpdatePort of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
+			return "This class implements the ControlUpdatePort of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			return "This interface specifies the Command interface of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
+			return "This class implements the ModelCommandPort of the MVC Pattern";
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
+			return "This class implements the ControlCommandPort of the MVC Pattern";
+		}
+		return "";
+	}
+
+	// returns the class name for a source file
+	public String className(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			return dataInterface;
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
+			return modelDataPort;
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
+			return viewDataPort;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			return updateInterface;
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
+			return viewUpdatePort;
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
+			return controlUpdatePort;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			return commandInterface;
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
+			return modelCommandPort;
+		}
+		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
+			return controlCommandPort;
+		}
+		return "";
+	}
+
+	// returns a list of implemented interfaces
+	public ArrayList<String> interfaces(String archiMateTag) {
+		ArrayList<String> interfaces = new ArrayList<String>();
+		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
+			interfaces.add(dataInterface);
+		}
+		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
+			interfaces.add(updateInterface);
+		}
+		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
+			interfaces.add(commandInterface);
+		}
+		return interfaces;
+	}
+
+	// returns whether a source file contains a class or an interface
+	public boolean isInterface(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			return true;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			return true;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			return true;
+		}
+		return false;
+	}
+
+	// returns the class of an object
+	public String objectClass(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)) {
+			return modelDataPort;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)) {
+			return viewUpdatePort;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
+			return modelCommandPort;
+		}
+		return "";
+	}
+
+	// returns the name of an object
+	public String objectName(String archiMateTag) {
 		return JavaHelper.camelize(objectClass(archiMateTag));
 	}
-	
-	public ArrayList<String> methods(String archiMateTag){
-		if (archiMateTag.equals(MVCPattern.DATA_MESSAGE)){
+
+	// returns a list of methods in a source file
+	public ArrayList<String> methods(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_MESSAGE)) {
 			return dataMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.DATA_METHOD)){
+		if (archiMateTag.equals(MVCPattern.DATA_METHOD)) {
 			return dataMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)){
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)) {
 			return dataInvocationMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.UPDATE_MESSAGE)){
+		if (archiMateTag.equals(MVCPattern.UPDATE_MESSAGE)) {
 			return updateMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.UPDATE_METHOD)){
+		if (archiMateTag.equals(MVCPattern.UPDATE_METHOD)) {
 			return updateMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)){
+		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)) {
 			return updateInvocationMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.COMMAND_MESSAGE)){
+		if (archiMateTag.equals(MVCPattern.COMMAND_MESSAGE)) {
 			return commandMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.COMMAND_METHOD)){
+		if (archiMateTag.equals(MVCPattern.COMMAND_METHOD)) {
 			return commandMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)){
+		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
 			return commandInvocationMethods;
 		}
 		return new ArrayList<String>();
 	}
-	
-	public ArrayList<String> methodInvocations(String archiMateTag){
-		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)){
+
+	// returns a list of methods invoking another method in a source file
+	public ArrayList<String> methodInvocations(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)) {
 			return dataMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)){
+		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)) {
 			return updateMethods;
 		}
-		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)){
+		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
 			return commandMethods;
 		}
 		return new ArrayList<String>();

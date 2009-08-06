@@ -95,7 +95,7 @@ public class MVCPattern extends Pattern {
 		// Configure settings for current Java project
 		setupConfig();
 		// Read out UML model
-		mvcModel = new MVCModel(myPackage, config);
+		mvcModel = new MVCModel(myPackage);
 	}
 
 	private void setupConfig() {
@@ -166,12 +166,8 @@ public class MVCPattern extends Pattern {
 	@Override
 	public void createSourceFiles(ArrayList<String> tags) {
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
-			String tag = iter.next();
-			if (tag.equals(DATA_INTERFACE)) {
-				new MVCDataInterface(this);
-			} else if (tag.equals(VIEW_DATA)){
-				new MVCViewDataPort(this);
-			}
+			ASTEngine engine = new ASTEngine(this);
+			engine.createSourceFile(mvcModel, iter.next());
 		}
 	}
 
@@ -199,239 +195,73 @@ public class MVCPattern extends Pattern {
 				helper.addMethods(mvcModel, node, tag);
 			}
 		}
-
 	}
 
-	public void testAST(MVCModel mvcmodel) {
-		FileHandler handler = new FileHandler();
-		Config conf = new Config(config);
-		conf.setPackageBase("");
-		conf.setPackageName("");
-		conf.setTargetFile("Test" + ".java");
-		IContainer container = null;
-		container = handler.findOrCreateContainer(conf.getTargetFolder(), conf
-				.getPackage());
-		IFile targetFile = container.getFile(new Path(conf.getTargetFile()));
-		InputStream contents = null;
-		try {
-			contents = targetFile.getContents();
-		} catch (CoreException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				contents));
-		StringBuilder sb = new StringBuilder();
+//	public void testAST(MVCModel mvcmodel) {
+//		FileHandler handler = new FileHandler();
+//		Config conf = new Config(config);
+//		conf.setPackageBase("");
+//		conf.setPackageName("");
+//		conf.setTargetFile("Test" + ".java");
+//		IContainer container = null;
+//		container = handler.findOrCreateContainer(conf.getTargetFolder(), conf
+//				.getPackage());
+//		IFile targetFile = container.getFile(new Path(conf.getTargetFile()));
+//		InputStream contents = null;
+//		try {
+//			contents = targetFile.getContents();
+//		} catch (CoreException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		BufferedReader reader = new BufferedReader(new InputStreamReader(
+//				contents));
+//		StringBuilder sb = new StringBuilder();
+//
+//		String line = null;
+//		try {
+//			while ((line = reader.readLine()) != null) {
+//				sb.append(line + "\n");
+//			}
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		} finally {
+//			try {
+//				contents.close();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//
+//		String text = sb.toString();
+//		ASTParser parser = ASTParser.newParser(AST.JLS3);
+//		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+//		parser.setSource(text.toCharArray());
+//		// parser.setSource("".toCharArray());
+//		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+//		unit.recordModifications();
+//		// AST ast = unit.getAST();
+//
+//		// JavaInspector visitor = new JavaInspector(this);
+//		// unit.accept(visitor);
+//		TestAST tester = new TestAST(unit);
+//		tester.test();
+//
+//		String sourceCode = "";
+//		Document doc = new Document(text);
+//		TextEdit edits = unit.rewrite(doc, null);
+//		if (edits.hasChildren()) {
+//			try {
+//				edits.apply(doc);
+//			} catch (BadLocationException e) {
+//				System.out.println("Unable to apply changes to source.");
+//				e.printStackTrace();
+//			}
+//			sourceCode += doc.get();
+//			handler.save(sourceCode.getBytes(), targetFile);
+//		}
+//	}
+//
 
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				sb.append(line + "\n");
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				contents.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-		String text = sb.toString();
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setSource(text.toCharArray());
-		// parser.setSource("".toCharArray());
-		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-		unit.recordModifications();
-		// AST ast = unit.getAST();
-
-		// JavaInspector visitor = new JavaInspector(this);
-		// unit.accept(visitor);
-		TestAST tester = new TestAST(unit);
-		tester.test();
-
-		String sourceCode = "";
-		Document doc = new Document(text);
-		TextEdit edits = unit.rewrite(doc, null);
-		if (edits.hasChildren()) {
-			try {
-				edits.apply(doc);
-			} catch (BadLocationException e) {
-				System.out.println("Unable to apply changes to source.");
-				e.printStackTrace();
-			}
-			sourceCode += doc.get();
-			handler.save(sourceCode.getBytes(), targetFile);
-		}
-	}
-
-	protected void createSource(Config config) {
-		ASTEngine engine = new ASTEngine(this);
-		engine.createSourceFile(config);
-	}
-
-	/**
-	 * Generates code for the MVC DataInterface
-	 * 
-	 * @param mvcmodel
-	 * @return
-	 */
-	protected Config configDataInterface(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("model");
-		conf.setModelType(Config.INTERFACE);
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass(mvcmodel.dataInterface());
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(DATA_INTERFACE);
-		model.addMethods(Method.create(mvcModel.dataMethods(),
-				MVCPattern.DATA_MESSAGE));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configModelData(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("model");
-
-		Model model = new Model();
-		model.setComment("This class implements the ModelDataPort of the MVC Pattern");
-		model.setAuthor("Samuel Esposito");
-		model.setClass(mvcModel.modelDataPort());
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(MODEL_DATA);
-		model.addInterface(mvcmodel.dataInterface());
-		model.addMethods(Method.create(mvcModel.dataMethods(),
-				MVCPattern.DATA_METHOD));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configViewData(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("view");
-
-		Model model = new Model();
-		model.setComment("This class implements the ViewDataPort of the MVC Pattern");
-		model.setAuthor("Samuel Esposito");
-		model.setClass("ViewDataPort");
-		model.setPackage(conf.getPackage());
-		model.addImport(conf.getPackageBase() + ".model." + mvcModel.modelDataPort());
-		model.setArchiMateTag(VIEW_DATA);
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configUpdateInterface(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("view");
-		conf.setModelType(Config.INTERFACE);
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass(mvcmodel.updateInterface());
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(UPDATE_INTERFACE);
-		model.addMethods(Method.create(mvcModel.updateMethods(),
-				MVCPattern.UPDATE_MESSAGE));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configViewUpdate(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("view");
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass("ViewUpdatePort");
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(VIEW_UPDATE);
-		model.addInterface(mvcmodel.updateInterface());
-		model.addMethods(Method.create(mvcModel.updateMethods(),
-				MVCPattern.UPDATE_METHOD));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configControlUpdate(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("controller");
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass("ControlUpdatePort");
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(CONTROL_UPDATE);
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configCommandInterface(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("model");
-		conf.setModelType(Config.INTERFACE);
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass(mvcmodel.commandInterface());
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(COMMAND_INTERFACE);
-		model.addMethods(Method.create(mvcModel.commandMethods(),
-				MVCPattern.COMMAND_MESSAGE));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configModelCommand(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("model");
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass("ModelCommandPort");
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(MODEL_COMMAND);
-		model.addInterface(mvcmodel.commandInterface());
-		model.addMethods(Method.create(mvcModel.commandMethods(),
-				MVCPattern.COMMAND_METHOD));
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
-
-	protected Config configControlCommand(MVCModel mvcmodel) {
-		Config conf = new Config(config);
-		conf.setPackageName("controller");
-
-		Model model = new Model();
-		model.setAuthor("Samuel Esposito");
-		model.setClass("ControlCommandPort");
-		model.setPackage(conf.getPackage());
-		model.setArchiMateTag(CONTROL_COMMAND);
-
-		conf.setTargetFile(model.className() + ".java");
-		conf.setModel(model);
-		return conf;
-	}
 
 }

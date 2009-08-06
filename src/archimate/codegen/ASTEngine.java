@@ -37,7 +37,7 @@ public class ASTEngine {
 		String sourceCode = "";
 		Document doc = new Document(text);
 		TextEdit edits = unit.rewrite(doc, null);
-		if (edits.hasChildren()){
+		if (edits.hasChildren()) {
 			try {
 				edits.apply(doc);
 			} catch (BadLocationException e) {
@@ -49,7 +49,7 @@ public class ASTEngine {
 		}
 	}
 
-	public void createSourceFile(Config config) {
+	public void createSourceFile(IGenModel model, String archiMateTag) {
 		FileHandler handler = new FileHandler();
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -57,11 +57,11 @@ public class ASTEngine {
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		unit.recordModifications();
 		JavaHelper helper = new JavaHelper();
-		helper.addClass(unit, config);
+		helper.addClass(unit, model, archiMateTag);
 		String sourceCode = "";
 		Document doc = new Document("");
 		TextEdit edits = unit.rewrite(doc, null);
-		if (edits.hasChildren()){
+		if (edits.hasChildren()) {
 			try {
 				edits.apply(doc);
 			} catch (BadLocationException e) {
@@ -69,8 +69,9 @@ public class ASTEngine {
 				e.printStackTrace();
 			}
 			sourceCode += doc.get();
-			targetFile = handler.save(sourceCode.getBytes(), config.getTargetFolder(),
-					config.getPackage(), config.getTargetFile());
+			targetFile = handler.save(sourceCode.getBytes(), model
+					.targetFolder(archiMateTag), model
+					.packageName(archiMateTag), model.targetFile(archiMateTag));
 			handler.selectAndReveal(targetFile);
 		}
 		traverseSource();
