@@ -20,9 +20,9 @@ public class SourceInspector {
 
 	public void inspect() {
 		FileHandler handler = new FileHandler();
-		Config config = generator.config();
-		IContainer container = handler.findOrCreateContainer(config
-				.getTargetFolder(), config.getPackage());
+		IGenModel model = generator.model();
+		IContainer container = handler.findOrCreateContainer(model
+				.targetFolder(), model.packageBase());
 		IResource[] members = null;
 		try {
 			members = container.members();

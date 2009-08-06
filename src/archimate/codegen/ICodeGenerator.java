@@ -11,7 +11,7 @@ public interface ICodeGenerator {
 	
 	public TagTree tree();
 	
-	public Config config();
+	public IGenModel model();
 	
 	public void generate_code();
 	

@@ -41,8 +41,6 @@ public class MVCPattern extends Pattern {
 	static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
 	// Tree defining the structure of the MVC pattern key elements
 	private static TagTree tree = constructTree();
-	// Data structure containing all settings of the current project
-	private Config config;
 	// Model containing all data for the MVC framework to create
 	private MVCModel mvcModel;
 
@@ -92,22 +90,8 @@ public class MVCPattern extends Pattern {
 	 *            The UML package in the open UML or GMF editor
 	 */
 	public MVCPattern(org.eclipse.uml2.uml.Package myPackage) {
-		// Configure settings for current Java project
-		setupConfig();
 		// Read out UML model
 		mvcModel = new MVCModel(myPackage);
-	}
-
-	private void setupConfig() {
-		config = new Config();
-		config.setPackageBase("app");
-		config.setTargetFolder(Activator.projectRoot + "/src");
-		config.setClasspathVariable("ARCHIMATE");
-		config.setPluginId(Activator.PLUGIN_ID);
-		config.setInterfaceTemplateRelativeUri("src/archimate/"
-				+ "templates/Interface.javajet");
-		config.setClassTemplateRelativeUri("src/archimate/"
-				+ "templates/Class.javajet");
 	}
 
 	/**
@@ -115,13 +99,6 @@ public class MVCPattern extends Pattern {
 	 */
 	public TagTree tree() {
 		return tree;
-	}
-
-	/**
-	 * Returns the <code>Config</code> object of the MVC pattern.
-	 */
-	public Config config() {
-		return config;
 	}
 
 	/**

@@ -102,9 +102,14 @@ public class MVCModel implements IGenModel {
 		}
 	}
 
-	// returns the name of the containing folder for a source file
-	public String targetFolder(String archiMateTag) {
+	// returns the project source folder
+	public String targetFolder() {
 		return Activator.projectRoot + "/src";
+	}
+
+	// returns the source folder package base
+	public String packageBase() {
+		return "app";
 	}
 
 	// returns the file name for a source file
@@ -114,7 +119,7 @@ public class MVCModel implements IGenModel {
 
 	// returns the package name for a source file
 	public String packageName(String archiMateTag) {
-		String packageBase = "app";
+		String packageBase = packageBase();
 		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
 			return packageBase + ".model";
 		}

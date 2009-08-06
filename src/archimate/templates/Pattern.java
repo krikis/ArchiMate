@@ -7,6 +7,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.codegen.Config;
 import archimate.codegen.ICodeGenerator;
+import archimate.codegen.IGenModel;
 import archimate.codegen.JavaState;
 import archimate.util.TagTree;
 
@@ -20,7 +21,7 @@ public class Pattern implements ICodeGenerator {
 		return null;
 	}
 
-	public Config config() {
+	public IGenModel model() {
 		return null;
 	}
 
@@ -33,7 +34,7 @@ public class Pattern implements ICodeGenerator {
 	}
 
 	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
-		
+
 	}
 
 }

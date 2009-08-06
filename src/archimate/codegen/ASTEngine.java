@@ -70,7 +70,7 @@ public class ASTEngine {
 			}
 			sourceCode += doc.get();
 			targetFile = handler.save(sourceCode.getBytes(), model
-					.targetFolder(archiMateTag), model
+					.targetFolder(), model
 					.packageName(archiMateTag), model.targetFile(archiMateTag));
 			handler.selectAndReveal(targetFile);
 		}
