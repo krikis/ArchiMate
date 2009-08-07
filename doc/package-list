@@ -1,0 +1,9 @@
+archimate
+archimate.actions
+archimate.codegen
+archimate.patterns
+archimate.patterns.mvc
+archimate.patterns.primitives
+archimate.patterns.primitives.callback
+archimate.uml
+archimate.util

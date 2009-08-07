@@ -28,7 +28,7 @@ public interface ICodeGenerator {
 	 * Generates source code for the pattern
 	 */
 	public void generate_code();
-	
+
 	/**
 	 * Validates the source code in the workspace
 	 */

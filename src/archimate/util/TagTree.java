@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * This class implements the tree containing all <code>archiMateTags</code> in a hierarchical
- * structure
+ * This class implements the tree containing all <code>archiMateTags</code> in a
+ * hierarchical structure
  * 
  * @author Samuel Esposito
  * 

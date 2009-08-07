@@ -41,6 +41,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the package name for a source file
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the class in the source file
 	 * @return The package name for a source file
@@ -49,6 +50,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the imports for a snippet of code
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return The imports for a snippet of code
@@ -57,6 +59,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the comments for a class
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return The comments for a class
@@ -65,6 +68,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the class name for a source file
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return The class name for a source file
@@ -73,6 +77,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns a list of implemented interfaces
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return A list of implemented interfaces
@@ -81,6 +86,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns whether a source file contains a class or an interface
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return Whether a source file contains a class or an interface
@@ -89,6 +95,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the class of an object
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return The class of an object
@@ -97,6 +104,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns the name of an object
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return The name of an object
@@ -105,6 +113,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns a list of methods in a source file
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return A list of methods in a source file
@@ -113,6 +122,7 @@ public interface IGenModel {
 
 	/**
 	 * Returns a list of methods invoking another method in a source file
+	 * 
 	 * @param archiMateTag
 	 *            The tag labeling the key source element
 	 * @return A list of methods invoking another method in a source file
