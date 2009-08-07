@@ -5,50 +5,29 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IMenuManager;
-import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.*;
 import org.eclipse.ui.actions.ActionDelegate;
-import org.eclipse.ui.internal.PartSite;
-import org.eclipse.ui.part.FileEditorInput;
-import org.eclipse.ui.views.contentoutline.ContentOutline;
 import org.eclipse.uml2.common.edit.domain.UML2AdapterFactoryEditingDomain;
 import org.eclipse.uml2.diagram.component.part.UMLDiagramEditor;
-import org.eclipse.uml2.uml.editor.UMLEditorPlugin;
-import org.eclipse.uml2.uml.editor.presentation.UMLActionBarContributor;
 import org.eclipse.uml2.uml.editor.presentation.UMLEditor;
-import org.eclipse.uml2.uml.resource.*;
 import org.eclipse.uml2.uml.*;
 
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.common.command.*;
-import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.edit.command.CommandActionDelegate;
 import org.eclipse.emf.edit.domain.*;
 import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
-import org.eclipse.gef.tools.AbstractTool.Input;
 import org.eclipse.gmf.runtime.diagram.ui.resources.editor.parts.DiagramDocumentEditor;
-
-import archimate.Activator;
 
 public class ArchiMateAction extends ActionDelegate implements
 		IWorkbenchWindowActionDelegate, IEditorActionDelegate {
@@ -214,6 +193,7 @@ public class ArchiMateAction extends ActionDelegate implements
 		}
 	}
 
+	// returns the active editor
 	protected IEditorPart getEditor() {
 		if (workbenchPart != null) {
 			return workbenchPart.getSite().getPage().getActiveEditor();
@@ -221,10 +201,12 @@ public class ArchiMateAction extends ActionDelegate implements
 		return null;
 	}
 
+	// returns the file in the active editor
 	protected IFile getEditorFile() {
 		return (IFile) getEditor().getEditorInput().getAdapter(IFile.class);
 	}
 
+	// returns the target UML model
 	protected org.eclipse.uml2.uml.Package getSelectedPackage() {
 		if (getEditor() instanceof UMLDiagramEditor) {
 			UMLDiagramEditor editor = (UMLDiagramEditor) getEditor();
@@ -249,6 +231,7 @@ public class ArchiMateAction extends ActionDelegate implements
 		return null;
 	}
 
+	// checks if the action is currently available
 	protected Command createActionCommand(EditingDomain editingDomain,
 			Collection<?> collection) {
 		if (myPackage != null) {
@@ -365,6 +348,13 @@ public class ArchiMateAction extends ActionDelegate implements
 		setActiveWorkbenchPart(window.getActivePage().getActiveEditor());
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.actions.ActionDelegate#init(org.eclipse.jface.action.IAction
+	 * )
+	 */
 	public void init(IAction action) {
 		this.action = action;
 	}
@@ -377,6 +367,12 @@ public class ArchiMateAction extends ActionDelegate implements
 		return null;
 	}
 
+	/**
+	 * Returns the {@link ImageDescriptor} of the object
+	 * 
+	 * @param object
+	 * @return The {@link ImageDescriptor} of the object
+	 */
 	protected ImageDescriptor objectToImageDescriptor(Object object) {
 		return ExtendedImageRegistry.getInstance().getImageDescriptor(object);
 	}

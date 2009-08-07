@@ -1,16 +1,12 @@
 package archimate.actions;
 
-import java.util.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.*;
-import org.eclipse.jface.window.Window;
-import org.eclipse.jface.window.WindowManager;
 import org.eclipse.ocl.uml.*;
 import org.eclipse.ocl.uml.OCL.*;
 import org.eclipse.emf.common.command.*;
 import org.eclipse.emf.common.util.*;
-import org.eclipse.emf.edit.domain.*;
 import org.eclipse.ui.*;
 import org.eclipse.uml2.uml.*;
 import archimate.Activator;
@@ -25,9 +21,6 @@ import archimate.Activator;
  */
 public class Validate extends ArchiMateAction {
 
-	public Validate() {
-	}
-
 	/**
 	 * The action has been activated. The argument of the method represents the
 	 * 'real' action sitting in the workbench UI.
@@ -40,7 +33,8 @@ public class Validate extends ArchiMateAction {
 		}
 	}
 
-	public void readPack(org.eclipse.uml2.uml.Package myPack) {
+	// validates the UML model and reports the errors
+	private void readPack(org.eclipse.uml2.uml.Package myPack) {
 		String result = "";
 		result += readProfiles(myPack);
 		result += readStereotypes(myPack);
@@ -59,7 +53,8 @@ public class Validate extends ArchiMateAction {
 		}
 	}
 
-	public String readProfiles(org.eclipse.uml2.uml.Package myPack) {
+	// reads out the profiles rules and checks them
+	private String readProfiles(org.eclipse.uml2.uml.Package myPack) {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
 		String output = "";
 		for (int i = 0; i < profiles.size(); ++i) {
@@ -75,7 +70,8 @@ public class Validate extends ArchiMateAction {
 		return output;
 	}
 
-	public String readStereotypes(org.eclipse.uml2.uml.Package myPack) {
+	// reads out the stereotypes rules and checks them
+	private String readStereotypes(org.eclipse.uml2.uml.Package myPack) {
 		EList<Element> elements = myPack.allOwnedElements();
 		String output = "";
 		for (int i = 0; i < elements.size(); ++i) {
@@ -95,7 +91,8 @@ public class Validate extends ArchiMateAction {
 		return output;
 	}
 
-	public String checkOCL(Element element, String oclExpr) {
+	// checks the given OCL constraint on the given element
+	private String checkOCL(Element element, String oclExpr) {
 		boolean valid = false;
 
 		OCL myOcl = Activator.getOCL();

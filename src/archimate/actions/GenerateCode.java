@@ -22,12 +22,6 @@ import archimate.patterns.primitives.callback.CallbackPrimitive;
 public class GenerateCode extends ArchiMateAction {
 
 	/**
-	 * The constructor.
-	 */
-	public GenerateCode() {
-	}
-
-	/**
 	 * The action has been activated. The argument of the method represents the
 	 * 'real' action sitting in the workbench UI.
 	 * 
@@ -39,7 +33,8 @@ public class GenerateCode extends ArchiMateAction {
 		}
 	}
 
-	public void readProfiles(org.eclipse.uml2.uml.Package myPack) {
+	// Reads out the profiles and creates a Pattern object for each one of them
+	private void readProfiles(org.eclipse.uml2.uml.Package myPack) {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
 		for (int i = 0; i < profiles.size(); ++i) {
 			Profile profile = profiles.get(i);
