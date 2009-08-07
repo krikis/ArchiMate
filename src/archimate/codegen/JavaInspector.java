@@ -45,7 +45,8 @@ public class JavaInspector extends ASTVisitor {
 	public void endVisit(TypeDeclaration node) {
 		String tag = helper.getArchiMateTag(node);
 		TagNode current = tree.current();
-		if ((!tag.equals("")) && current.hasParent() && current.parent().hasChild(tag)) {
+		if ((!tag.equals("")) && current.hasParent()
+				&& current.parent().hasChild(tag)) {
 			if (current.hasChildren()) {
 				ArrayList<String> tags = tree.getUnvisited(current);
 				inspector.addSourceElements(node, tags);
@@ -71,7 +72,8 @@ public class JavaInspector extends ASTVisitor {
 	public void endVisit(MethodDeclaration node) {
 		String tag = helper.getArchiMateTag(node);
 		TagNode current = tree.current();
-		if ((!tag.equals("")) && current.hasParent() && current.parent().hasChild(tag)) {
+		if ((!tag.equals("")) && current.hasParent()
+				&& current.parent().hasChild(tag)) {
 			tree.setCurrent(current.parent());
 		}
 	}

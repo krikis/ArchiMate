@@ -9,13 +9,14 @@ import archimate.codegen.JavaHelper;
 import archimate.uml.*;
 
 /**
- * Class modelling a Java MVC Pattern
+ * Class containing all settings for a Java MVC Pattern
  * 
  * @author Samuel Esposito
  * 
  */
 public class MVCModel implements IGenModel {
 
+	// variables for all class and interface names
 	private String dataInterface = "";
 	private String modelDataPort = "";
 	private String viewDataPort = "";
@@ -25,21 +26,29 @@ public class MVCModel implements IGenModel {
 	private String commandInterface = "";
 	private String modelCommandPort = "";
 	private String controlCommandPort = "";
-
+	// variables for all method names
 	private ArrayList<String> dataMethods;
 	private ArrayList<String> dataInvocationMethods = new ArrayList<String>();
 	private ArrayList<String> updateMethods;
 	private ArrayList<String> updateInvocationMethods = new ArrayList<String>();
 	private ArrayList<String> commandMethods;
 	private ArrayList<String> commandInvocationMethods = new ArrayList<String>();
-
+	// helper for reading the UML model
 	private UMLAdapter umlreader;
 
+	/**
+	 * Creates a new MVCModel and initializes it by reading out the given UML
+	 * model
+	 * 
+	 * @param myPackage
+	 *            UML model for reading out
+	 */
 	public MVCModel(org.eclipse.uml2.uml.Package myPackage) {
 		umlreader = new UMLAdapter(myPackage);
 		initialize();
 	}
 
+	// Configures the MVC Pattern by initializing all variables
 	private void initialize() {
 		dataInterface = umlreader.getElementName("DataInterface");
 		if (dataInterface.equals("")) {
@@ -94,15 +103,16 @@ public class MVCModel implements IGenModel {
 		setInvocation(commandMethods, commandInvocationMethods);
 	}
 
+	// generates invocation method names for every method to invoke
 	private void setInvocation(ArrayList<String> methods,
 			ArrayList<String> invocations) {
 		for (Iterator<String> iter = methods.iterator(); iter.hasNext();) {
 			invocations.add(iter.next() + "Invocation");
 		}
 	}
-	
+
 	// returns the type of source element
-	public String sourceType(String archiMateTag){
+	public String sourceType(String archiMateTag) {
 		if (archiMateTag.equals(MVCPattern.DATA_MESSAGE)) {
 			return JavaHelper.METHOD_DECLARATION;
 		}

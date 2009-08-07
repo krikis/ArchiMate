@@ -1,26 +1,12 @@
 package archimate.patterns.mvc;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Iterator;
-
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.Document;
-import org.eclipse.text.edits.TextEdit;
-
-import archimate.Activator;
 import archimate.codegen.*;
 import archimate.patterns.Pattern;
 import archimate.util.*;
 
 public class MVCPattern extends Pattern implements ICodeGenerator {
 
-	// Constants for the key elements of the MVC pattern
+	// Constants for the key source elements of the MVC pattern
 	static final String DATA_INTERFACE = "MVC_DataInterface";
 	static final String DATA_MESSAGE = "MVC_DataMessage";
 	static final String MODEL_DATA = "MVC_ModelDataPort";
@@ -39,17 +25,13 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	static final String COMMAND_METHOD = "MVC_CommandMethod";
 	static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
 	static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
-	// Tree defining the structure of the MVC pattern key elements
-	private static TagTree tree = constructTree();
-	// Model containing all data for the MVC framework to create
-	private MVCModel mvcModel;
 
 	/**
 	 * Constructs a tree defining the structure of the MVC pattern key elements
 	 * 
-	 * @return tree defining the structure of the MVC pattern key elements
+	 * @return Tree defining the structure of the MVC pattern key elements
 	 */
-	private static TagTree constructTree() {
+	private TagTree constructTree() {
 		TagTree tree = new TagTree();
 		TagNode root = tree.root();
 		TagNode dataInterface = new TagNode(DATA_INTERFACE);
@@ -83,110 +65,17 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	}
 
 	/**
-	 * Constructor for the MVC pattern. Initializes a <code>Config</code> object
-	 * with all settings for the current Java Project.
+	 * Constructor for the MVC pattern. Initializes a <TagTree> object and a
+	 * <code>IGenModel</code> object with all settings for the current Java
+	 * Project.
 	 * 
 	 * @param myPackage
 	 *            The UML package in the open UML or GMF editor
 	 */
 	public MVCPattern(org.eclipse.uml2.uml.Package myPackage) {
+		// Setup the tag tree
+		super.tree = constructTree();
 		// Read out UML model
-		mvcModel = new MVCModel(myPackage);
+		super.model = new MVCModel(myPackage);
 	}
-
-	/**
-	 * Returns the <code>TagTree</code> object of the MVC pattern.
-	 */
-	public TagTree tree() {
-		return tree;
-	}
-
-	/**
-	 * Returns the <code>MVCModel</code> object containing all data for the MVC
-	 * framework to create.
-	 */
-	public MVCModel model() {
-		return mvcModel;
-	}
-
-	/**
-	 * Generates code for the MVC pattern.
-	 */
-	@Override
-	public void generate_code() {
-		// Reset the tree containing MVC pattern key elements
-		tree.resetVisited();
-
-		// Traverses the source and adds missing elements
-		SourceInspector inspector = new SourceInspector(this);
-		inspector.updateSource();
-	}
-
-//	public void testAST(MVCModel mvcmodel) {
-//		FileHandler handler = new FileHandler();
-//		Config conf = new Config(config);
-//		conf.setPackageBase("");
-//		conf.setPackageName("");
-//		conf.setTargetFile("Test" + ".java");
-//		IContainer container = null;
-//		container = handler.findOrCreateContainer(conf.getTargetFolder(), conf
-//				.getPackage());
-//		IFile targetFile = container.getFile(new Path(conf.getTargetFile()));
-//		InputStream contents = null;
-//		try {
-//			contents = targetFile.getContents();
-//		} catch (CoreException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		BufferedReader reader = new BufferedReader(new InputStreamReader(
-//				contents));
-//		StringBuilder sb = new StringBuilder();
-//
-//		String line = null;
-//		try {
-//			while ((line = reader.readLine()) != null) {
-//				sb.append(line + "\n");
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		} finally {
-//			try {
-//				contents.close();
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//
-//		String text = sb.toString();
-//		ASTParser parser = ASTParser.newParser(AST.JLS3);
-//		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-//		parser.setSource(text.toCharArray());
-//		// parser.setSource("".toCharArray());
-//		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-//		unit.recordModifications();
-//		// AST ast = unit.getAST();
-//
-//		// JavaInspector visitor = new JavaInspector(this);
-//		// unit.accept(visitor);
-//		TestAST tester = new TestAST(unit);
-//		tester.test();
-//
-//		String sourceCode = "";
-//		Document doc = new Document(text);
-//		TextEdit edits = unit.rewrite(doc, null);
-//		if (edits.hasChildren()) {
-//			try {
-//				edits.apply(doc);
-//			} catch (BadLocationException e) {
-//				System.out.println("Unable to apply changes to source.");
-//				e.printStackTrace();
-//			}
-//			sourceCode += doc.get();
-//			handler.save(sourceCode.getBytes(), targetFile);
-//		}
-//	}
-//
-
-
 }

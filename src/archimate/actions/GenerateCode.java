@@ -9,7 +9,7 @@ import org.eclipse.uml2.uml.Profile;
 import archimate.Activator;
 import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
-import archimate.primitives.callback.CallbackPrimitive;
+import archimate.patterns.primitives.callback.CallbackPrimitive;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will
@@ -43,7 +43,7 @@ public class GenerateCode extends ArchiMateAction {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
 		for (int i = 0; i < profiles.size(); ++i) {
 			Profile profile = profiles.get(i);
-			Pattern pattern;
+			Pattern pattern = null;
 
 			// Get editor file path
 			Activator.projectRoot = getEditorFile().getProject().getFullPath();
@@ -61,8 +61,6 @@ public class GenerateCode extends ArchiMateAction {
 				pattern = new CallbackPrimitive();
 			} else if (name.equals("CallbackSeq")) {
 				pattern = new CallbackPrimitive();
-			} else {
-				pattern = new Pattern();
 			}
 			pattern.generate_code();
 		}

@@ -6,8 +6,9 @@ public class JavaEdit {
 
 	private JavaState state;
 	private ArrayList<EditAction> actions;
-	
-	public JavaEdit() {}
+
+	public JavaEdit() {
+	}
 
 	public JavaEdit(JavaState state) {
 		this.state = state;
@@ -23,7 +24,7 @@ public class JavaEdit {
 	}
 
 	public void compile() {
-		
+
 	}
 
 }

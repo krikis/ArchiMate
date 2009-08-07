@@ -23,7 +23,7 @@ public class Activator extends AbstractUIPlugin {
 	// The OCL objects used for model validation
 	private static OCL myOcl;
 	private static Helper oclHelper;
-	
+
 	// The project root accessible to all plugin classes
 	public static IPath projectRoot;
 

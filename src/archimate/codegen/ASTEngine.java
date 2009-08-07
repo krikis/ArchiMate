@@ -46,7 +46,7 @@ public class ASTEngine {
 				e.printStackTrace();
 			}
 			sourceCode += doc.get();
-			handler.save(sourceCode.getBytes(), targetFile);
+			handler.save(sourceCode, targetFile);
 			handler.selectAndReveal(targetFile);
 		}
 	}
@@ -71,9 +71,9 @@ public class ASTEngine {
 				e.printStackTrace();
 			}
 			sourceCode += doc.get();
-			targetFile = handler.save(sourceCode.getBytes(), model
-					.targetFolder(), model
-					.packageName(archiMateTag), model.targetFile(archiMateTag));
+			targetFile = handler.save(sourceCode, model
+					.targetFolder(), model.packageName(archiMateTag), model
+					.targetFile(archiMateTag));
 		}
 		traverseSource();
 	}

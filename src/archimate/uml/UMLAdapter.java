@@ -2,21 +2,40 @@ package archimate.uml;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Stack;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.NamedElement;
 import org.eclipse.uml2.uml.Namespace;
 import org.eclipse.uml2.uml.Stereotype;
 
+/**
+ * Utility class reading out UML models
+ * 
+ * @author Samuel Esposito
+ * 
+ */
 public class UMLAdapter {
-
+	// package subject to reading
 	private org.eclipse.uml2.uml.Package myPackage;
 
+	/**
+	 * Creates new UMLAdapter for the given package
+	 * 
+	 * @param myPackage
+	 *            The package to read
+	 */
 	public UMLAdapter(org.eclipse.uml2.uml.Package myPackage) {
 		this.myPackage = myPackage;
 	}
 
+	/**
+	 * Searches for the first UML element which has the given stereotype applied
+	 * to it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The name of the found UML element
+	 */
 	public String getElementName(String stereotypeName) {
 		String name = "";
 		EList<NamedElement> elements = myPackage.getOwnedMembers();
@@ -40,6 +59,7 @@ public class UMLAdapter {
 		return name;
 	}
 
+	// Recursively traverses the UML tree until a desired element was found
 	private String traverseSome(Namespace UMLElement, String stereotypeName) {
 		String name = "";
 		EList<NamedElement> elements = UMLElement.getOwnedMembers();
@@ -63,6 +83,14 @@ public class UMLAdapter {
 		return name;
 	}
 
+	/**
+	 * Searches for all UML elements which have the given stereotype applied to
+	 * it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The names of the found UML elements
+	 */
 	public ArrayList<String> getElementNames(String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();
 		EList<NamedElement> elements = myPackage.getOwnedMembers();
@@ -84,6 +112,7 @@ public class UMLAdapter {
 		return names;
 	}
 
+	// Recursively traverses the UML tree until all matching elements are found
 	private ArrayList<String> traverseAll(Namespace UMLElement,
 			String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();

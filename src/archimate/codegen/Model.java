@@ -12,7 +12,7 @@ import java.util.Iterator;
 public class Model {
 
 	private String dPackageName = "";
-	
+
 	private ArrayList<String> dImports = new ArrayList<String>();
 
 	private String dComment = "";
@@ -26,7 +26,7 @@ public class Model {
 	private String dClassName = "";
 
 	private ArrayList<String> dInterfaces = new ArrayList<String>();
-	
+
 	private ArrayList<Variable> dVariables = new ArrayList<Variable>();
 
 	private ArrayList<Method> dMethods = new ArrayList<Method>();

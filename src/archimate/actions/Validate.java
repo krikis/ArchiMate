@@ -49,9 +49,12 @@ public class Validate extends ArchiMateAction {
 					"Archimate Validation Success",
 					"No errors encountered during validation.");
 		} else {
-			Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, result);
+			Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+					result);
 			ErrorDialog dialog = new ErrorDialog(window.getShell(),
-					"Archimate Validation Error(s)", "Error(s) encountered during validation!", status, IStatus.ERROR);			
+					"Archimate Validation Error(s)",
+					"Error(s) encountered during validation!", status,
+					IStatus.ERROR);
 			dialog.open();
 		}
 	}
@@ -112,10 +115,11 @@ public class Validate extends ArchiMateAction {
 		valid = myOcl.check(element, oclInv);
 		oclInv.destroy();
 
-		 if (valid) {
-			return ""; //"success for :: " + oclExpr + "\n";
+		if (valid) {
+			return ""; // "success for :: " + oclExpr + "\n";
 		} else {
-			return "The model doesn't meet the constraint \"" + oclExpr + "\"\n";
+			return "The model doesn't meet the constraint \"" + oclExpr
+					+ "\"\n";
 		}
 	}
 }

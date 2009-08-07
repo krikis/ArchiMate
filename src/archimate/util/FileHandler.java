@@ -17,6 +17,12 @@ import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import archimate.Activator;
 
+/**
+ * Utility class for handling source files
+ * 
+ * @author Samuel Esposito
+ * 
+ */
 public class FileHandler {
 
 	public FileHandler() {
@@ -27,7 +33,8 @@ public class FileHandler {
 	 * Gets the contents of a file and returns it as a string.
 	 * 
 	 * @param file
-	 * @return
+	 *            The file to be read
+	 * @return The contents of the file
 	 */
 	public String getSource(IFile file) {
 		InputStream contents = null;
@@ -65,11 +72,13 @@ public class FileHandler {
 	}
 
 	/**
-	 * Finds or creates a container for the specified directory and package.
+	 * Finds or creates a container for the specified directory and package
 	 * 
 	 * @param targetDirectory
+	 *            The directory to start in
 	 * @param packageName
-	 * @return
+	 *            The package to create the container in
+	 * @return The found or newly created container
 	 */
 	public IContainer findOrCreateContainer(String targetDirectory,
 			String packageName) {
@@ -95,13 +104,16 @@ public class FileHandler {
 	 * the target folder. The name of the file to save is the target file.
 	 * 
 	 * @param contents
-	 *            the byte contents of the file to save
+	 *            The contents of the file to save
 	 * @param targetFolder
+	 *            The folder to start in
 	 * @param packageName
+	 *            The package the file is saved in
 	 * @param targetFile
-	 * @return
+	 *            The file name
+	 * @return The saved file
 	 */
-	public IFile save(byte[] contents, String targetFolder, String packageName,
+	public IFile save(String contents, String targetFolder, String packageName,
 			String targetFile) {
 		IContainer container = findOrCreateContainer(targetFolder, packageName);
 		if (container == null) {
@@ -118,7 +130,7 @@ public class FileHandler {
 			e.printStackTrace();
 		}
 
-		InputStream newContents = new ByteArrayInputStream(contents);
+		InputStream newContents = new ByteArrayInputStream(contents.getBytes());
 		try {
 			if (result.exists()) {
 				result.setContents(newContents, true, true,
@@ -131,17 +143,27 @@ public class FileHandler {
 		}
 		return result;
 	}
-	
-	public IFile save(byte[] contents, IFile file) {
+
+	/**
+	 * Saves the contents to an already opened file
+	 * 
+	 * @param contents
+	 *            The contents string
+	 * @param file
+	 *            The open file to write to
+	 * @return The saved file
+	 */
+	public IFile save(String contents, IFile file) {
 		IFile result = null;
 		try {
-			result = getWritableTargetFile(file, file.getParent(), file.getName());
+			result = getWritableTargetFile(file, file.getParent(), file
+					.getName());
 		} catch (CoreException e) {
 			System.out.println("Could not open the targetfile.");
 			e.printStackTrace();
 		}
 
-		InputStream newContents = new ByteArrayInputStream(contents);
+		InputStream newContents = new ByteArrayInputStream(contents.getBytes());
 		try {
 			if (result.exists()) {
 				result.setContents(newContents, true, true,
@@ -158,9 +180,9 @@ public class FileHandler {
 	/**
 	 * Returns a <code>IFile</code> that can be written to. If the specified
 	 * file is read-write, it is returned unchanged. If the specified file is
-	 * read-only and {@link Config#isForceOverwrite()}returns <code>true</code>,
-	 * the file is made writable, otherwise a new file is returned in the
-	 * specified container with filename <code>"." + fileName + ".new"</code>.
+	 * read-only, the file is made writable, otherwise a new file is returned in
+	 * the specified container with filename
+	 * <code>"." + fileName + ".new"</code>.
 	 * 
 	 * @param container
 	 *            container to create the new file in if the specified file
@@ -193,6 +215,7 @@ public class FileHandler {
 	 * Reveals the newly created file in the Eclipse Package Explorer
 	 * 
 	 * @param newResource
+	 *            The file to reveal
 	 */
 	public void selectAndReveal(IResource newResource) {
 		BasicNewResourceWizard.selectAndReveal(newResource,
@@ -203,6 +226,7 @@ public class FileHandler {
 	 * Opens the newly created file in a new editor in Eclipse
 	 * 
 	 * @param resource
+	 *            The resource to open
 	 */
 	public void openResource(final IResource resource) {
 		if (resource.getType() == IResource.FILE) {

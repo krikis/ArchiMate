@@ -13,7 +13,7 @@ public class JavaHelper {
 	public static final String ARCHIMATETAG = "@archiMateTag";
 	public static final String METHOD_IMPLEMENTATION = "method_implementation";
 	public static final String METHOD_INVOCATION = "method_invocation";
-	public static final String METHOD_DECLARATION = "method_declaration";		
+	public static final String METHOD_DECLARATION = "method_declaration";
 
 	public JavaHelper() {
 

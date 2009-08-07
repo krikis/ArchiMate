@@ -22,13 +22,14 @@ public class SourceInspector {
 		this.tree = generator.tree();
 		this.model = generator.model();
 	}
-	
-	public TagTree tree(){
+
+	public TagTree tree() {
 		return tree;
 	}
-	
-	public void updateSource(){
-		// Traverses the source and calls back when key source elements are missing
+
+	public void updateSource() {
+		// Traverses the source and calls back when key source elements are
+		// missing
 		inspect();
 		// Adds the source files that are missing
 		ArrayList<String> tags = TagTree.getUnvisited(tree.root());
@@ -72,7 +73,7 @@ public class SourceInspector {
 			}
 		}
 	}
-	
+
 	/**
 	 * Creates source files for every tag in the list.
 	 */
@@ -82,7 +83,7 @@ public class SourceInspector {
 			engine.createSourceFile(model, iter.next());
 		}
 	}
-	
+
 	/**
 	 * Creates source elements in the node for every tag in the list.
 	 */
@@ -91,11 +92,11 @@ public class SourceInspector {
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
 			String tag = iter.next();
 			String type = model.sourceType(tag);
-			if (type.equals(JavaHelper.METHOD_DECLARATION)){
+			if (type.equals(JavaHelper.METHOD_DECLARATION)) {
 				helper.addMethodDeclarations(model, node, tag);
-			} else if (type.equals(JavaHelper.METHOD_IMPLEMENTATION)){
-				helper.addMethods(model, node, tag);	
-			} else if (type.equals(JavaHelper.METHOD_INVOCATION)){
+			} else if (type.equals(JavaHelper.METHOD_IMPLEMENTATION)) {
+				helper.addMethods(model, node, tag);
+			} else if (type.equals(JavaHelper.METHOD_INVOCATION)) {
 				helper.addMethodInvocations(model, node, tag);
 			}
 		}
