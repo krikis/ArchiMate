@@ -1,12 +1,13 @@
 package archimate.codegen;
 
-import java.util.ArrayList;
-
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-
 import archimate.util.TagTree;
 
+/**
+ * Interface defining the required methods for a Pattern specification
+ * 
+ * @author Samuel Esposito
+ * 
+ */
 public interface ICodeGenerator {
 
 	/**

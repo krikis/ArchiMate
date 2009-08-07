@@ -85,7 +85,8 @@ public class JavaInspector extends ASTVisitor {
 	/*
 	 * (non-Javadoc) Visits a TypeDeclaration node after its children are
 	 * visited. If an archiMateTag is found and it is a child of the current
-	 * archiMateTag, then code is generated for the missing children.
+	 * archiMateTag, then code is generated for the missing children by calling
+	 * back to the SourceInspector.
 	 * 
 	 * @see
 	 * org.eclipse.jdt.core.dom.ASTVisitor#endVisit(org.eclipse.jdt.core.dom

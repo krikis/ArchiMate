@@ -9,22 +9,44 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 import archimate.util.FileHandler;
-import archimate.util.TagTree;
 
+/**
+ * Utility class providing methods for editing Java source files
+ * 
+ * @author Samuel Esposito
+ * 
+ */
 public class ASTEngine {
 
+	// the file to edit
 	private IFile targetFile;
+	// the SourceInspector leading the editing
 	private SourceInspector inspector;
 
+	/**
+	 * Creates new {@link ASTEngine} and sets the {@link SourceInspector}
+	 * 
+	 * @param inspector
+	 */
 	public ASTEngine(SourceInspector inspector) {
 		this.inspector = inspector;
 	}
 
+	/**
+	 * Creates new {@link ASTEngine} and sets the target file and
+	 * {@link SourceInspector}
+	 * 
+	 * @param inspector
+	 */
 	public ASTEngine(IFile targetFile, SourceInspector inspector) {
 		this.targetFile = targetFile;
 		this.inspector = inspector;
 	}
 
+	/**
+	 * Parses the source in the file, lets a {@link JavaInspector} visit it and
+	 * saves the changes
+	 */
 	public void traverseSource() {
 		FileHandler handler = new FileHandler();
 		String text = handler.getSource(targetFile);
@@ -51,6 +73,15 @@ public class ASTEngine {
 		}
 	}
 
+	/**
+	 * Creates a new source file for the given archiMateTag
+	 * 
+	 * @param model
+	 *            The {@link IGenModel} containing all settings for code
+	 *            generation
+	 * @param archiMateTag
+	 *            The tag to generate code for
+	 */
 	public void createSourceFile(IGenModel model, String archiMateTag) {
 		FileHandler handler = new FileHandler();
 		ASTParser parser = ASTParser.newParser(AST.JLS3);

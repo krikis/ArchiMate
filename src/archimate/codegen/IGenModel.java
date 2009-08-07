@@ -2,6 +2,13 @@ package archimate.codegen;
 
 import java.util.ArrayList;
 
+/**
+ * This interface defines the model containing all code generation settings for
+ * an {@link ICodeGenerator}
+ * 
+ * @author Samuel Esposito
+ * 
+ */
 public interface IGenModel {
 
 	/**
