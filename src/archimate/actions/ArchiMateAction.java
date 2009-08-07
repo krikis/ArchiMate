@@ -14,7 +14,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.*;
 import org.eclipse.ui.actions.ActionDelegate;
 import org.eclipse.uml2.common.edit.domain.UML2AdapterFactoryEditingDomain;
-import org.eclipse.uml2.diagram.component.part.UMLDiagramEditor;
+import org.eclipse.gmf.runtime.diagram.ui.resources.editor.parts.DiagramDocumentEditor;
 import org.eclipse.uml2.uml.editor.presentation.UMLEditor;
 import org.eclipse.uml2.uml.*;
 
@@ -208,8 +208,8 @@ public class ArchiMateAction extends ActionDelegate implements
 
 	// returns the target UML model
 	protected org.eclipse.uml2.uml.Package getSelectedPackage() {
-		if (getEditor() instanceof UMLDiagramEditor) {
-			UMLDiagramEditor editor = (UMLDiagramEditor) getEditor();
+		if (getEditor() instanceof DiagramDocumentEditor) {
+			DiagramDocumentEditor editor = (DiagramDocumentEditor) getEditor();
 			return (org.eclipse.uml2.uml.Package) editor.getDiagram()
 					.getElement();
 		}

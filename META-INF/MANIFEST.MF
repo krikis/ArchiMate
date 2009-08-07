@@ -16,7 +16,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.emf.codegen.ecore;bundle-version="2.4.2",
  org.eclipse.jdt.core;bundle-version="3.4.4",
  org.eclipse.uml2.diagram.csd;bundle-version="0.8.1",
- org.eclipse.uml2.diagram.component;bundle-version="0.8.1",
  org.eclipse.gmf.runtime.diagram.ui;bundle-version="1.1.2",
  org.eclipse.gmf.runtime.diagram.ui.resources.editor.ide;bundle-version="1.1.0"
 Bundle-ActivationPolicy: lazy

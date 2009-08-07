@@ -56,9 +56,15 @@ public class MVCModel implements IGenModel {
 		}
 		modelDataPort = umlreader.getElementName("ModelDataPort");
 		if (modelDataPort.equals("")) {
+			modelDataPort = umlreader.getElementName("ModelDataPInstance");
+		}
+		if (modelDataPort.equals("")) {
 			modelDataPort = "ModelData";
 		}
 		viewDataPort = umlreader.getElementName("ViewDataPort");
+		if (viewDataPort.equals("")) {
+			viewDataPort = umlreader.getElementName("ViewDataPInstance");
+		}
 		if (viewDataPort.equals("")) {
 			viewDataPort = "ViewData";
 		}
@@ -68,9 +74,16 @@ public class MVCModel implements IGenModel {
 		}
 		controlUpdatePort = umlreader.getElementName("ControlUpdatePort");
 		if (controlUpdatePort.equals("")) {
+			controlUpdatePort = umlreader
+					.getElementName("ControlUpdatePInstance");
+		}
+		if (controlUpdatePort.equals("")) {
 			controlUpdatePort = "ControlUpdate";
 		}
 		viewUpdatePort = umlreader.getElementName("ViewUpdatePort");
+		if (viewUpdatePort.equals("")) {
+			viewUpdatePort = umlreader.getElementName("ViewUpdatePInstance");
+		}
 		if (viewUpdatePort.equals("")) {
 			viewUpdatePort = "ViewUpdate";
 		}
@@ -80,9 +93,15 @@ public class MVCModel implements IGenModel {
 		}
 		controlCommandPort = umlreader.getElementName("ControlCommandPort");
 		if (controlCommandPort.equals("")) {
+			controlCommandPort = umlreader.getElementName("ControlCommandPInstance");
+		}
+		if (controlCommandPort.equals("")) {
 			controlCommandPort = "ControlCommand";
 		}
 		modelCommandPort = umlreader.getElementName("ModelCommandPort");
+		if (modelCommandPort.equals("")) {
+			modelCommandPort = umlreader.getElementName("ModelCommandPInstance");
+		}
 		if (modelCommandPort.equals("")) {
 			modelCommandPort = "ModelCommand";
 		}
