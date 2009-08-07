@@ -52,7 +52,7 @@ public class TagTree {
 		return null;
 	}
 
-	public ArrayList<String> getUnvisited(TagNode node) {
+	public static ArrayList<String> getUnvisited(TagNode node) {
 		ArrayList<String> unvisited = new ArrayList<String>();
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {

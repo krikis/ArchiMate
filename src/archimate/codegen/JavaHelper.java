@@ -63,7 +63,6 @@ public class JavaHelper {
 		for (Iterator<ImportDeclaration> iter = unit.imports().iterator(); iter
 				.hasNext();) {
 			String name = iter.next().getName().getFullyQualifiedName();
-			System.out.println(name);
 			if (name.equals(importName)) {
 				return true;
 			}

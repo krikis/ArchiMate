@@ -29,12 +29,4 @@ public class Pattern implements ICodeGenerator {
 
 	}
 
-	public void createSourceFiles(ArrayList<String> tags) {
-
-	}
-
-	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
-
-	}
-
 }

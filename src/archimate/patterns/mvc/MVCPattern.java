@@ -18,7 +18,7 @@ import archimate.codegen.*;
 import archimate.templates.Pattern;
 import archimate.util.*;
 
-public class MVCPattern extends Pattern {
+public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Constants for the key elements of the MVC pattern
 	static final String DATA_INTERFACE = "MVC_DataInterface";
@@ -117,61 +117,9 @@ public class MVCPattern extends Pattern {
 		// Reset the tree containing MVC pattern key elements
 		tree.resetVisited();
 
-		// Traverses the source and calls back when source additions are needed
+		// Traverses the source and adds missing elements
 		SourceInspector inspector = new SourceInspector(this);
-		inspector.inspect();
-
-		// Adds the missing source files
-		ArrayList<String> tags = tree.getUnvisited(tree.root());
-		createSourceFiles(tags);
-
-//		 createSource(configDataInterface(mvcModel));
-//		 createSource(configModelData(mvcModel));
-//		 createSource(configViewData(mvcModel));
-//		 createSource(configUpdateInterface(mvcModel));
-//		 createSource(configViewUpdate(mvcModel));
-//		 createSource(configControlUpdate(mvcModel));
-//		 createSource(configCommandInterface(mvcModel));
-//		 createSource(configModelCommand(mvcModel));
-//		 createSource(configControlCommand(mvcModel));
-//		testAST(mvcModel);
-	}
-
-	/**
-	 * Creates source files for every tag in the list.
-	 */
-	@Override
-	public void createSourceFiles(ArrayList<String> tags) {
-		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
-			ASTEngine engine = new ASTEngine(this);
-			engine.createSourceFile(mvcModel, iter.next());
-		}
-	}
-
-	/**
-	 * Creates source elements in the node for every tag in the list.
-	 */
-	@Override
-	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
-		JavaHelper helper = new JavaHelper();
-		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
-			String tag = iter.next();
-			if (tag.equals(DATA_MESSAGE)){
-				helper.addMethodDeclarations(mvcModel, node, tag);
-			} else if (tag.equals(UPDATE_MESSAGE)) {
-				helper.addMethodDeclarations(mvcModel, node, tag);	
-			} else if (tag.equals(COMMAND_MESSAGE)) {
-				helper.addMethodDeclarations(mvcModel, node, tag);	
-			} else if (tag.equals(DATA_INVOCATION)) {
-				helper.addMethodInvocations(mvcModel, node, tag);	
-			} else if (tag.equals(UPDATE_INVOCATION)) {
-				helper.addMethodInvocations(mvcModel, node, tag);	
-			} else if (tag.equals(COMMAND_INVOCATION)) {
-				helper.addMethodInvocations(mvcModel, node, tag);				
-			} else {
-				helper.addMethods(mvcModel, node, tag);
-			}
-		}
+		inspector.updateSource();
 	}
 
 //	public void testAST(MVCModel mvcmodel) {

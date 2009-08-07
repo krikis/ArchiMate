@@ -3,6 +3,8 @@ package archimate.codegen;
 import java.util.ArrayList;
 
 public interface IGenModel {
+	// returns the type of source element
+	public String sourceType(String archiMateTag);
 	// returns the project source folder
 	public String targetFolder();
 	// returns the source folder package base

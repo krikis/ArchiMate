@@ -101,6 +101,38 @@ public class MVCModel implements IGenModel {
 			invocations.add(iter.next() + "Invocation");
 		}
 	}
+	
+	// returns the type of source element
+	public String sourceType(String archiMateTag){
+		if (archiMateTag.equals(MVCPattern.DATA_MESSAGE)) {
+			return JavaHelper.METHOD_DECLARATION;
+		}
+		if (archiMateTag.equals(MVCPattern.DATA_METHOD)) {
+			return JavaHelper.METHOD_IMPLEMENTATION;
+		}
+		if (archiMateTag.equals(MVCPattern.DATA_INVOCATION)) {
+			return JavaHelper.METHOD_INVOCATION;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_MESSAGE)) {
+			return JavaHelper.METHOD_DECLARATION;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_METHOD)) {
+			return JavaHelper.METHOD_IMPLEMENTATION;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INVOCATION)) {
+			return JavaHelper.METHOD_INVOCATION;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_MESSAGE)) {
+			return JavaHelper.METHOD_DECLARATION;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_METHOD)) {
+			return JavaHelper.METHOD_IMPLEMENTATION;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
+			return JavaHelper.METHOD_INVOCATION;
+		}
+		return "";
+	}
 
 	// returns the project source folder
 	public String targetFolder() {

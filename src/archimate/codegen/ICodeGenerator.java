@@ -8,15 +8,10 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import archimate.util.TagTree;
 
 public interface ICodeGenerator {
-	
+	// returns tree containing archimate tags for key code elements
 	public TagTree tree();
-	
+	// returns model containing all settings for code generation
 	public IGenModel model();
-	
-	public void generate_code();
-	
-	public void createSourceFiles(ArrayList<String> tags);
-	
-	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags);
-	
+	// method invoked to generate code
+	public void generate_code();	
 }

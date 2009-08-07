@@ -10,13 +10,13 @@ import archimate.util.*;
 public class JavaInspector extends ASTVisitor {
 
 	private TagTree tree;
-	private ICodeGenerator generator;
+	private SourceInspector inspector;
 	private JavaHelper helper;
 
-	public JavaInspector(ICodeGenerator generator) {
+	public JavaInspector(SourceInspector inspector) {
 		super(true);
-		this.tree = generator.tree();
-		this.generator = generator;
+		this.tree = inspector.tree();
+		this.inspector = inspector;
 		helper = new JavaHelper();
 	}
 
@@ -48,7 +48,7 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasParent() && current.parent().hasChild(tag)) {
 			if (current.hasChildren()) {
 				ArrayList<String> tags = tree.getUnvisited(current);
-				generator.addSourceElements(node, tags);
+				inspector.addSourceElements(node, tags);
 			}
 			tree.setCurrent(current.parent());
 		}

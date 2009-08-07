@@ -9,19 +9,20 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
 import archimate.util.FileHandler;
+import archimate.util.TagTree;
 
 public class ASTEngine {
 
 	private IFile targetFile;
-	private ICodeGenerator generator;
+	private SourceInspector inspector;
 
-	public ASTEngine(ICodeGenerator generator) {
-		this.generator = generator;
+	public ASTEngine(SourceInspector inspector) {
+		this.inspector = inspector;
 	}
 
-	public ASTEngine(IFile targetFile, ICodeGenerator generator) {
+	public ASTEngine(IFile targetFile, SourceInspector inspector) {
 		this.targetFile = targetFile;
-		this.generator = generator;
+		this.inspector = inspector;
 	}
 
 	public void traverseSource() {
@@ -32,7 +33,7 @@ public class ASTEngine {
 		parser.setSource(text.toCharArray());
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		unit.recordModifications();
-		JavaInspector visitor = new JavaInspector(generator);
+		JavaInspector visitor = new JavaInspector(inspector);
 		unit.accept(visitor);
 		String sourceCode = "";
 		Document doc = new Document(text);
@@ -46,6 +47,7 @@ public class ASTEngine {
 			}
 			sourceCode += doc.get();
 			handler.save(sourceCode.getBytes(), targetFile);
+			handler.selectAndReveal(targetFile);
 		}
 	}
 
@@ -72,7 +74,6 @@ public class ASTEngine {
 			targetFile = handler.save(sourceCode.getBytes(), model
 					.targetFolder(), model
 					.packageName(archiMateTag), model.targetFile(archiMateTag));
-			handler.selectAndReveal(targetFile);
 		}
 		traverseSource();
 	}
