@@ -1,11 +1,10 @@
-package archimate.templates;
+package archimate.patterns;
 
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import archimate.codegen.Config;
 import archimate.codegen.ICodeGenerator;
 import archimate.codegen.IGenModel;
 import archimate.codegen.JavaState;

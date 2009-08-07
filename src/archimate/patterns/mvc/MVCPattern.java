@@ -15,7 +15,7 @@ import org.eclipse.text.edits.TextEdit;
 
 import archimate.Activator;
 import archimate.codegen.*;
-import archimate.templates.Pattern;
+import archimate.patterns.Pattern;
 import archimate.util.*;
 
 public class MVCPattern extends Pattern implements ICodeGenerator {

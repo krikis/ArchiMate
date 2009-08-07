@@ -16,7 +16,6 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import archimate.Activator;
-import archimate.codegen.Config;
 
 public class FileHandler {
 

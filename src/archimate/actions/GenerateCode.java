@@ -1,28 +1,15 @@
 package archimate.actions;
 
-import java.util.*;
-
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.action.*;
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.emf.common.command.*;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.edit.domain.*;
 import org.eclipse.ui.*;
-import org.eclipse.uml2.uml.Constraint;
 import org.eclipse.uml2.uml.Profile;
-import org.eclipse.uml2.uml.ValueSpecification;
-import org.eclipse.uml2.uml.editor.UMLEditorPlugin;
 
 import archimate.Activator;
+import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
-import archimate.templates.*;
-
-import org.eclipse.emf.codegen.ecore.genmodel.impl.GenPackageImpl;
-
-//import org.eclipse.gmf.runtime.diagram.ui.editparts.*;
-import org.eclipse.uml2.diagram.csd.edit.parts.*;
+import archimate.primitives.callback.CallbackPrimitive;
 
 /**
  * Our sample action implements workbench action delegate. The action proxy will

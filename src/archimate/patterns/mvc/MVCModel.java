@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import archimate.Activator;
-import archimate.codegen.Config;
 import archimate.codegen.IGenModel;
 import archimate.codegen.JavaHelper;
 import archimate.uml.*;

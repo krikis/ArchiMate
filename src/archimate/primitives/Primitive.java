@@ -1,6 +1,7 @@
-package archimate.templates;
+package archimate.primitives;
 
 import archimate.codegen.ICodeGenerator;
+import archimate.patterns.Pattern;
 
 public class Primitive extends Pattern implements ICodeGenerator{
 	
