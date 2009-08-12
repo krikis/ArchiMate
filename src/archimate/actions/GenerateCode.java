@@ -58,21 +58,10 @@ public class GenerateCode extends ArchiMateAction {
 			}
 		}
 	}
-	
-//	private void showError(Throwable e) {
-//		MessageBox msgBox = new MessageBox(new Text(new Composite(this, SWT.NONE),SWT.BORDER).getShell(),
-//				SWT.APPLICATION_MODAL | SWT.OK | SWT.ICON_ERROR); 
-//		msgBox.setText("AST Explorer Error");
-//		String msg = e.getMessage();
-//		if (null == msg) 
-//			msg = e.toString();
-//		
-//		msgBox.setMessage(msg);
-//		msgBox.open(); 
-//	}
 
 	// Reads out the profiles and creates a Pattern object for each one of them
-	private void readProfiles(org.eclipse.uml2.uml.Package myPack, final IProgressMonitor monitor) {
+	private void readProfiles(org.eclipse.uml2.uml.Package myPack,
+			final IProgressMonitor monitor) {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
@@ -109,7 +98,9 @@ public class GenerateCode extends ArchiMateAction {
 		// Processing patterns
 		for (Iterator<Pattern> iter = patterns.iterator(); iter.hasNext();) {
 			Pattern pattern = iter.next();
-			monitor.setTaskName("Generating Code for " + pattern.name() + "...");
+			monitor
+					.setTaskName("Generating Code for " + pattern.name()
+							+ "...");
 			pattern.generate_code(monitor);
 		}
 	}

@@ -1,8 +1,12 @@
 package archimate.actions;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
+
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.*;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.ocl.uml.*;
 import org.eclipse.ocl.uml.OCL.*;
 import org.eclipse.emf.common.command.*;
@@ -21,6 +25,8 @@ import archimate.Activator;
  */
 public class Validate extends ArchiMateAction {
 
+	private ErrorDialog error = null;
+
 	/**
 	 * The action has been activated. The argument of the method represents the
 	 * 'real' action sitting in the workbench UI.
@@ -29,70 +35,138 @@ public class Validate extends ArchiMateAction {
 	 */
 	public void run(IAction action) {
 		if (command != UnexecutableCommand.INSTANCE) {
-			readPack(myPackage);
+			ProgressMonitorDialog dialog = new ProgressMonitorDialog(
+					workbenchPart.getSite().getShell());
+			try {
+				dialog.run(true, true, new IRunnableWithProgress() {
+					public void run(final IProgressMonitor monitor) {
+						error = readPack(myPackage, monitor);
+						monitor.done();
+					}
+				});
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			if (error != null) {
+				error.open();
+			}
 		}
 	}
 
 	// validates the UML model and reports the errors
-	private void readPack(org.eclipse.uml2.uml.Package myPack) {
-		String result = "";
-		result += readProfiles(myPack);
-		result += readStereotypes(myPack);
-		if (result.equals("")) {
-			MessageDialog.openInformation(window.getShell(),
-					"Archimate Validation Success",
-					"No errors encountered during validation.");
-		} else {
-			Status status = new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-					result);
-			ErrorDialog dialog = new ErrorDialog(window.getShell(),
-					"Archimate Validation Error(s)",
-					"Error(s) encountered during validation!", status,
-					IStatus.ERROR);
-			dialog.open();
+	private ErrorDialog readPack(org.eclipse.uml2.uml.Package myPack,
+			final IProgressMonitor monitor) {
+		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
+				"Temporary Status", null);
+		monitor.beginTask("Checking OCL Constraints...", estimateRules(myPack));
+		readProfiles(myPack, status, monitor);
+		readStereotypes(myPack, status, monitor);
+
+		MultiStatus newStatus = null;
+		if (status.getSeverity() == IStatus.INFO) {
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
+					"The validation completed succesfully.", null);
+		} else if (status.getSeverity() == IStatus.ERROR) {
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
+					"Errors encountered during validation.", null);
 		}
+		newStatus.addAll(status);
+		ErrorDialog dialog = null;
+		if (!monitor.isCanceled()) {
+			dialog = new ErrorDialog(window.getShell(), "Archimate Validation",
+					null, newStatus, status.getSeverity());
+		}
+		return dialog;
+	}
+
+	// estimates the number of rules to check
+	private int estimateRules(org.eclipse.uml2.uml.Package myPack) {
+		int rules = 0;
+		EList<Profile> profiles = myPack.getAppliedProfiles();
+		for (Iterator<Profile> iter = profiles.iterator(); iter.hasNext();) {
+			rules += iter.next().getOwnedRules().size();
+		}
+		EList<Element> elements = myPack.allOwnedElements();
+		for (Iterator<Element> iter = elements.iterator(); iter.hasNext();) {
+			EList<Stereotype> stereotypes = iter.next().getAppliedStereotypes();
+			for (Iterator<Stereotype> iter2 = stereotypes.iterator(); iter2
+					.hasNext();) {
+				rules += iter2.next().getOwnedRules().size();
+			}
+		}
+		return rules;
 	}
 
 	// reads out the profiles rules and checks them
-	private String readProfiles(org.eclipse.uml2.uml.Package myPack) {
+	private void readProfiles(org.eclipse.uml2.uml.Package myPack,
+			MultiStatus status, final IProgressMonitor monitor) {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
-		String output = "";
-		for (int i = 0; i < profiles.size(); ++i) {
-			Profile profile = profiles.get(i);
-			EList<Constraint> rules = profile.getOwnedRules();
-			for (int j = 0; j < rules.size(); ++j) {
-				Constraint rule = rules.get(j);
-				ValueSpecification spec = rule.getSpecification();
-				String ocl = spec.stringValue();
-				output += checkOCL(myPack, ocl);
+		for (Iterator<Profile> iter = profiles.iterator(); iter.hasNext();) {
+			if (monitor.isCanceled()) {
+				return;
 			}
+			Profile profile = iter.next();
+			EList<Constraint> rules = profile.getOwnedRules();
+			if (rules.size() > 0) {
+				monitor.setTaskName("Checking OCL Constraints for "
+						+ profile.getName() + "...");
+			}
+			handleRules(myPack, rules, status, monitor);
 		}
-		return output;
 	}
 
 	// reads out the stereotypes rules and checks them
-	private String readStereotypes(org.eclipse.uml2.uml.Package myPack) {
+	private void readStereotypes(org.eclipse.uml2.uml.Package myPack,
+			MultiStatus status, final IProgressMonitor monitor) {
 		EList<Element> elements = myPack.allOwnedElements();
-		String output = "";
-		for (int i = 0; i < elements.size(); ++i) {
-			Element element = elements.get(i);
+		for (Iterator<Element> iter = elements.iterator(); iter.hasNext();) {
+			if (monitor.isCanceled()) {
+				return;
+			}
+			Element element = iter.next();
 			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
-			for (int j = 0; j < stereotypes.size(); ++j) {
-				Stereotype stereotype = stereotypes.get(j);
-				EList<Constraint> rules = stereotype.getOwnedRules();
-				for (int k = 0; k < rules.size(); ++k) {
-					Constraint rule = rules.get(k);
-					ValueSpecification spec = rule.getSpecification();
-					String ocl = spec.stringValue();
-					output += checkOCL(element, ocl);
+			for (Iterator<Stereotype> iter2 = stereotypes.iterator(); iter2
+					.hasNext();) {
+				if (monitor.isCanceled()) {
+					return;
 				}
+				Stereotype stereotype = iter2.next();
+				EList<Constraint> rules = stereotype.getOwnedRules();
+				if (rules.size() > 0) {
+					monitor.setTaskName("Checking OCL Constraints for "
+							+ stereotype.getName() + "...");
+				}
+				handleRules(element, stereotype.getOwnedRules(), status,
+						monitor);
 			}
 		}
-		return output;
+	}
+
+	// reads out the OCL and comment of a rule and runs the check
+	private void handleRules(Element element, EList<Constraint> rules,
+			MultiStatus status, final IProgressMonitor monitor) {
+		for (int k = 0; k < rules.size(); ++k) {
+			if (monitor.isCanceled()) {
+				return;
+			}
+			Constraint rule = rules.get(k);
+			EList<Comment> comments = rule.getOwnedComments();
+			String comment = "";
+			for (Iterator<Comment> iter = comments.iterator(); iter.hasNext();) {
+				comment += iter.next().getBody() + "\n";
+			}
+			ValueSpecification spec = rule.getSpecification();
+			String ocl = spec.stringValue();
+			checkOCL(element, ocl, comment, status);
+			monitor.worked(1);
+		}
 	}
 
 	// checks the given OCL constraint on the given element
-	private String checkOCL(Element element, String oclExpr) {
+	private void checkOCL(Element element, String oclExpr, String comment,
+			MultiStatus status) {
 		boolean valid = false;
 
 		OCL myOcl = Activator.getOCL();
@@ -113,10 +187,15 @@ public class Validate extends ArchiMateAction {
 		oclInv.destroy();
 
 		if (valid) {
-			return ""; // "success for :: " + oclExpr + "\n";
+			status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
+					"SUCCESS: " + comment + "\n" + oclExpr, null));
+			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "\t\""
+					+ oclExpr + "\"", null));
 		} else {
-			return "The model doesn't meet the constraint \"" + oclExpr
-					+ "\"\n";
+			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1,
+					"ERROR: " + comment, null));
+			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, "\t\""
+					+ oclExpr + "\"", null));
 		}
 	}
 }

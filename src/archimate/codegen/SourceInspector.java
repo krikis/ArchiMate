@@ -93,6 +93,9 @@ public class SourceInspector {
 	// adds source elements when they are missing
 	private void traverseSourceFiles(IResource[] members) {
 		for (int index = 0; index < members.length; index++) {
+			if (monitor.isCanceled()) {
+				return;
+			}
 			IResource resource = members[index];
 			if (resource instanceof IContainer) {
 				IContainer container = (IContainer) resource;
@@ -112,21 +115,18 @@ public class SourceInspector {
 				astEngine.traverseSource();
 				monitor.worked(1);
 			}
-			if (monitor.isCanceled()) {
-				return;
-			}
 		}
 	}
 
 	// Adds the source files that are missing
 	private void createSourceFiles(ArrayList<String> tags) {
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
-			ASTEngine engine = new ASTEngine(this);
-			engine.createSourceFile(model, iter.next());
-			monitor.worked(1);
 			if (monitor.isCanceled()) {
 				return;
 			}
+			ASTEngine engine = new ASTEngine(this);
+			engine.createSourceFile(model, iter.next());
+			monitor.worked(1);
 		}
 	}
 
@@ -136,6 +136,9 @@ public class SourceInspector {
 	public void addSourceElements(TypeDeclaration node, ArrayList<String> tags) {
 		JavaHelper helper = new JavaHelper();
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
+			if (monitor.isCanceled()) {
+				return;
+			}
 			String tag = iter.next();
 			String type = model.sourceType(tag);
 			if (type.equals(JavaHelper.METHOD_DECLARATION)) {
@@ -146,9 +149,6 @@ public class SourceInspector {
 				helper.addMethodInvocations(model, node, tag);
 			}
 			monitor.worked(1);
-			if (monitor.isCanceled()) {
-				return;
-			}
 		}
 	}
 
