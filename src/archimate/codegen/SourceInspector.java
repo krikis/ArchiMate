@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.util.FileHandler;
@@ -25,6 +26,8 @@ public class SourceInspector {
 	private IGenModel model;
 	// ASTEngine for traversing the code
 	private ASTEngine astEngine;
+	// ProgressMonitor
+	private IProgressMonitor monitor;
 
 	/**
 	 * Creates a new {@link SourceInspector} and sets its {@link TagTree} and
@@ -36,6 +39,7 @@ public class SourceInspector {
 	public SourceInspector(ICodeGenerator generator) {
 		this.tree = generator.tree();
 		this.model = generator.model();
+		this.monitor = generator.monitor();
 	}
 
 	/**
@@ -45,6 +49,15 @@ public class SourceInspector {
 	 */
 	public TagTree tree() {
 		return tree;
+	}
+	
+	/**
+	 * Returns the progressmonitor
+	 * 
+	 * @return The progressmonitor
+	 */
+	public IProgressMonitor monitor() {
+		return monitor;
 	}
 
 	/**
@@ -97,6 +110,10 @@ public class SourceInspector {
 			if (resource instanceof IFile) {
 				astEngine = new ASTEngine((IFile) resource, this);
 				astEngine.traverseSource();
+				monitor.worked(1);
+			}
+			if (monitor.isCanceled()) {
+				return;
 			}
 		}
 	}
@@ -106,6 +123,10 @@ public class SourceInspector {
 		for (Iterator<String> iter = tags.iterator(); iter.hasNext();) {
 			ASTEngine engine = new ASTEngine(this);
 			engine.createSourceFile(model, iter.next());
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return;
+			}
 		}
 	}
 
@@ -123,6 +144,10 @@ public class SourceInspector {
 				helper.addMethods(model, node, tag);
 			} else if (type.equals(JavaHelper.METHOD_INVOCATION)) {
 				helper.addMethodInvocations(model, node, tag);
+			}
+			monitor.worked(1);
+			if (monitor.isCanceled()) {
+				return;
 			}
 		}
 	}

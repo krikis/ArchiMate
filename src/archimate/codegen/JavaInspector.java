@@ -2,6 +2,7 @@ package archimate.codegen;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.*;
 
 import archimate.util.*;
@@ -23,6 +24,8 @@ public class JavaInspector extends ASTVisitor {
 	private SourceInspector inspector;
 	// JavaHelper for accessing the source code
 	private JavaHelper helper;
+	// ProgressMonitor
+	private IProgressMonitor monitor;
 
 	/**
 	 * Creates a new {@link JavaInspector} and sets the {@link TagTree} and
@@ -35,6 +38,7 @@ public class JavaInspector extends ASTVisitor {
 		super(true);
 		this.tree = inspector.tree();
 		this.inspector = inspector;
+		this.monitor = inspector.monitor();
 		helper = new JavaHelper();
 	}
 
@@ -74,6 +78,7 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			self.setVisited(true);
+			monitor.worked(1);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
 				return true;

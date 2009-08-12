@@ -38,6 +38,15 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns the number of children in a node
+	 * 
+	 * @return The number of children in a node
+	 */
+	public int nrOfChildren() {
+		return children.size();
+	}
+
+	/**
 	 * Adds a child to the node
 	 * 
 	 * @param node

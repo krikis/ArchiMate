@@ -16,6 +16,7 @@ import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 
 import archimate.Activator;
+import archimate.codegen.ASTEngine;
 
 /**
  * Utility class for handling source files
@@ -27,6 +28,49 @@ public class FileHandler {
 
 	public FileHandler() {
 
+	}
+
+	/**
+	 * Counts the number of source files in a Java project source folder.
+	 * 
+	 * @return The number of files in a Java project source folder
+	 */
+	public int countFiles(String targetfolder, String packageBase) {
+		IContainer container = findOrCreateContainer(targetfolder, packageBase);
+		IResource[] members = null;
+		try {
+			members = container.members();
+		} catch (CoreException e) {
+			System.out.println("Could not access members of the container "
+					+ container.getFullPath() + ".");
+			e.printStackTrace();
+		}
+		return countFiles(members);
+	}
+	
+	// Recursively counts the number of files in a folder.
+	private int countFiles(IResource[] members) {	
+		int files = 0;
+		for (int index = 0; index < members.length; index++) {
+			IResource resource = members[index];
+			if (resource instanceof IContainer) {
+				IContainer container = (IContainer) resource;
+				IResource[] newMembers = null;
+				try {
+					newMembers = container.members();
+				} catch (CoreException e) {
+					System.out.println("Could not access members "
+							+ "of the container " + container.getFullPath()
+							+ ".");
+					e.printStackTrace();
+				}
+				files += countFiles(newMembers);
+			}
+			if (resource instanceof IFile) {
+				++files;
+			}
+		}
+		return files;
 	}
 
 	/**

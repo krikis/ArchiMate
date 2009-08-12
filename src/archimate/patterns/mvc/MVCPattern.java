@@ -1,5 +1,7 @@
 package archimate.patterns.mvc;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 import archimate.codegen.*;
 import archimate.patterns.Pattern;
 import archimate.util.*;
@@ -73,6 +75,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	 *            The UML package in the open UML or GMF editor
 	 */
 	public MVCPattern(org.eclipse.uml2.uml.Package myPackage) {
+		super.name = "MVC Pattern";
 		// Setup the tag tree
 		super.tree = constructTree();
 		// Read out UML model

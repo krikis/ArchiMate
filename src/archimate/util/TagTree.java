@@ -43,6 +43,25 @@ public class TagTree {
 	}
 
 	/**
+	 * Returns the number of nodes in the tree
+	 * 
+	 * @return The number of nodes in the tree
+	 */
+	public int nodes() {
+		return nodes(root);
+	}
+
+	// Recursively counts the number of nodes in the tree
+	private int nodes(TagNode node) {
+		int nodes = node.nrOfChildren();
+		for (Iterator<TagNode> iter = node.children().iterator(); iter
+				.hasNext();) {
+			nodes += nodes(iter.next());
+		}
+		return nodes;
+	}
+
+	/**
 	 * Marks a node as selected
 	 * 
 	 * @param node
