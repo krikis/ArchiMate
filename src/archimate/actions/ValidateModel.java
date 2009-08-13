@@ -186,13 +186,13 @@ public class ValidateModel extends ArchiMateAction {
 
 		if (valid) {
 			status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
-					"SUCCESS: " + comment + "\n" + oclExpr, null));
-			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "\t\""
+					"SUCCESS: " + comment, null));
+			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "   \""
 					+ oclExpr + "\"", null));
 		} else {
 			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1,
 					"ERROR: " + comment, null));
-			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, "\t\""
+			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, "   \""
 					+ oclExpr + "\"", null));
 		}
 	}
