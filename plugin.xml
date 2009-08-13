@@ -24,12 +24,12 @@
                tooltip="Generate Code">
          </action>
          <action
-               class="archimate.actions.Validate"
+               class="archimate.actions.ValidateModel"
                icon="icons/green.png"
-               id="ArchiMate.Menu.Validate"
-               label="Validate"
+               id="ArchiMate.Menu.ValidateModel"
+               label="Validate Model"
                menubarPath="archiMateMenu/archiMateGroup"
-               tooltip="Validate">
+               tooltip="Validate Model">
          </action>
       </actionSet>
    </extension>
@@ -46,10 +46,10 @@
                menubarPath="additions">
          </action>
          <action
-               class="archimate.actions.Validate"
+               class="archimate.actions.ValidateModel"
                icon="icons/green.png"
-               id="ArchiMate.UMLEditor.Validate"
-               label="Validate"
+               id="ArchiMate.UMLEditor.ValidateModel"
+               label="Validate Model"
                menubarPath="additions">
          </action>
       </viewerContribution>
@@ -64,10 +64,10 @@
                menubarPath="additions">
          </action>
          <action
-               class="archimate.actions.Validate"
+               class="archimate.actions.ValidateModel"
                icon="icons/green.png"
-               id="ArchiMate.GMFEditor.Validate"
-               label="Validate"
+               id="ArchiMate.GMFEditor.ValidateModel"
+               label="Validate Model"
                menubarPath="additions">
          </action>
       </viewerContribution>

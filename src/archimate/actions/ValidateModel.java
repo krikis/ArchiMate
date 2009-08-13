@@ -23,7 +23,7 @@ import archimate.Activator;
  * 
  * @see IWorkbenchWindowActionDelegate
  */
-public class Validate extends ArchiMateAction {
+public class ValidateModel extends ArchiMateAction {
 
 	private ErrorDialog error = null;
 
