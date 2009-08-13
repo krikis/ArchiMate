@@ -29,7 +29,13 @@ import org.eclipse.emf.edit.domain.*;
 import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 import org.eclipse.gmf.runtime.diagram.ui.resources.editor.parts.DiagramDocumentEditor;
 
-public class ArchiMateAction extends ActionDelegate implements
+/**
+ * This abstract class takes care of activating the action and setting the
+ * necessary variables
+ * 
+ * @author Samuel Esposito
+ */
+public abstract class ArchiMateAction extends ActionDelegate implements
 		IWorkbenchWindowActionDelegate, IEditorActionDelegate {
 
 	protected static IWorkbenchWindow window;

@@ -16,12 +16,10 @@ import org.eclipse.uml2.uml.*;
 import archimate.Activator;
 
 /**
- * Our sample action implements workbench action delegate. The action proxy will
- * be created by the workbench and shown in the UI. When the user tries to use
- * the action, this delegate will be created and execution will be delegated to
- * it.
+ * This class implements the Validate Model action. The selected UML package is
+ * validated.
  * 
- * @see IWorkbenchWindowActionDelegate
+ * @author Samuel Esposito
  */
 public class ValidateModel extends ArchiMateAction {
 

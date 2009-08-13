@@ -25,12 +25,10 @@ import archimate.patterns.primitives.callback.CallbackPrimitive;
 import archimate.util.FileHandler;
 
 /**
- * Our sample action implements workbench action delegate. The action proxy will
- * be created by the workbench and shown in the UI. When the user tries to use
- * the action, this delegate will be created and execution will be delegated to
- * it.
+ * This class implements the Generate Code action. Code is generated for the
+ * selected UML package.
  * 
- * @see IWorkbenchWindowActionDelegate
+ * @author Samuel Esposito
  */
 public class GenerateCode extends ArchiMateAction {
 
