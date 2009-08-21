@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 
-import archimate.util.Class;
+import archimate.util.JavaClass;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 

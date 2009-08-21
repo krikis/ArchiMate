@@ -8,6 +8,10 @@ import java.util.StringTokenizer;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
+import archimate.util.JavaClass;
+import archimate.util.JavaMethod;
+import archimate.util.TagNode;
+
 /**
  * This utility class provides methods for accessing and editing source code
  * parsed by the {@link ASTParser}
@@ -124,160 +128,134 @@ public class JavaHelper {
 	 * @param archiMateTag
 	 *            The archiMateTag identifying the desired class
 	 */
-	public void addClass(CompilationUnit unit, IGenModel model,
-			String archiMateTag) {
+	public void addClass(CompilationUnit unit, JavaClass javaClass) {
 		// add package declaration
 		AST ast = unit.getAST();
 		PackageDeclaration packageDeclaration = ast.newPackageDeclaration();
 		unit.setPackage(packageDeclaration);
-		packageDeclaration
-				.setName(ast.newName(model.packageName(archiMateTag)));
+		packageDeclaration.setName(ast.newName(javaClass.packageName()));
 		// add imports
-		addImports(unit, model.imports(archiMateTag));
+		addImports(unit, javaClass.imports());
 		// add class declaration
 		TypeDeclaration classType = ast.newTypeDeclaration();
-		classType.setInterface(model.isInterface(archiMateTag));
+		classType.setInterface(javaClass.isInterface());
 		setModifier(ast, classType, Modifier.PUBLIC);
-		classType.setName(ast.newSimpleName(model.className(archiMateTag)));
-		for (Iterator<String> iter = model.interfaces(archiMateTag).iterator(); iter
-				.hasNext();) {
-			classType.superInterfaceTypes().add(
-					ast.newSimpleType(ast.newSimpleName(iter.next())));
+		classType.setName(ast.newSimpleName(javaClass.className()));
+		// add implemented interfaces
+		if (!javaClass.isInterface()) {
+			for (Iterator<String> iter = javaClass.interfaces().iterator(); iter
+					.hasNext();) {
+				classType.superInterfaceTypes().add(
+						ast.newSimpleType(ast.newSimpleName(iter.next())));
+			}
 		}
 		unit.types().add(classType);
 		// add javadoc
-		Javadoc jc = ast.newJavadoc();
-		TagElement tag = ast.newTagElement();
-		TextElement te = ast.newTextElement();
-		tag.fragments().add(te);
-		te.setText(model.classComment(archiMateTag));
-		jc.tags().add(tag);
-		tag = ast.newTagElement();
-		te = ast.newTextElement();
-		tag.fragments().add(te);
-		te.setText("");
-		jc.tags().add(tag);
-		tag = ast.newTagElement();
-		tag.setTagName(ARCHIMATETAG);
-		te = ast.newTextElement();
-		tag.fragments().add(te);
-		te.setText(archiMateTag);
-		jc.tags().add(tag);
-		classType.setJavadoc(jc);
+		addJavaDoc(classType, javaClass);
 	}
 
 	/**
-	 * Adds methods identified by the archiMateTag to the
-	 * {@link TypeDeclaration} node using the {@link IGenModel}s settings
+	 * Adds methods defined by the {@link TagNode}s {@link ICodeElement}s to the
+	 * {@link TypeDeclaration} node
 	 * 
-	 * @param model
-	 *            IGenModel specifying all settings for code generation
 	 * @param node
 	 *            {@link TypeDeclaration} node to add the methods to
-	 * @param archiMateTag
-	 *            archiMateTag identifying the methods to add
+	 * @param tagnode
+	 *            {@link TagNode} with a list of {@link ICodeElement}s
 	 */
-	public void addMethods(IGenModel model, TypeDeclaration node,
-			String archiMateTag) {
-		ArrayList<String> methods = model.methods(archiMateTag);
-		AST ast = node.getAST();
-		MethodDeclaration md;
-		for (Iterator<String> iter = methods.iterator(); iter.hasNext();) {
-			md = ast.newMethodDeclaration();
-			md.setConstructor(false);
-			setModifier(ast, md, Modifier.PUBLIC);
-			md.setName(ast.newSimpleName(iter.next()));
-			node.bodyDeclarations().add(md);
-			Block methodBlock = ast.newBlock();
-			md.setBody(methodBlock);
-			Javadoc jc = ast.newJavadoc();
-			TagElement tag = ast.newTagElement();
-			tag.setTagName(ARCHIMATETAG);
-			TextElement te = ast.newTextElement();
-			tag.fragments().add(te);
-			te.setText(archiMateTag);
-			jc.tags().add(tag);
-			md.setJavadoc(jc);
+	public void addMethods(TypeDeclaration node, TagNode tagnode) {
+		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
+				.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof JavaMethod) {
+				addMethod(node, (JavaMethod) element);
+
+			}
 		}
 	}
 
 	/**
-	 * Adds method declarations identified by the archiMateTag to the
-	 * {@link TypeDeclaration} node using the {@link IGenModel}s settings
+	 * Adds a method to a {@link TypeDeclaration} based on the settings of the
+	 * {@link JavaMethod}. If the {@link JavaMethod}s type is a
+	 * {@link JavaMethod#DECLARATION}, a method declaration is added. If the
+	 * {@link JavaMethod}s type is a {@link JavaMethod#IMPLEMENTATION}, a method
+	 * with a method block is added. If the {@link JavaMethod}s type is a
+	 * {@link JavaMethod#INVOCATION}, a method with a method invocation in its
+	 * block is added.
 	 * 
-	 * @param model
-	 *            IGenModel specifying all settings for code generation
 	 * @param node
-	 *            {@link TypeDeclaration} node to add the method declarations to
-	 * @param archiMateTag
-	 *            archiMateTag identifying the method declarations to add
+	 *            {@link TypeDeclaration} node to add the methods to
+	 * @param method
+	 *            {@link JavaMethod} object containing all the settings for the
+	 *            new method
 	 */
-	public void addMethodDeclarations(IGenModel model, TypeDeclaration node,
-			String archiMateTag) {
-		ArrayList<String> methods = model.methods(archiMateTag);
+	public void addMethod(TypeDeclaration node, JavaMethod method) {
 		AST ast = node.getAST();
+		// Add the method declaration
 		MethodDeclaration md;
-		for (Iterator<String> iter = methods.iterator(); iter.hasNext();) {
-			md = ast.newMethodDeclaration();
-			md.setConstructor(false);
-			setModifier(ast, md, Modifier.PUBLIC);
-			md.setName(ast.newSimpleName(iter.next()));
-			node.bodyDeclarations().add(md);
-			Javadoc jc = ast.newJavadoc();
-			TagElement tag = ast.newTagElement();
-			tag.setTagName(ARCHIMATETAG);
-			TextElement te = ast.newTextElement();
-			tag.fragments().add(te);
-			te.setText(archiMateTag);
-			jc.tags().add(tag);
-			md.setJavadoc(jc);
+		md = ast.newMethodDeclaration();
+		md.setConstructor(false);
+		setModifier(ast, md, Modifier.PUBLIC);
+		if (method.type().equals(JavaMethod.INVOCATION)) {
+			md.setName(ast.newSimpleName(method.invocationMethod()));
+		} else {
+			md.setName(ast.newSimpleName(method.name()));
 		}
+		node.bodyDeclarations().add(md);
+		// Add method block
+		if (!method.type().equals(JavaMethod.DECLARATION)) {
+			Block methodBlock = ast.newBlock();
+			md.setBody(methodBlock);
+			// Add method invocation
+			if (method.type().equals(JavaMethod.INVOCATION)) {
+				String objectClass = method.invocationClass();
+				String objectName = method.invocationObject();
+				addObject(methodBlock, objectClass, objectName,
+						new ArrayList<String>());
+				addMethodInvocation(methodBlock, objectName, method.name(),
+						new ArrayList<String>());
+			}
+		}
+		// Add the JavaDoc
+		addJavaDoc(md, method);
 	}
 
 	/**
-	 * Adds method invocations identified by the archiMateTag to the
-	 * {@link TypeDeclaration} node using the {@link IGenModel}s settings
+	 * Adds JavaDoc to a {@link BodyDeclaration} based on the settings of the
+	 * {@link ICodeElement}
 	 * 
-	 * @param model
-	 *            IGenModel specifying all settings for code generation
-	 * @param node
-	 *            {@link TypeDeclaration} node to add the method invocations to
-	 * @param archiMateTag
-	 *            archiMateTag identifying the method invocations to add
+	 * @param body
+	 *            the {@link BodyDeclaration} to add the JavaDoc to
+	 * @param element
+	 *            the {@link ICodeElement} to derive the documentation from
 	 */
-	public void addMethodInvocations(IGenModel model, TypeDeclaration node,
-			String archiMateTag) {
-		CompilationUnit unit = (CompilationUnit) node.getRoot();
-		addImports(unit, model.imports(archiMateTag));
-		ArrayList<String> methods = model.methods(archiMateTag);
-		ArrayList<String> methodInvocations = model
-				.methodInvocations(archiMateTag);
-		Iterator<String> iter = methodInvocations.iterator();
-		AST ast = node.getAST();
-		MethodDeclaration md;
-		for (Iterator<String> iter2 = methods.iterator(); iter2.hasNext();) {
-			md = ast.newMethodDeclaration();
-			md.setConstructor(false);
-			setModifier(ast, md, Modifier.PUBLIC);
-			md.setName(ast.newSimpleName(iter2.next()));
-			node.bodyDeclarations().add(md);
-			Block methodBlock = ast.newBlock();
-			md.setBody(methodBlock);
-			String objectClass = model.objectClass(archiMateTag);
-			String objectName = model.objectName(archiMateTag);
-			addObject(methodBlock, objectClass, objectName,
-					new ArrayList<String>());
-			addMethodInvocation(methodBlock, objectName, iter.next(),
-					new ArrayList<String>());
-			Javadoc jc = ast.newJavadoc();
-			TagElement tag = ast.newTagElement();
-			tag.setTagName(ARCHIMATETAG);
-			TextElement te = ast.newTextElement();
+	public void addJavaDoc(BodyDeclaration body, ICodeElement element) {
+		AST ast = body.getAST();
+		Javadoc jc = ast.newJavadoc();
+		TagElement tag;
+		TextElement te;
+		if (element.commentDefined()) {
+			tag = ast.newTagElement();
+			te = ast.newTextElement();
 			tag.fragments().add(te);
-			te.setText(archiMateTag);
+			te.setText(element.comment());
 			jc.tags().add(tag);
-			md.setJavadoc(jc);
+			tag = ast.newTagElement();
+			te = ast.newTextElement();
+			tag.fragments().add(te);
+			te.setText("");
+			jc.tags().add(tag);
 		}
+		if (element.archiMateTagsDefined()) {
+			tag = ast.newTagElement();
+			te = ast.newTextElement();
+			tag.setTagName(ARCHIMATETAG);
+			te = ast.newTextElement();
+			tag.fragments().add(te);
+			te.setText(element.archiMateTag());
+			jc.tags().add(tag);
+		}
+		body.setJavadoc(jc);
 	}
 
 	/**
@@ -321,27 +299,6 @@ public class JavaHelper {
 		mi.setExpression(ast.newSimpleName(objectName));
 		mi.setName(ast.newSimpleName(methodName));
 		methodBlock.statements().add(ast.newExpressionStatement(mi));
-	}
-
-	/**
-	 * Adds a method to a {@link TypeDeclaration} node
-	 * 
-	 * @param node
-	 *            The {@link TypeDeclaration} node to add the method to
-	 * @param name
-	 *            The name of the method
-	 * @param tag
-	 *            The archiMateTag identifying the method
-	 */
-	public void addMethod(TypeDeclaration node, String name, String tag) {
-		AST ast = node.getAST();
-		MethodDeclaration md = ast.newMethodDeclaration();
-		md.setConstructor(false);
-		setModifier(ast, md, Modifier.PUBLIC);
-		md.setName(ast.newSimpleName("getData"));
-		node.bodyDeclarations().add(md);
-		Block methodBlock = ast.newBlock();
-		md.setBody(methodBlock);
 	}
 
 	// helper method for setting a BodyDeclaration modifier

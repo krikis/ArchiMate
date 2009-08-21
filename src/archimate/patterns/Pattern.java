@@ -10,9 +10,9 @@ import archimate.codegen.ICodeGenerator;
 import archimate.codegen.IGenModel;
 import archimate.codegen.SourceInspector;
 import archimate.uml.UMLAdapter;
-import archimate.util.Class;
+import archimate.util.JavaClass;
 import archimate.util.FileHandler;
-import archimate.util.Method;
+import archimate.util.JavaMethod;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
@@ -81,9 +81,10 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Creates a Class object with the given settings
-	protected Class createClass(TagNode node, ArrayList<String> stereotypes,
-			String packageName, ArrayList<String> imports, String type,
-			String defaultName, String comment) {
+	protected JavaClass createClass(TagNode node,
+			ArrayList<String> stereotypes, String packageName,
+			ArrayList<String> imports, String type, String defaultName,
+			ArrayList<String> interfaces, String comment) {
 		String className = "";
 		for (Iterator<String> iter = stereotypes.iterator(); iter.hasNext();) {
 			String stereotype = iter.next();
@@ -93,8 +94,14 @@ public abstract class Pattern implements ICodeGenerator {
 			}
 		}
 		className = className.equals("") ? defaultName : className;
-		Class newClass = new Class(packageName, className, node.tag(), type);
-		newClass.setComment(comment);
+		JavaClass newClass = new JavaClass(packageName, className, node.tag(),
+				type);
+		if (imports != null)
+			newClass.addImports(imports);
+		if (interfaces != null)
+			newClass.addInterfaces(interfaces);
+		if (comment != null)
+			newClass.setComment(comment);
 		return newClass;
 	}
 
@@ -102,11 +109,12 @@ public abstract class Pattern implements ICodeGenerator {
 	// the TagNodes sourcelist
 	protected void addMethods(TagNode node, String stereotype,
 			String defaultName, String type, String className, String comment) {
-		ArrayList<String> names = umlreader.getElementNames("DataMessage");
+		ArrayList<String> names = umlreader.getElementNames(stereotype);
 		for (int index = 0; index < names.size(); ++index) {
 			String name = names.get(index);
 			name = (name.equals("") ? defaultName + index : name);
-			Method method = new Method(name, node.tag(), type, className);
+			JavaMethod method = new JavaMethod(name, node.tag(), type,
+					className);
 			method.setComment(comment);
 			node.addSource(method);
 		}
@@ -115,13 +123,13 @@ public abstract class Pattern implements ICodeGenerator {
 	// Clones the Method objects in the list, adds the given settings and adds
 	// the list to the TagNodes sourcelist
 	protected void addMethods(TagNode node, ArrayList<ICodeElement> methods,
-			String type, String comment) {
+			String type, String className, String comment) {
 		for (Iterator<ICodeElement> iter = methods.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element instanceof Method) {
-				Method method = (Method) element;
-				Method newMethod = new Method(method.name(), method
-						.archiMateTag(), type, method.invocationClass());
+			if (element instanceof JavaMethod) {
+				JavaMethod method = (JavaMethod) element;
+				JavaMethod newMethod = new JavaMethod(method.name(), method
+						.archiMateTag(), type, className);
 				newMethod.setComment(comment);
 				node.addSource(newMethod);
 			}

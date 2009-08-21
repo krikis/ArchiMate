@@ -117,13 +117,13 @@ public class TagTree {
 	 *            The node which children are searched
 	 * @return A list of nodes which are unvisited
 	 */
-	public static ArrayList<String> getUnvisited(TagNode node) {
-		ArrayList<String> unvisited = new ArrayList<String>();
+	public static ArrayList<TagNode> getUnvisited(TagNode node) {
+		ArrayList<TagNode> unvisited = new ArrayList<TagNode>();
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {
 			TagNode child = iter.next();
 			if (!child.visited()) {
-				unvisited.add(child.tag());
+				unvisited.add(child);
 			}
 		}
 		return unvisited;
