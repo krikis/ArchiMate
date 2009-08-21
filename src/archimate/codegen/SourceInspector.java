@@ -50,6 +50,15 @@ public class SourceInspector {
 	public TagTree tree() {
 		return tree;
 	}
+
+	/**
+	 * Returns the current {@link IGenModel}
+	 * 
+	 * @return The current {@link IGenModel}
+	 */
+	public IGenModel model() {
+		return model;
+	}
 	
 	/**
 	 * Returns the progressmonitor

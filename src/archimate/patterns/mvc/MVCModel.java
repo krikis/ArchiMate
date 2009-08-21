@@ -19,12 +19,12 @@ public class MVCModel implements IGenModel {
 	// variables for all class and interface names
 	private String dataInterface = "";
 	private String modelDataPort = "";
-	private String viewDataPort = "";
+	private String controlDataPort = "";
 	private String updateInterface = "";
 	private String viewUpdatePort = "";
-	private String controlUpdatePort = "";
+	private String modelUpdatePort = "";
 	private String commandInterface = "";
-	private String modelCommandPort = "";
+	private String viewCommandPort = "";
 	private String controlCommandPort = "";
 	// variables for all method names
 	private ArrayList<String> dataMethods;
@@ -56,36 +56,36 @@ public class MVCModel implements IGenModel {
 		}
 		modelDataPort = umlreader.getElementName("ModelDataPort");
 		if (modelDataPort.equals("")) {
-			modelDataPort = umlreader.getElementName("ModelDataPInstance");
+			modelDataPort = umlreader.getElementName("ModelDataInstance");
 		}
 		if (modelDataPort.equals("")) {
 			modelDataPort = "ModelData";
 		}
-		viewDataPort = umlreader.getElementName("ViewDataPort");
-		if (viewDataPort.equals("")) {
-			viewDataPort = umlreader.getElementName("ViewDataPInstance");
+		controlDataPort = umlreader.getElementName("ControlDataPort");
+		if (controlDataPort.equals("")) {
+			controlDataPort = umlreader.getElementName("ControlDataInstance");
 		}
-		if (viewDataPort.equals("")) {
-			viewDataPort = "ViewData";
+		if (controlDataPort.equals("")) {
+			controlDataPort = "ControlData";
 		}
 		updateInterface = umlreader.getElementName("UpdateInterface");
 		if (updateInterface.equals("")) {
 			updateInterface = "Update";
 		}
-		controlUpdatePort = umlreader.getElementName("ControlUpdatePort");
-		if (controlUpdatePort.equals("")) {
-			controlUpdatePort = umlreader
-					.getElementName("ControlUpdatePInstance");
-		}
-		if (controlUpdatePort.equals("")) {
-			controlUpdatePort = "ControlUpdate";
-		}
 		viewUpdatePort = umlreader.getElementName("ViewUpdatePort");
 		if (viewUpdatePort.equals("")) {
-			viewUpdatePort = umlreader.getElementName("ViewUpdatePInstance");
+			viewUpdatePort = umlreader
+					.getElementName("ViewUpdateInstance");
 		}
 		if (viewUpdatePort.equals("")) {
 			viewUpdatePort = "ViewUpdate";
+		}
+		modelUpdatePort = umlreader.getElementName("ModelUpdatePort");
+		if (modelUpdatePort.equals("")) {
+			modelUpdatePort = umlreader.getElementName("ModelUpdateInstance");
+		}
+		if (modelUpdatePort.equals("")) {
+			modelUpdatePort = "ModelUpdate";
 		}
 		commandInterface = umlreader.getElementName("CommandInterface");
 		if (commandInterface.equals("")) {
@@ -93,17 +93,17 @@ public class MVCModel implements IGenModel {
 		}
 		controlCommandPort = umlreader.getElementName("ControlCommandPort");
 		if (controlCommandPort.equals("")) {
-			controlCommandPort = umlreader.getElementName("ControlCommandPInstance");
+			controlCommandPort = umlreader.getElementName("ControlCommandInstance");
 		}
 		if (controlCommandPort.equals("")) {
 			controlCommandPort = "ControlCommand";
 		}
-		modelCommandPort = umlreader.getElementName("ModelCommandPort");
-		if (modelCommandPort.equals("")) {
-			modelCommandPort = umlreader.getElementName("ModelCommandPInstance");
+		viewCommandPort = umlreader.getElementName("ViewCommandPort");
+		if (viewCommandPort.equals("")) {
+			viewCommandPort = umlreader.getElementName("ViewCommandInstance");
 		}
-		if (modelCommandPort.equals("")) {
-			modelCommandPort = "ModelCommand";
+		if (viewCommandPort.equals("")) {
+			viewCommandPort = "ViewCommand";
 		}
 		dataMethods = umlreader.getElementNames("DataMessage");
 		if (dataMethods.size() == 0) {
@@ -186,8 +186,8 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
 			return packageBase + ".model";
 		}
-		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
-			return packageBase + ".view";
+		if (archiMateTag.equals(MVCPattern.CONTROL_DATA)) {
+			return packageBase + ".controller";
 		}
 		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
 			return packageBase + ".view";
@@ -195,14 +195,14 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
 			return packageBase + ".view";
 		}
-		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
-			return packageBase + ".controller";
+		if (archiMateTag.equals(MVCPattern.MODEL_UPDATE)) {
+			return packageBase + ".model";
 		}
 		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
-			return packageBase + ".model";
+			return packageBase + ".controller";
 		}
-		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
-			return packageBase + ".model";
+		if (archiMateTag.equals(MVCPattern.VIEW_COMMAND)) {
+			return packageBase + ".view";
 		}
 		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
 			return packageBase + ".controller";
@@ -222,7 +222,7 @@ public class MVCModel implements IGenModel {
 					+ objectClass(archiMateTag));
 		}
 		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
-			imports.add(packageName(MVCPattern.MODEL_COMMAND) + "."
+			imports.add(packageName(MVCPattern.CONTROL_COMMAND) + "."
 					+ objectClass(archiMateTag));
 		}
 		return imports;
@@ -236,8 +236,8 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
 			return "This class implements the ModelDataPort of the MVC Pattern";
 		}
-		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
-			return "This class implements the ViewDataPort of the MVC Pattern";
+		if (archiMateTag.equals(MVCPattern.CONTROL_DATA)) {
+			return "This class implements the ControlDataPort of the MVC Pattern";
 		}
 		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
 			return "This interface specifies the Update interface of the MVC Pattern";
@@ -245,14 +245,14 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
 			return "This class implements the ViewUpdatePort of the MVC Pattern";
 		}
-		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
-			return "This class implements the ControlUpdatePort of the MVC Pattern";
+		if (archiMateTag.equals(MVCPattern.MODEL_UPDATE)) {
+			return "This class implements the ModelUpdatePort of the MVC Pattern";
 		}
 		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
 			return "This interface specifies the Command interface of the MVC Pattern";
 		}
-		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
-			return "This class implements the ModelCommandPort of the MVC Pattern";
+		if (archiMateTag.equals(MVCPattern.VIEW_COMMAND)) {
+			return "This class implements the ViewCommandPort of the MVC Pattern";
 		}
 		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
 			return "This class implements the ControlCommandPort of the MVC Pattern";
@@ -268,8 +268,8 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.MODEL_DATA)) {
 			return modelDataPort;
 		}
-		if (archiMateTag.equals(MVCPattern.VIEW_DATA)) {
-			return viewDataPort;
+		if (archiMateTag.equals(MVCPattern.CONTROL_DATA)) {
+			return controlDataPort;
 		}
 		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
 			return updateInterface;
@@ -277,14 +277,14 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
 			return viewUpdatePort;
 		}
-		if (archiMateTag.equals(MVCPattern.CONTROL_UPDATE)) {
-			return controlUpdatePort;
+		if (archiMateTag.equals(MVCPattern.MODEL_UPDATE)) {
+			return modelUpdatePort;
 		}
 		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
 			return commandInterface;
 		}
-		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
-			return modelCommandPort;
+		if (archiMateTag.equals(MVCPattern.VIEW_COMMAND)) {
+			return viewCommandPort;
 		}
 		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
 			return controlCommandPort;
@@ -301,7 +301,7 @@ public class MVCModel implements IGenModel {
 		if (archiMateTag.equals(MVCPattern.VIEW_UPDATE)) {
 			interfaces.add(updateInterface);
 		}
-		if (archiMateTag.equals(MVCPattern.MODEL_COMMAND)) {
+		if (archiMateTag.equals(MVCPattern.CONTROL_COMMAND)) {
 			interfaces.add(commandInterface);
 		}
 		return interfaces;
@@ -330,7 +330,7 @@ public class MVCModel implements IGenModel {
 			return viewUpdatePort;
 		}
 		if (archiMateTag.equals(MVCPattern.COMMAND_INVOCATION)) {
-			return modelCommandPort;
+			return controlCommandPort;
 		}
 		return "";
 	}

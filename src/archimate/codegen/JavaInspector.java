@@ -123,6 +123,7 @@ public class JavaInspector extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
+//			inspector.model().tickOff(tag);
 			self.setVisited(true);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
