@@ -86,7 +86,7 @@ public class ASTEngine {
 	 * @param archiMateTag
 	 *            The tag to generate code for
 	 */
-	public void createSourceFile(IGenModel model, TagNode node) {
+	public void createSourceFile(TagNode node) {
 		for (Iterator<ICodeElement> iter = node.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
@@ -112,8 +112,8 @@ public class ASTEngine {
 						e.printStackTrace();
 					}
 					sourceCode += doc.get();
-					targetFile = handler.save(sourceCode, model.targetFolder(),
-							javaClass.packageName(), javaClass.targetFile());
+					targetFile = handler.save(sourceCode, javaClass
+							.packageName(), javaClass.targetFile());
 				}
 				traverseSource();
 			}

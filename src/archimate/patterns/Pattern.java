@@ -7,7 +7,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
-import archimate.codegen.IGenModel;
 import archimate.codegen.SourceInspector;
 import archimate.uml.UMLAdapter;
 import archimate.util.JavaClass;
@@ -22,10 +21,10 @@ public abstract class Pattern implements ICodeGenerator {
 	protected int tasks = 0;
 	// The name of the pattern
 	protected String name;
+	// Base of the package
+	protected String packageBase;
 	// Tree defining the structure of the MVC pattern key elements
 	protected TagTree tree;
-	// Model containing all data for the MVC framework to create
-	protected IGenModel model;
 	// ProgressMonitor
 	protected IProgressMonitor monitor;
 
@@ -36,14 +35,14 @@ public abstract class Pattern implements ICodeGenerator {
 		return name;
 	}
 
+	// Returns the package base
+	public String packageBase() {
+		return packageBase;
+	}
+
 	// Returns the TagTree of the pattern
 	public TagTree tree() {
 		return tree;
-	}
-
-	// Returns the IGenModel of the pattern
-	public IGenModel model() {
-		return model;
 	}
 
 	// Returns the progressmonitor of the pattern
@@ -55,8 +54,7 @@ public abstract class Pattern implements ICodeGenerator {
 	public int estimateTasks() {
 		if (tasks == 0) {
 			FileHandler handler = new FileHandler();
-			int count = handler.countFiles(model.targetFolder(), model
-					.packageBase());
+			int count = handler.countFiles(packageBase);
 			count += tree.nodes();
 			return count;
 		} else {

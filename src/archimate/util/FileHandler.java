@@ -26,8 +26,10 @@ import archimate.codegen.ASTEngine;
  */
 public class FileHandler {
 
-	public FileHandler() {
+	private String targetFolder;
 
+	public FileHandler() {
+		targetFolder = Activator.projectRoot + "/src";
 	}
 
 	/**
@@ -35,8 +37,8 @@ public class FileHandler {
 	 * 
 	 * @return The number of files in a Java project source folder
 	 */
-	public int countFiles(String targetfolder, String packageBase) {
-		IContainer container = findOrCreateContainer(targetfolder, packageBase);
+	public int countFiles(String packageBase) {
+		IContainer container = findOrCreateContainer(packageBase);
 		IResource[] members = null;
 		try {
 			members = container.members();
@@ -124,9 +126,8 @@ public class FileHandler {
 	 *            The package to create the container in
 	 * @return The found or newly created container
 	 */
-	public IContainer findOrCreateContainer(String targetDirectory,
-			String packageName) {
-		IPath outputPath = new Path(targetDirectory + "/"
+	public IContainer findOrCreateContainer(String packageName) {
+		IPath outputPath = new Path(targetFolder + "/"
 				+ packageName.replace('.', '/'));
 		IPath localLocation = null; // use default
 		IContainer container = null;
@@ -157,9 +158,8 @@ public class FileHandler {
 	 *            The file name
 	 * @return The saved file
 	 */
-	public IFile save(String contents, String targetFolder, String packageName,
-			String targetFile) {
-		IContainer container = findOrCreateContainer(targetFolder, packageName);
+	public IFile save(String contents, String packageName, String targetFile) {
+		IContainer container = findOrCreateContainer(packageName);
 		if (container == null) {
 			System.out
 					.println("Cound not find or create container for package "

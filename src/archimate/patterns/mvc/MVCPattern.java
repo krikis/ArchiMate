@@ -28,8 +28,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	static final String COMMAND_METHOD = "MVC_CommandMethod";
 	static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
 	static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
-
-	private String packageBase;
+	// Names of the packages in the pattern
 	private String modelPackage;
 	private String viewPackage;
 	private String controlPackage;
@@ -46,13 +45,11 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
-		super.umlreader = new UMLAdapter(myPackage);
+		umlreader = new UMLAdapter(myPackage);
 		// Set the pattern name
-		super.name = "MVC Pattern";
+		name = "MVC Pattern";
 		// Setup the tag tree
-		super.tree = constructTree();
-		// Read out UML model
-		super.model = new MVCModel(myPackage);
+		tree = constructTree();
 	}
 
 	private void setVariables() {

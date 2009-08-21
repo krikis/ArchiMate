@@ -24,7 +24,7 @@ public class SourceInspector {
 	// TagTree of the ICodeGenerator at hand
 	private TagTree tree;
 	// IGenModel of the ICodeGenerator at hand
-	private IGenModel model;
+	private String packageBase;
 	// ASTEngine for traversing the code
 	private ASTEngine astEngine;
 	// ProgressMonitor
@@ -38,9 +38,9 @@ public class SourceInspector {
 	 *            The {@link ICodeGenerator} at hand
 	 */
 	public SourceInspector(ICodeGenerator generator) {
-		this.tree = generator.tree();
-		this.model = generator.model();
-		this.monitor = generator.monitor();
+		tree = generator.tree();
+		packageBase = generator.packageBase();
+		monitor = generator.monitor();
 	}
 
 	/**
@@ -77,8 +77,7 @@ public class SourceInspector {
 	// missing
 	private void inspect() {
 		FileHandler handler = new FileHandler();
-		IContainer container = handler.findOrCreateContainer(model
-				.targetFolder(), model.packageBase());
+		IContainer container = handler.findOrCreateContainer(packageBase);
 		IResource[] members = null;
 		try {
 			members = container.members();
@@ -126,7 +125,7 @@ public class SourceInspector {
 				return;
 			}
 			ASTEngine engine = new ASTEngine(this);
-			engine.createSourceFile(model, iter.next());
+			engine.createSourceFile(iter.next());
 			monitor.worked(1);
 		}
 	}

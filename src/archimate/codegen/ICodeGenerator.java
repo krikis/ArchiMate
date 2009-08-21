@@ -24,19 +24,19 @@ public interface ICodeGenerator {
 	public String name();
 
 	/**
+	 * Returns the package base of the pattern
+	 * 
+	 * @return The package base of the pattern
+	 */
+	public String packageBase();
+
+	/**
 	 * Returns a tree containing all <code>archiMateTag</code>s for the key
 	 * source elements
 	 * 
 	 * @return The <code>TagTree</code> of the current pattern
 	 */
 	public TagTree tree();
-
-	/**
-	 * Returns the model containing all settings for code generation
-	 * 
-	 * @return The <code>IGenModel</code> of the current pattern
-	 */
-	public IGenModel model();
 
 	/**
 	 * Returns the progressmonitor for the generator
