@@ -108,6 +108,8 @@ public abstract class Pattern implements ICodeGenerator {
 	protected void addMethods(TagNode node, String stereotype,
 			String defaultName, String type, String className, String comment) {
 		ArrayList<String> names = umlreader.getElementNames(stereotype);
+		if (names.size() == 0) 
+			names.add(defaultName);
 		for (int index = 0; index < names.size(); ++index) {
 			String name = names.get(index);
 			name = (name.equals("") ? defaultName + index : name);

@@ -186,9 +186,11 @@ public class JavaHelper {
 		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element instanceof JavaMethod) {
-				addMethod(node, (JavaMethod) element);
-
+			if (!element.visited()) {
+				if (element instanceof JavaMethod) {
+					addMethod(node, (JavaMethod) element);
+	
+				}
 			}
 		}
 	}

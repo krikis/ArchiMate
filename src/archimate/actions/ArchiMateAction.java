@@ -176,6 +176,10 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 								.getToolTipText());
 					}
 				}
+				
+				// Get editor file path
+				if (workbenchPart != null)
+					Activator.projectRoot = getEditorFile().getProject().getFullPath();
 
 				// Nothing more to do and we don't want to do the default stuff
 				// below.
