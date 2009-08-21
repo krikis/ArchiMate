@@ -30,4 +30,25 @@ public interface ICodeElement {
 	 */
 	public String archiMateTag();
 
+	/**
+	 * Method defining whether a source element matches the identifier
+	 * 
+	 * @param identifyer
+	 *            String to match the source element with
+	 * @return Whether the source element matches the identifier
+	 */
+	public boolean equals(String identifier);
+
+	/**
+	 * Returns whether a source element has been visited in the source code
+	 * 
+	 * @return Whether a source element has been visited in the source code
+	 */
+	public boolean visited();
+
+	/**
+	 * Marks a source code element as visited
+	 */
+	public void setVisited();
+
 }

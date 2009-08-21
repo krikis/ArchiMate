@@ -15,6 +15,8 @@ public class JavaClass implements ICodeElement {
 
 	public static final String INTERFACE = "interface";
 	public static final String CLASS = "class";
+	
+	private boolean visited;
 
 	private String packageName;
 
@@ -34,10 +36,26 @@ public class JavaClass implements ICodeElement {
 
 	public JavaClass(String packageName, String className, String tag,
 			String type) {
+		visited = false;
 		this.packageName = packageName;
 		this.className = className;
 		archiMateTags.add(tag);
 		this.type = type;
+	}
+	
+	// Method defining whether the java class matches the identifier
+	public boolean equals(String identifier) {
+		return className.equals(identifier);
+	}
+
+	// Returns whether the java class has been visited in the source code
+	public boolean visited(){
+		return visited;
+	}
+
+	// Marks the java class as visited
+	public void setVisited(){
+		visited = true;
 	}
 
 	public String targetFile() {

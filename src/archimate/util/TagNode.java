@@ -22,6 +22,8 @@ public class TagNode {
 	private boolean visited = false;
 	// the associated source code elements
 	private ArrayList<ICodeElement> source;
+	// count of the unvisited source elements
+	private int unvisited;
 
 	/**
 	 * Creates a new node with the given tag
@@ -33,6 +35,7 @@ public class TagNode {
 		this.tag = tag;
 		children = new ArrayList<TagNode>();
 		source = new ArrayList<ICodeElement>();
+		unvisited = 0;
 	}
 
 	/**
@@ -104,7 +107,7 @@ public class TagNode {
 	 * Sets the visited state to true
 	 */
 	public void setVisited() {
-		if (source.size() == 0)
+		if (unvisited == 0)
 			visited = true;
 	}
 
@@ -149,6 +152,7 @@ public class TagNode {
 	 */
 	public void addSource(ICodeElement code) {
 		source.add(code);
+		++unvisited;
 	}
 
 	/**
@@ -160,25 +164,20 @@ public class TagNode {
 		return source;
 	}
 
+	/**
+	 * Marks the encountered source as visited
+	 * 
+	 * @param name
+	 *            The name identifying the encountered source
+	 */
 	public void tickOffSource(String name) {
-		ArrayList<ICodeElement> elements = new ArrayList<ICodeElement>();
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element instanceof JavaClass) {
-				JavaClass javaclass = (JavaClass) element;
-				if (javaclass.className().equals(name)) {
-					elements.add(javaclass);
-				}
-			} else if (element instanceof JavaMethod) {
-				JavaMethod method = (JavaMethod) element;
-				if (method.name().equals(name)) {
-					elements.add(method);
-				} else if (method.invocationMethod().equals(name)) {
-					elements.add(method);
-				}
+			if (element.equals(name)) {
+				element.setVisited();
+				--unvisited;
 			}
 		}
-		source.removeAll(elements);
 	}
 
 }

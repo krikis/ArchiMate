@@ -119,9 +119,6 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 
 			myPackage = getSelectedPackage();			
 
-			// Get editor file path
-			Activator.projectRoot = getEditorFile().getProject().getFullPath();
-
 			// IJavaElement jelem = getInitialJavaElement((IStructuredSelection)
 			// selection);
 			// System.out.println(jelem);
@@ -356,6 +353,8 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 		this.window = window;
 		this.editorPart = window.getActivePage().getActiveEditor();
 		setActiveWorkbenchPart(window.getActivePage().getActiveEditor());
+		// Get editor file path
+		Activator.projectRoot = getEditorFile().getProject().getFullPath();
 	}
 
 	/*

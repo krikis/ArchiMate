@@ -13,6 +13,8 @@ public class JavaMethod implements ICodeElement {
 	public static final String DECLARATION = "declaration";
 	public static final String IMPLEMENTATION = "implementation";
 	public static final String INVOCATION = "invocation";
+	
+	private boolean visited;
 
 	private String name;
 
@@ -29,6 +31,25 @@ public class JavaMethod implements ICodeElement {
 		archiMateTag = tag;
 		this.type = type;
 		this.className = className;
+	}
+	
+	// Method defining whether the java method matches the identifier
+	public boolean equals(String identifier) {
+		if (name.equals(identifier)) {
+			return true;
+		} else {
+			return invocationMethod().equals(identifier);
+		}
+	}
+
+	// Returns whether the java method has been visited in the source code
+	public boolean visited(){
+		return visited;
+	}
+
+	// Marks the java method element as visited
+	public void setVisited(){
+		visited = true;
 	}
 
 	public void setName(String name) {
