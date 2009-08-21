@@ -3,6 +3,8 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import archimate.codegen.ICodeElement;
+
 /**
  * This class implements a node of a {@link TagTree}
  * 
@@ -16,8 +18,10 @@ public class TagNode {
 	private ArrayList<TagNode> children;
 	// the nodes tag
 	private String tag;
-	// wether the node has been visited
+	// whether the node has been visited
 	private boolean visited = false;
+	// the associated source code elements
+	private ArrayList<ICodeElement> source;
 
 	/**
 	 * Creates a new node with the given tag
@@ -28,6 +32,7 @@ public class TagNode {
 	public TagNode(String tag) {
 		this.tag = tag;
 		children = new ArrayList<TagNode>();
+		source = new ArrayList<ICodeElement>();
 	}
 
 	/**
@@ -127,4 +132,13 @@ public class TagNode {
 	public boolean hasParent() {
 		return parent != null;
 	}
+
+	public void addSource(ICodeElement code) {
+		source.add(code);
+	}
+
+	public ArrayList<ICodeElement> source() {
+		return source;
+	}
+
 }

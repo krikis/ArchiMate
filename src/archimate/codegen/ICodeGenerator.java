@@ -1,7 +1,11 @@
 package archimate.codegen;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import archimate.util.Class;
+import archimate.util.TagNode;
 import archimate.util.TagTree;
 
 /**
@@ -11,8 +15,8 @@ import archimate.util.TagTree;
  * 
  */
 public interface ICodeGenerator {
-	
-	/** 
+
+	/**
 	 * Returns the name of the pattern
 	 * 
 	 * @return The name of the pattern
@@ -33,7 +37,7 @@ public interface ICodeGenerator {
 	 * @return The <code>IGenModel</code> of the current pattern
 	 */
 	public IGenModel model();
-	
+
 	/**
 	 * Returns the progressmonitor for the generator
 	 * 
@@ -57,4 +61,5 @@ public interface ICodeGenerator {
 	 * Validates the source code in the workspace
 	 */
 	public void validate_code();
+
 }

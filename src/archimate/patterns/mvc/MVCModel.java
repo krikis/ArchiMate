@@ -74,8 +74,7 @@ public class MVCModel implements IGenModel {
 		}
 		viewUpdatePort = umlreader.getElementName("ViewUpdatePort");
 		if (viewUpdatePort.equals("")) {
-			viewUpdatePort = umlreader
-					.getElementName("ViewUpdateInstance");
+			viewUpdatePort = umlreader.getElementName("ViewUpdateInstance");
 		}
 		if (viewUpdatePort.equals("")) {
 			viewUpdatePort = "ViewUpdate";
@@ -93,7 +92,8 @@ public class MVCModel implements IGenModel {
 		}
 		controlCommandPort = umlreader.getElementName("ControlCommandPort");
 		if (controlCommandPort.equals("")) {
-			controlCommandPort = umlreader.getElementName("ControlCommandInstance");
+			controlCommandPort = umlreader
+					.getElementName("ControlCommandInstance");
 		}
 		if (controlCommandPort.equals("")) {
 			controlCommandPort = "ControlCommand";
@@ -107,12 +107,12 @@ public class MVCModel implements IGenModel {
 		}
 		dataMethods = umlreader.getElementNames("DataMessage");
 		if (dataMethods.size() == 0) {
-			dataMethods.add("getData");
+			dataMethods.add("updateData");
 		}
 		setInvocation(dataMethods, dataInvocationMethods);
 		updateMethods = umlreader.getElementNames("UpdateMessage");
 		if (updateMethods.size() == 0) {
-			updateMethods.add("triggerUpdate");
+			updateMethods.add("updateInterface");
 		}
 		setInvocation(updateMethods, updateInvocationMethods);
 		commandMethods = umlreader.getElementNames("CommandMessage");

@@ -136,12 +136,12 @@ public interface IGenModel {
 	 */
 	public ArrayList<String> methodInvocations(String archiMateTag);
 
-//	/**
-//	 * Ticks of the key source element labeled with the archiMate tag
-//	 * 
-//	 * @param archiMateTag
-//	 *            The tag labeling the key source element to tick off
-//	 */
-//	public void tickOff(String archiMateTag);
+	// /**
+	// * Ticks of the key source element labeled with the archiMate tag
+	// *
+	// * @param archiMateTag
+	// * The tag labeling the key source element to tick off
+	// */
+	// public void tickOff(String archiMateTag);
 
 }

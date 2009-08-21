@@ -47,9 +47,9 @@ public class FileHandler {
 		}
 		return countFiles(members);
 	}
-	
+
 	// Recursively counts the number of files in a folder.
-	private int countFiles(IResource[] members) {	
+	private int countFiles(IResource[] members) {
 		int files = 0;
 		for (int index = 0; index < members.length; index++) {
 			IResource resource = members[index];

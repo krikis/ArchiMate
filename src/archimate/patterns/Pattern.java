@@ -1,11 +1,19 @@
 package archimate.patterns;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 
+import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
 import archimate.codegen.IGenModel;
 import archimate.codegen.SourceInspector;
+import archimate.uml.UMLAdapter;
+import archimate.util.Class;
 import archimate.util.FileHandler;
+import archimate.util.Method;
+import archimate.util.TagNode;
 import archimate.util.TagTree;
 
 public abstract class Pattern implements ICodeGenerator {
@@ -20,6 +28,8 @@ public abstract class Pattern implements ICodeGenerator {
 	protected IGenModel model;
 	// ProgressMonitor
 	protected IProgressMonitor monitor;
+
+	protected UMLAdapter umlreader;
 
 	// Returns the name of the pattern
 	public String name() {
@@ -68,6 +78,54 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Validates the code in the project source folder
 	public void validate_code() {
+	}
+
+	// Creates a Class object with the given settings
+	protected Class createClass(TagNode node, ArrayList<String> stereotypes,
+			String packageName, ArrayList<String> imports, String type,
+			String defaultName, String comment) {
+		String className = "";
+		for (Iterator<String> iter = stereotypes.iterator(); iter.hasNext();) {
+			String stereotype = iter.next();
+			className = umlreader.getElementName(stereotype);
+			if (!className.equals("")) {
+				break;
+			}
+		}
+		className = className.equals("") ? defaultName : className;
+		Class newClass = new Class(packageName, className, node.tag(), type);
+		newClass.setComment(comment);
+		return newClass;
+	}
+
+	// Creates a list of Method objects with the given settings and adds it to
+	// the TagNodes sourcelist
+	protected void addMethods(TagNode node, String stereotype,
+			String defaultName, String type, String className, String comment) {
+		ArrayList<String> names = umlreader.getElementNames("DataMessage");
+		for (int index = 0; index < names.size(); ++index) {
+			String name = names.get(index);
+			name = (name.equals("") ? defaultName + index : name);
+			Method method = new Method(name, node.tag(), type, className);
+			method.setComment(comment);
+			node.addSource(method);
+		}
+	}
+
+	// Clones the Method objects in the list, adds the given settings and adds
+	// the list to the TagNodes sourcelist
+	protected void addMethods(TagNode node, ArrayList<ICodeElement> methods,
+			String type, String comment) {
+		for (Iterator<ICodeElement> iter = methods.iterator(); iter.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof Method) {
+				Method method = (Method) element;
+				Method newMethod = new Method(method.name(), method
+						.archiMateTag(), type, method.invocationClass());
+				newMethod.setComment(comment);
+				node.addSource(newMethod);
+			}
+		}
 	}
 
 }

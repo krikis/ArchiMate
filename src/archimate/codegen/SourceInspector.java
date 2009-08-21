@@ -59,7 +59,7 @@ public class SourceInspector {
 	public IGenModel model() {
 		return model;
 	}
-	
+
 	/**
 	 * Returns the progressmonitor
 	 * 
