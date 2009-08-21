@@ -75,6 +75,28 @@ public class JavaHelper {
 	}
 
 	/**
+	 * Returns the name of the {@link MethodDeclaration}
+	 * 
+	 * @param node
+	 *            a {@link MethodDeclaration}
+	 * @return The name of the {@link MethodDeclaration}
+	 */
+	public String getName(MethodDeclaration node) {
+		return node.getName().getIdentifier();
+	}
+
+	/**
+	 * Returns the name of the {@link TypeDeclaration}
+	 * 
+	 * @param node
+	 *            a {@link TypeDeclaration}
+	 * @return The name of the {@link TypeDeclaration}
+	 */
+	public String getName(TypeDeclaration node) {
+		return node.getName().getIdentifier();
+	}
+
+	/**
 	 * Adds the given imports to the given {@link CompilationUnit} if it doesn't
 	 * already contain them.
 	 * 
@@ -122,11 +144,8 @@ public class JavaHelper {
 	 * 
 	 * @param unit
 	 *            The {@link CompilationUnit} to add the class declaration to
-	 * @param model
-	 *            The {@link IGenModel} containing all settings for the
-	 *            generated source code
-	 * @param archiMateTag
-	 *            The archiMateTag identifying the desired class
+	 * @param javaClass
+	 *            The {@link JavaClass} defining the class to create
 	 */
 	public void addClass(CompilationUnit unit, JavaClass javaClass) {
 		// add package declaration

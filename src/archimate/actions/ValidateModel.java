@@ -69,6 +69,9 @@ public class ValidateModel extends ArchiMateAction {
 		} else if (status.getSeverity() == IStatus.ERROR) {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
 					"Errors encountered during validation.", null);
+		} else {
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
+					"There were no constraints to check.", null);
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;

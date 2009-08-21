@@ -31,8 +31,8 @@ public class SourceInspector {
 	private IProgressMonitor monitor;
 
 	/**
-	 * Creates a new {@link SourceInspector} and sets its {@link TagTree} and
-	 * {@link IGenModel} from the given {@link ICodeGenerator}
+	 * Creates a new {@link SourceInspector} and sets its {@link TagTree},
+	 * packageBase and monitor from the given {@link ICodeGenerator}
 	 * 
 	 * @param generator
 	 *            The {@link ICodeGenerator} at hand

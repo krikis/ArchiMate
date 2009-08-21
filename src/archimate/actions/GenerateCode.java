@@ -70,23 +70,13 @@ public class GenerateCode extends ArchiMateAction {
 			}
 			Profile profile = profiles.get(i);
 			Pattern pattern = null;
-
-			// Get editor file path
-			Activator.projectRoot = getEditorFile().getProject().getFullPath();
-
-			// IJavaProject jproject = (IJavaProject)
-			// file.getProject().getAdapter(IJavaProject.class);
-			// System.out.println(jproject);
-
 			String name = profile.getName();
 			if (name.equals("MVC")) {
 				pattern = new MVCPattern(myPack);
-			} else if (name.equals("MVCSeq")) {
-				pattern = new MVCPattern(myPack);
 			} else if (name.equals("Callback")) {
 				pattern = new CallbackPrimitive(myPack);
-			} else if (name.equals("CallbackSeq")) {
-				pattern = new CallbackPrimitive(myPack);
+			} else {
+				break;
 			}
 			tasks += pattern.estimateTasks();
 			patterns.add(pattern);

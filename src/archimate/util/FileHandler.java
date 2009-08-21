@@ -120,8 +120,6 @@ public class FileHandler {
 	/**
 	 * Finds or creates a container for the specified directory and package
 	 * 
-	 * @param targetDirectory
-	 *            The directory to start in
 	 * @param packageName
 	 *            The package to create the container in
 	 * @return The found or newly created container
@@ -150,8 +148,6 @@ public class FileHandler {
 	 * 
 	 * @param contents
 	 *            The contents of the file to save
-	 * @param targetFolder
-	 *            The folder to start in
 	 * @param packageName
 	 *            The package the file is saved in
 	 * @param targetFile

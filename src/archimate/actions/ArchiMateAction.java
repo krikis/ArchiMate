@@ -28,6 +28,8 @@ import org.eclipse.emf.edit.command.CommandActionDelegate;
 import org.eclipse.emf.edit.domain.*;
 import org.eclipse.emf.edit.ui.provider.ExtendedImageRegistry;
 
+import archimate.Activator;
+
 /**
  * This abstract class takes care of activating the action and setting the
  * necessary variables
@@ -115,7 +117,10 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 			List<?> list = ((IStructuredSelection) selection).toList();
 			collection = new ArrayList<Object>(list);
 
-			myPackage = getSelectedPackage();
+			myPackage = getSelectedPackage();			
+
+			// Get editor file path
+			Activator.projectRoot = getEditorFile().getProject().getFullPath();
 
 			// IJavaElement jelem = getInitialJavaElement((IStructuredSelection)
 			// selection);

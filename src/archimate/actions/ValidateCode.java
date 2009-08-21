@@ -1,6 +1,7 @@
 package archimate.actions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.*;
@@ -13,7 +14,11 @@ import org.eclipse.emf.common.command.*;
 import org.eclipse.emf.common.util.*;
 import org.eclipse.ui.*;
 import org.eclipse.uml2.uml.*;
+
 import archimate.Activator;
+import archimate.patterns.Pattern;
+import archimate.patterns.mvc.MVCPattern;
+import archimate.patterns.primitives.callback.CallbackPrimitive;
 
 /**
  * This class implements the Validate Code action. The code in the source folder
@@ -38,7 +43,7 @@ public class ValidateCode extends ArchiMateAction {
 			try {
 				dialog.run(true, true, new IRunnableWithProgress() {
 					public void run(final IProgressMonitor monitor) {
-						// Code here
+						readProfiles(myPackage, monitor);
 						monitor.done();
 					}
 				});
@@ -50,6 +55,46 @@ public class ValidateCode extends ArchiMateAction {
 			if (error != null) {
 				error.open();
 			}
+		}
+	}
+	
+	// Reads out the profiles and creates a Pattern object for each one of them
+	private void readProfiles(org.eclipse.uml2.uml.Package myPack,
+			final IProgressMonitor monitor) {
+		EList<Profile> profiles = myPack.getAppliedProfiles();
+		// Calculating number of tasks
+		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
+		int tasks = 0;
+		for (int i = 0; i < profiles.size(); ++i) {
+			if (monitor.isCanceled()) {
+				return;
+			}
+			Profile profile = profiles.get(i);
+			Pattern pattern = null;
+
+			// Get editor file path
+			Activator.projectRoot = getEditorFile().getProject().getFullPath();
+
+			String name = profile.getName();
+			if (name.equals("MVC")) {
+				pattern = new MVCPattern(myPack);
+			} else if (name.equals("Callback")) {
+				pattern = new CallbackPrimitive(myPack);
+			} else {
+				break;
+			}
+			tasks += pattern.estimateTasks();
+			patterns.add(pattern);
+		}
+		// Setting up progressmonitor
+		monitor.beginTask("Initializing...", tasks);
+		// Processing patterns
+		for (Iterator<Pattern> iter = patterns.iterator(); iter.hasNext();) {
+			Pattern pattern = iter.next();
+			monitor
+					.setTaskName("Generating Code for " + pattern.name()
+							+ "...");
+			pattern.generate_code(monitor);
 		}
 	}
 }

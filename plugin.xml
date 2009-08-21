@@ -16,8 +16,16 @@
             </separator>
          </menu>
          <action
-               class="archimate.actions.ValidateCode"
+               class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
+               id="ArchiMate.Menu.UpdateModel"
+               label="Update Model"
+               menubarPath="archiMateMenu/archiMateGroup"
+               tooltip="Validate Code">
+         </action>
+         <action
+               class="archimate.actions.ValidateCode"
+               icon="icons/green.png"
                id="ArchiMate.Menu.ValidateCode"
                label="Validate Code"
                menubarPath="archiMateMenu/archiMateGroup"
@@ -47,8 +55,15 @@
             id="ArchiMate.UMLEditorContribution"
             targetID="org.eclipse.uml2.uml.editor.presentation.UMLEditorID">
          <action
-               class="archimate.actions.ValidateCode"
+               class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
+               id="ArchiMate.UMLEditor.UpdateModel"
+               label="Update Model"
+               menubarPath="additions">
+         </action>
+         <action
+               class="archimate.actions.ValidateCode"
+               icon="icons/green.png"
                id="ArchiMate.UMLEditor.ValidateCode"
                label="Validate Code"
                menubarPath="additions">
@@ -72,8 +87,15 @@
             id="ArchiMate.GMFEditorContribution"
             targetID="org.eclipse.gmf.runtime.diagram.ui.DiagramEditorContextMenu">
          <action
-               class="archimate.actions.ValidateCode"
+               class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
+               id="ArchiMate.GMFEditor.UpdateModel"
+               label="Update Model"
+               menubarPath="additions">
+         </action>
+         <action
+               class="archimate.actions.ValidateCode"
+               icon="icons/green.png"
                id="ArchiMate.GMFEditor.ValidateCode"
                label="Validate Code"
                menubarPath="additions">

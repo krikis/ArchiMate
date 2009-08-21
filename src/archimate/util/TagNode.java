@@ -94,13 +94,18 @@ public class TagNode {
 	}
 
 	/**
-	 * Sets the nodes state
-	 * 
-	 * @param value
-	 *            The new value for the nodes state
+	 * Sets the visited state to true
 	 */
-	public void setVisited(boolean value) {
-		visited = value;
+	public void resetVisited() {
+		visited = false;
+	}
+
+	/**
+	 * Sets the visited state to true
+	 */
+	public void setVisited() {
+		if (source.size() == 0)
+			visited = true;
 	}
 
 	/**
@@ -127,18 +132,53 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns whether the node has a parent or not
+	 * 
 	 * @return Whether the node has a parent or not
 	 */
 	public boolean hasParent() {
 		return parent != null;
 	}
 
+	/**
+	 * Adds a {@link ICodeElement} to the list of source elements
+	 * 
+	 * @param code
+	 *            {@link ICodeElement} that will be added to the list of source
+	 *            elements
+	 */
 	public void addSource(ICodeElement code) {
 		source.add(code);
 	}
 
+	/**
+	 * Returns the list of {@link ICodeElement}s
+	 * 
+	 * @return The list of {@link ICodeElement}s
+	 */
 	public ArrayList<ICodeElement> source() {
 		return source;
+	}
+
+	public void tickOffSource(String name) {
+		ArrayList<ICodeElement> elements = new ArrayList<ICodeElement>();
+		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof JavaClass) {
+				JavaClass javaclass = (JavaClass) element;
+				if (javaclass.className().equals(name)) {
+					elements.add(javaclass);
+				}
+			} else if (element instanceof JavaMethod) {
+				JavaMethod method = (JavaMethod) element;
+				if (method.name().equals(name)) {
+					elements.add(method);
+				} else if (method.invocationMethod().equals(name)) {
+					elements.add(method);
+				}
+			}
+		}
+		source.removeAll(elements);
 	}
 
 }

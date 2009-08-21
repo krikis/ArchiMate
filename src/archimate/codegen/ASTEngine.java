@@ -80,11 +80,8 @@ public class ASTEngine {
 	/**
 	 * Creates a new source file for the given archiMateTag
 	 * 
-	 * @param model
-	 *            The {@link IGenModel} containing all settings for code
-	 *            generation
-	 * @param archiMateTag
-	 *            The tag to generate code for
+	 * @param node
+	 *            The {@link TagNode} to generate code for
 	 */
 	public void createSourceFile(TagNode node) {
 		for (Iterator<ICodeElement> iter = node.source().iterator(); iter

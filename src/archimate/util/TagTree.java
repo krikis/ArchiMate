@@ -138,7 +138,7 @@ public class TagTree {
 
 	// Recursive method setting the state of all nodes in a tree to unvisited
 	private void resetVisited(TagNode node) {
-		node.setVisited(false);
+		node.resetVisited();
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {
 			resetVisited(iter.next());

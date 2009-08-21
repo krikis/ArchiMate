@@ -126,8 +126,8 @@ public abstract class Pattern implements ICodeGenerator {
 			ICodeElement element = iter.next();
 			if (element instanceof JavaMethod) {
 				JavaMethod method = (JavaMethod) element;
-				JavaMethod newMethod = new JavaMethod(method.name(), method
-						.archiMateTag(), type, className);
+				JavaMethod newMethod = new JavaMethod(method.name(),
+						node.tag(), type, className);
 				newMethod.setComment(comment);
 				node.addSource(newMethod);
 			}

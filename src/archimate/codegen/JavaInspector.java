@@ -77,7 +77,9 @@ public class JavaInspector extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			self.setVisited(true);
+			String name = helper.getName(node);
+			self.tickOffSource(name);
+			self.setVisited();
 			monitor.worked(1);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
@@ -123,7 +125,9 @@ public class JavaInspector extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			self.setVisited(true);
+			String name = helper.getName(node);
+			self.tickOffSource(name);
+			self.setVisited();
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
 				return true;
