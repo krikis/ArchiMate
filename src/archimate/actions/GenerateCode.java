@@ -115,8 +115,8 @@ public class GenerateCode extends ArchiMateAction {
 			newStatus = new MultiStatus(
 					Activator.PLUGIN_ID,
 					1,
-					"The code generation completed successfully. " + count
-							+ " source code "
+					"The source code generation completed successfully. "
+							+ count + " source code "
 							+ (count == 1 ? "element" : "elements") + " added.",
 					null);
 		} else if (status.getSeverity() == IStatus.WARNING) {
@@ -128,10 +128,10 @@ public class GenerateCode extends ArchiMateAction {
 			}
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
 					+ (count == 1 ? " irregularity" : " irregularities")
-					+ " encountered during validation.", null);
+					+ " encountered during source code generation.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"The code is already up to date.", null);
+					"The source code is already up to date.", null);
 			status
 					.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
 							null));
@@ -139,8 +139,9 @@ public class GenerateCode extends ArchiMateAction {
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
 		if (!monitor.isCanceled()) {
-			dialog = new ErrorDialog(window.getShell(), "Archimate Validation",
-					null, newStatus, status.getSeverity());
+			dialog = new ErrorDialog(window.getShell(),
+					"Archimate Source Code Generation", null, newStatus, status
+							.getSeverity());
 		}
 		return dialog;
 	}

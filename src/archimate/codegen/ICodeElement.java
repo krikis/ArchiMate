@@ -1,5 +1,8 @@
 package archimate.codegen;
 
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.jdt.core.dom.ASTNode;
+
 public interface ICodeElement {
 
 	/**
@@ -31,6 +34,13 @@ public interface ICodeElement {
 	public String archiMateTag();
 
 	/**
+	 * Returns the identifier of the source code element
+	 * 
+	 * @return The identifier of the source code element
+	 */
+	public String identifier();
+
+	/**
 	 * Method defining whether a source element matches the identifier
 	 * 
 	 * @param identifyer
@@ -38,6 +48,17 @@ public interface ICodeElement {
 	 * @return Whether the source element matches the identifier
 	 */
 	public boolean equals(String identifier);
+
+	/**
+	 * Compares itself to the {@link ASTNode} and writes the eventual
+	 * differences in the {@link MultiStatus} object
+	 * 
+	 * @param node
+	 *            the {@link ASTNode} to compare with
+	 * @param status
+	 *            the {@link MultiStatus} to write the differences in
+	 */
+	public void diff(ASTNode node, MultiStatus status, String pattern);
 
 	/**
 	 * Returns whether a source element has been visited in the source code

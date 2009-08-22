@@ -1,9 +1,21 @@
 package archimate.util;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.Activator;
 import archimate.codegen.ICodeElement;
+import archimate.codegen.JavaHelper;
 
 /**
  * Class modelling a Java class
@@ -15,7 +27,7 @@ public class JavaClass implements ICodeElement {
 
 	public static final String INTERFACE = "interface";
 	public static final String CLASS = "class";
-	
+
 	private boolean visited;
 
 	private String packageName;
@@ -42,19 +54,123 @@ public class JavaClass implements ICodeElement {
 		archiMateTags.add(tag);
 		this.type = type;
 	}
-	
+
+	// Returns the classname
+	public String identifier() {
+		return className;
+	}
+
 	// Method defining whether the java class matches the identifier
 	public boolean equals(String identifier) {
 		return className.equals(identifier);
 	}
 
+	// Compares itself with the given ASTNode for differences
+	public void diff(ASTNode node, MultiStatus status, String pattern) {
+		if (node instanceof TypeDeclaration) {
+			TypeDeclaration javaClass = (TypeDeclaration) node;
+			// Checks the class type
+			checkClassType(javaClass, status, pattern);
+			// Checks the implemented interfaces
+			checkInterfaces(javaClass, status, pattern);
+			ASTNode root = javaClass.getRoot();
+			if (root instanceof CompilationUnit) {
+				CompilationUnit unit = (CompilationUnit) root;
+				// Checks the package
+				checkPackage(unit, status, pattern);
+				// Checks the imports
+				checkImports(unit, status, pattern);
+			}
+		}
+	}
+
+	// Checks the class type
+	private void checkClassType(TypeDeclaration javaClass, MultiStatus status,
+			String pattern) {
+		if (javaClass.isInterface() != isInterface()) {
+			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+					+ ": \"" + className + "\" should be "
+					+ (isInterface() ? "an interface" : "a class")
+					+ ".                             ", null));
+		}
+	}
+
+	// Checks the implemented interfaces
+	private void checkInterfaces(TypeDeclaration javaClass, MultiStatus status,
+			String pattern) {
+		for (Iterator<String> iter = interfaces.iterator(); iter.hasNext();) {
+			String interfaceName = iter.next();
+			boolean found = false;
+			for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
+					.hasNext();) {
+				Object object = ite2.next();
+				if (object instanceof SimpleType) {
+					SimpleType type = (SimpleType) object;
+					if (type.getName().getFullyQualifiedName().equals(
+							interfaceName)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
+						pattern + ": The \"" + className
+								+ "\" class doesn't implement the \""
+								+ interfaceName + "\" interface."
+								+ "                             ", null));
+			}
+		}
+	}
+
+	// Checks the package
+	private void checkPackage(CompilationUnit unit, MultiStatus status,
+			String pattern) {
+		if (!packageName.equals(unit.getPackage().getName()
+				.getFullyQualifiedName())) {
+			status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
+					pattern + ": The \"" + className + "\" "
+							+ (isInterface() ? "interface" : "class")
+							+ " should be in the \"" + packageName
+							+ "\" package." + "                             ",
+					null));
+		}
+	}
+
+	// Checks the imports
+	private void checkImports(CompilationUnit unit, MultiStatus status,
+			String pattern) {
+		for (Iterator<String> iter = imports.iterator(); iter.hasNext();) {
+			String importName = iter.next();
+			boolean found = false;
+			for (Iterator ite2 = unit.imports().iterator(); ite2.hasNext();) {
+				Object object = ite2.next();
+				if (object instanceof ImportDeclaration) {
+					ImportDeclaration declaration = (ImportDeclaration) object;
+					if (declaration.getName().getFullyQualifiedName().equals(
+							importName)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
+						pattern + ": Import \"" + importName
+								+ "\" is missing in the \"" + className + "\" "
+								+ (isInterface() ? "interface" : "class")
+								+ ".                             ", null));
+			}
+		}
+	}
+
 	// Returns whether the java class has been visited in the source code
-	public boolean visited(){
+	public boolean visited() {
 		return visited;
 	}
 
 	// Marks the java class as visited
-	public void setVisited(){
+	public void setVisited() {
 		visited = true;
 	}
 

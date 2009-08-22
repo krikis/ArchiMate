@@ -1,8 +1,10 @@
 package archimate.codegen;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.*;
 
 import archimate.util.*;
@@ -26,6 +28,10 @@ public class JavaValidator extends ASTVisitor {
 	private JavaHelper helper;
 	// ProgressMonitor
 	private IProgressMonitor monitor;
+	// Status
+	private MultiStatus status;
+	// The current pattern
+	private String pattern;
 
 	/**
 	 * Creates a new {@link JavaValidator} and sets the {@link TagTree} and
@@ -38,9 +44,11 @@ public class JavaValidator extends ASTVisitor {
 	 */
 	public JavaValidator(SourceInspector inspector, String pattern) {
 		super(true);
-		this.tree = inspector.tree();
 		this.inspector = inspector;
-		this.monitor = inspector.monitor();
+		tree = inspector.tree();
+		monitor = inspector.monitor();
+		status = inspector.status();
+		this.pattern = pattern;
 		helper = new JavaHelper(pattern);
 	}
 
@@ -80,7 +88,7 @@ public class JavaValidator extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
-			self.tickOffSource(name);
+			helper.compare(node, self, status, pattern);
 			self.setVisited();
 			monitor.worked(1);
 			tree.setCurrent(self);
@@ -106,10 +114,6 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
-			if (current.hasChildren()) {
-				ArrayList<TagNode> tags = TagTree.getUnvisited(current);
-				inspector.addSourceElements(node, tags);
-			}
 			tree.setCurrent(current.parent());
 		}
 	}
@@ -128,7 +132,7 @@ public class JavaValidator extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
-			self.tickOffSource(name);
+			helper.compare(node, self, status, pattern);
 			self.setVisited();
 			tree.setCurrent(self);
 			if (self.hasChildren()) {

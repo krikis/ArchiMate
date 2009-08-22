@@ -21,10 +21,10 @@ import archimate.util.TagTree;
  * 
  */
 public class SourceInspector {
-	
+
 	public static final String GENERATE = "generate";
 	public static final String VALIDATE = "validate";
-	
+
 	// Mode of the sourceInspector
 	private String mode;
 	// TagTree of the ICodeGenerator at hand
@@ -39,7 +39,6 @@ public class SourceInspector {
 	private MultiStatus status;
 	// Current pattern
 	private String pattern;
-	
 
 	/**
 	 * Creates a new {@link SourceInspector} and sets its {@link TagTree},
@@ -75,6 +74,15 @@ public class SourceInspector {
 	}
 
 	/**
+	 * Returns the status
+	 * 
+	 * @return The status
+	 */
+	public MultiStatus status() {
+		return status;
+	}
+
+	/**
 	 * Traverses the source and adds missing source elements and files
 	 */
 	public void updateSource() {
@@ -87,14 +95,14 @@ public class SourceInspector {
 		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
 		createSourceFiles(tags);
 	}
-	
+
 	/**
 	 * Traverses the source and validates the source elements
 	 */
 	public void validateSource() {
 		// Sets the mode to validation
 		mode = VALIDATE;
-		// Traverses the 
+		// Traverses the
 		inspect();
 	}
 

@@ -74,7 +74,8 @@ public class ValidateModel extends ArchiMateAction {
 		if (status.getSeverity() == IStatus.INFO) {
 			int count = status.getChildren().length;
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"The validation completed succesfully. " + count
+					"The validation of the UML model completed succesfully. "
+							+ count
 							+ (count == 1 ? " constraint" : " constraints")
 							+ " checked.", null);
 		} else if (status.getSeverity() == IStatus.ERROR) {
@@ -87,18 +88,21 @@ public class ValidateModel extends ArchiMateAction {
 			count /= 2;
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
 					+ (count == 1 ? " error" : " errors")
-					+ " encountered during validation.", null);
+					+ " encountered during UML model validation.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"There were no constraints to check.", null);
-			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
-					null));
+					"There were no constraints to check in the UML model.",
+					null);
+			status
+					.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
+							null));
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
 		if (!monitor.isCanceled()) {
-			dialog = new ErrorDialog(window.getShell(), "Archimate Validation",
-					null, newStatus, status.getSeverity());
+			dialog = new ErrorDialog(window.getShell(),
+					"Archimate UML Model Validation", null, newStatus, status
+							.getSeverity());
 		}
 		return dialog;
 	}

@@ -19,7 +19,7 @@
                class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
                id="ArchiMate.Menu.UpdateModel"
-               label="Update Model"
+               label="Update UML"
                menubarPath="archiMateMenu/archiMateGroup"
                tooltip="Validate Code">
          </action>
@@ -43,7 +43,7 @@
                class="archimate.actions.ValidateModel"
                icon="icons/green.png"
                id="ArchiMate.Menu.ValidateModel"
-               label="Validate Model"
+               label="Validate UML"
                menubarPath="archiMateMenu/archiMateGroup"
                tooltip="Validate Model">
          </action>
@@ -58,7 +58,7 @@
                class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
                id="ArchiMate.UMLEditor.UpdateModel"
-               label="Update Model"
+               label="Update UML"
                menubarPath="additions">
          </action>
          <action
@@ -79,7 +79,7 @@
                class="archimate.actions.ValidateModel"
                icon="icons/green.png"
                id="ArchiMate.UMLEditor.ValidateModel"
-               label="Validate Model"
+               label="Validate UML"
                menubarPath="additions">
          </action>
       </viewerContribution>
@@ -90,7 +90,7 @@
                class="archimate.actions.UpdateModel"
                icon="icons/blue.png"
                id="ArchiMate.GMFEditor.UpdateModel"
-               label="Update Model"
+               label="Update UML"
                menubarPath="additions">
          </action>
          <action
@@ -111,7 +111,7 @@
                class="archimate.actions.ValidateModel"
                icon="icons/green.png"
                id="ArchiMate.GMFEditor.ValidateModel"
-               label="Validate Model"
+               label="Validate UML"
                menubarPath="additions">
          </action>
       </viewerContribution>

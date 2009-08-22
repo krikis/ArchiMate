@@ -117,7 +117,7 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 			List<?> list = ((IStructuredSelection) selection).toList();
 			collection = new ArrayList<Object>(list);
 
-			myPackage = getSelectedPackage();			
+			myPackage = getSelectedPackage();
 
 			// IJavaElement jelem = getInitialJavaElement((IStructuredSelection)
 			// selection);
@@ -176,10 +176,11 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 								.getToolTipText());
 					}
 				}
-				
+
 				// Get editor file path
 				if (workbenchPart != null)
-					Activator.projectRoot = getEditorFile().getProject().getFullPath();
+					Activator.projectRoot = getEditorFile().getProject()
+							.getFullPath();
 
 				// Nothing more to do and we don't want to do the default stuff
 				// below.

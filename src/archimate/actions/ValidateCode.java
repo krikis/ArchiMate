@@ -121,10 +121,10 @@ public class ValidateCode extends ArchiMateAction {
 					++count;
 			}
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"The code is not in sync with the model. " + count
-							+ " source code "
+					"The source code is not in sync with the UML model. "
+							+ count + " source code "
 							+ (count == 1 ? "element" : "elements")
-							+ " are missing.", null);
+							+ " deviate from the UML model.", null);
 		} else if (status.getSeverity() == IStatus.ERROR) {
 			IStatus[] children = status.getChildren();
 			int count = 0;
@@ -133,12 +133,12 @@ public class ValidateCode extends ArchiMateAction {
 					++count;
 			}
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"Some patterns or primitives are incorrectly implemented. "
+					"Some patterns or primitives are not correctly implemented. "
 							+ count + (count == 1 ? " error" : " errors")
 							+ " encountered during validation.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"The code validation completed successfully.", null);
+					"The source code validation completed successfully.", null);
 			status
 					.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
 							null));
@@ -146,8 +146,9 @@ public class ValidateCode extends ArchiMateAction {
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
 		if (!monitor.isCanceled()) {
-			dialog = new ErrorDialog(window.getShell(), "Archimate Validation",
-					null, newStatus, status.getSeverity());
+			dialog = new ErrorDialog(window.getShell(),
+					"Archimate Source Code Validation", null, newStatus, status
+							.getSeverity());
 		}
 		return dialog;
 	}

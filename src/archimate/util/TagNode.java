@@ -3,7 +3,11 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.jdt.core.dom.ASTNode;
+
 import archimate.codegen.ICodeElement;
+import archimate.codegen.JavaHelper;
 
 /**
  * This class implements a node of a {@link TagTree}
@@ -144,13 +148,19 @@ public class TagNode {
 	}
 
 	/**
-	 * Adds a {@link ICodeElement} to the list of source elements
+	 * Adds a {@link ICodeElement} to the list of source elements. If the list
+	 * contains an element with the same identifier, the element is silently
+	 * ignored.
 	 * 
 	 * @param code
 	 *            {@link ICodeElement} that will be added to the list of source
 	 *            elements
 	 */
 	public void addSource(ICodeElement code) {
+		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
+			if (iter.next().equals(code.identifier()))
+				return;
+		}
 		source.add(code);
 		++unvisited;
 	}
@@ -165,6 +175,23 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns the source element that matches with the identifier
+	 * 
+	 * @param identifier
+	 *            the identifier to match with
+	 * @return The source element that matches with the identifier
+	 */
+	public ICodeElement getSource(String identifier) {
+		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element.equals(identifier)) {
+				return element;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Marks the encountered source as visited
 	 * 
 	 * @param name
@@ -174,10 +201,20 @@ public class TagNode {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
 			if (element.equals(name)) {
-				element.setVisited();
-				--unvisited;
+				setVisited(element);
 			}
 		}
+	}
+
+	/**
+	 * Marks the source element as visited.
+	 * 
+	 * @param element
+	 *            the visited element
+	 */
+	public void setVisited(ICodeElement element) {
+		element.setVisited();
+		--unvisited;
 	}
 
 }

@@ -148,10 +148,11 @@ public class ASTEngine {
 				}
 				status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
 						pattern
-								+ ": Sourcefile for "
+								+ ": Sourcefile for \""
 								+ javaClass.className()
-								+ (javaClass.isInterface() ? " interface"
-										: " class") + " added."
+								+ "\" "
+								+ (javaClass.isInterface() ? "interface"
+										: "class") + " added."
 								+ "                             ", null));
 				traverseSource();
 			}

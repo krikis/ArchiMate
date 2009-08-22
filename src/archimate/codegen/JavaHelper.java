@@ -83,17 +83,6 @@ public class JavaHelper {
 	}
 
 	/**
-	 * Returns the name of the {@link MethodDeclaration}
-	 * 
-	 * @param node
-	 *            a {@link MethodDeclaration}
-	 * @return The name of the {@link MethodDeclaration}
-	 */
-	public String getName(MethodDeclaration node) {
-		return node.getName().getIdentifier();
-	}
-
-	/**
 	 * Returns the name of the {@link TypeDeclaration}
 	 * 
 	 * @param node
@@ -101,6 +90,17 @@ public class JavaHelper {
 	 * @return The name of the {@link TypeDeclaration}
 	 */
 	public String getName(TypeDeclaration node) {
+		return node.getName().getIdentifier();
+	}
+
+	/**
+	 * Returns the name of the {@link MethodDeclaration}
+	 * 
+	 * @param node
+	 *            a {@link MethodDeclaration}
+	 * @return The name of the {@link MethodDeclaration}
+	 */
+	public String getName(MethodDeclaration node) {
 		return node.getName().getIdentifier();
 	}
 
@@ -214,14 +214,14 @@ public class JavaHelper {
 			ICodeElement parentElement = parent.source().get(0);
 			if (parentElement instanceof JavaClass) {
 				JavaClass javaClass = (JavaClass) parentElement;
-				container = " in the " + javaClass.className()
-						+ (javaClass.isInterface() ? " interface" : " class");
+				container = " in the \"" + javaClass.className() + "\" "
+						+ (javaClass.isInterface() ? "interface" : "class");
 			}
 		}
 		JavaClass javaClass = (JavaClass) parent.source().get(0);
 		status.add(new Status(IStatus.INFO, status.getPlugin(), 1, pattern
-				+ ": Method " + method.type() + " added for the "
-				+ method.name() + " method" + container
+				+ ": Method " + method.type() + " added for the \""
+				+ method.name() + "()\" method" + container
 				+ ".                          ", null));
 	}
 
@@ -396,4 +396,51 @@ public class JavaHelper {
 		return name.toLowerCase();
 	}
 
+	/**
+	 * Compares the {@link TagNode}s source elements with the given
+	 * {@link TypeDeclaration} and sets the {@link MultiStatus} according to the
+	 * result
+	 * 
+	 * @param node
+	 *            the {@link TypeDeclaration} to compare with
+	 * @param tagnode
+	 *            the given {@link TagNode}
+	 * @param status
+	 *            the {@link MultiStatus} to set
+	 * @param pattern
+	 *            the currently processed pattern
+	 */
+	public void compare(TypeDeclaration node, TagNode tagnode,
+			MultiStatus status, String pattern) {
+		ICodeElement element = tagnode.getSource(getName(node));
+		// A matching element is found and will be checked for differences
+		if (element != null) {
+			tagnode.setVisited(element);
+			element.diff(node, status, pattern);
+		}
+	}
+
+	/**
+	 * Compares the {@link TagNode}s source elements with the given
+	 * {@link MethodDeclaration} and sets the {@link MultiStatus} according to
+	 * the result
+	 * 
+	 * @param node
+	 *            the {@link MethodDeclaration} to compare with
+	 * @param tagnode
+	 *            the given {@link TagNode}
+	 * @param status
+	 *            the {@link MultiStatus} to set
+	 * @param pattern
+	 *            the currently processed pattern
+	 */
+	public void compare(MethodDeclaration node, TagNode tagnode,
+			MultiStatus status, String pattern) {
+		ICodeElement element = tagnode.getSource(getName(node));
+		// A matching element is found and will be checked for differences
+		if (element != null) {
+			tagnode.setVisited(element);
+			element.diff(node, status, pattern);
+		}
+	}
 }
