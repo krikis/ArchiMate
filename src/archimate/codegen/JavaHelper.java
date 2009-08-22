@@ -40,12 +40,17 @@ public class JavaHelper {
 	 * Constant defining a method declaration in an interface
 	 */
 	public static final String METHOD_DECLARATION = "method_declaration";
+	// The current pattern
+	private String pattern;
 
 	/**
 	 * Creates a new {@link JavaHelper}
+	 * 
+	 * @param currentPattern
+	 *            the pattern currently processed
 	 */
-	public JavaHelper() {
-
+	public JavaHelper(String currentPattern) {
+		pattern = currentPattern;
 	}
 
 	/**
@@ -214,9 +219,10 @@ public class JavaHelper {
 			}
 		}
 		JavaClass javaClass = (JavaClass) parent.source().get(0);
-		status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "Method "
-				+ method.type() + " added for the " + method.name() + " method"
-				+ container + ".                          ", null));
+		status.add(new Status(IStatus.INFO, status.getPlugin(), 1, pattern
+				+ ": Method " + method.type() + " added for the "
+				+ method.name() + " method" + container
+				+ ".                          ", null));
 	}
 
 	/**

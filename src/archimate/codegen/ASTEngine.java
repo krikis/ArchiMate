@@ -32,27 +32,48 @@ public class ASTEngine {
 	private IFile targetFile;
 	// the SourceInspector leading the editing
 	private SourceInspector inspector;
+	// the current pattern
+	private String pattern;
 
 	/**
 	 * Creates new {@link ASTEngine} and sets the {@link SourceInspector}
 	 * 
 	 * @param inspector
+	 *            {@link SourceInspector} handling code traversing and
+	 *            modifications
+	 * @param mode
+	 *            the engine mode: either {@link SourceInspector#GENERATE} or
+	 *            {@link SourceInspector#VALIDATE}
+	 * @param pattern
+	 *            the pattern currently processed
 	 */
-	public ASTEngine(SourceInspector inspector, String mode) {
+	public ASTEngine(SourceInspector inspector, String mode, String pattern) {
 		this.mode = mode;
 		this.inspector = inspector;
+		this.pattern = pattern;
 	}
 
 	/**
 	 * Creates new {@link ASTEngine} and sets the target file and
 	 * {@link SourceInspector}
 	 * 
+	 * @param targetFile
+	 *            the targetFile where the engine reads and writes
 	 * @param inspector
+	 *            {@link SourceInspector} handling code traversing and
+	 *            modifications
+	 * @param mode
+	 *            the engine mode: either {@link SourceInspector#GENERATE} or
+	 *            {@link SourceInspector#VALIDATE}
+	 * @param pattern
+	 *            the pattern currently processed
 	 */
-	public ASTEngine(IFile targetFile, SourceInspector inspector, String mode) {
+	public ASTEngine(IFile targetFile, SourceInspector inspector, String mode,
+			String pattern) {
 		this.mode = mode;
-		this.targetFile = targetFile;
 		this.inspector = inspector;
+		this.pattern = pattern;
+		this.targetFile = targetFile;
 	}
 
 	/**
@@ -69,9 +90,9 @@ public class ASTEngine {
 		unit.recordModifications();
 		ASTVisitor visitor = null;
 		if (mode.equals(SourceInspector.GENERATE)) {
-			visitor = new JavaInspector(inspector);
+			visitor = new JavaInspector(inspector, pattern);
 		} else {
-			visitor = new JavaValidator(inspector);
+			visitor = new JavaValidator(inspector, pattern);
 		}
 		unit.accept(visitor);
 		String sourceCode = "";
@@ -108,7 +129,7 @@ public class ASTEngine {
 				parser.setSource("".toCharArray());
 				CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 				unit.recordModifications();
-				JavaHelper helper = new JavaHelper();
+				JavaHelper helper = new JavaHelper(pattern);
 				helper.addClass(unit, javaClass);
 				String sourceCode = "";
 				Document doc = new Document("");
@@ -126,7 +147,8 @@ public class ASTEngine {
 							.packageName(), javaClass.targetFile());
 				}
 				status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
-						"Sourcefile for "
+						pattern
+								+ ": Sourcefile for "
 								+ javaClass.className()
 								+ (javaClass.isInterface() ? " interface"
 										: " class") + " added."

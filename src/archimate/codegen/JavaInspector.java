@@ -33,13 +33,15 @@ public class JavaInspector extends ASTVisitor {
 	 * 
 	 * @param inspector
 	 *            The given {@link SourceInspector}
+	 * @param pattern
+	 *            the pattern currently processed
 	 */
-	public JavaInspector(SourceInspector inspector) {
+	public JavaInspector(SourceInspector inspector, String pattern) {
 		super(true);
 		this.tree = inspector.tree();
 		this.inspector = inspector;
 		this.monitor = inspector.monitor();
-		helper = new JavaHelper();
+		helper = new JavaHelper(pattern);
 	}
 
 	/*

@@ -126,13 +126,15 @@ public class GenerateCode extends ArchiMateAction {
 				if (children[index].getSeverity() == IStatus.WARNING)
 					++count;
 			}
-			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count + (count == 1 ? " irregularity" : " irregularities")
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
+					+ (count == 1 ? " irregularity" : " irregularities")
 					+ " encountered during validation.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
 					"The code is already up to date.", null);
-			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
-					null));
+			status
+					.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
+							null));
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;

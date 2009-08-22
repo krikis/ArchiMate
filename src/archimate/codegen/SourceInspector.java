@@ -37,6 +37,9 @@ public class SourceInspector {
 	private IProgressMonitor monitor;
 	// Status
 	private MultiStatus status;
+	// Current pattern
+	private String pattern;
+	
 
 	/**
 	 * Creates a new {@link SourceInspector} and sets its {@link TagTree},
@@ -50,6 +53,7 @@ public class SourceInspector {
 		packageBase = generator.packageBase();
 		monitor = generator.monitor();
 		status = generator.status();
+		pattern = generator.name();
 	}
 
 	/**
@@ -132,7 +136,7 @@ public class SourceInspector {
 				traverseSourceFiles(newMembers);
 			}
 			if (resource instanceof IFile) {
-				astEngine = new ASTEngine((IFile) resource, this, mode);
+				astEngine = new ASTEngine((IFile) resource, this, mode, pattern);
 				astEngine.traverseSource();
 				monitor.worked(1);
 			}
@@ -145,7 +149,7 @@ public class SourceInspector {
 			if (monitor.isCanceled()) {
 				return;
 			}
-			ASTEngine engine = new ASTEngine(this, mode);
+			ASTEngine engine = new ASTEngine(this, mode, pattern);
 			engine.createSourceFile(iter.next(), status);
 			monitor.worked(1);
 		}
@@ -155,7 +159,7 @@ public class SourceInspector {
 	 * Creates source elements in the node for every tag in the list.
 	 */
 	public void addSourceElements(TypeDeclaration node, ArrayList<TagNode> tags) {
-		JavaHelper helper = new JavaHelper();
+		JavaHelper helper = new JavaHelper(pattern);
 		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
 			if (monitor.isCanceled()) {
 				return;
