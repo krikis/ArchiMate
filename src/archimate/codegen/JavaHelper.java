@@ -5,6 +5,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
@@ -182,17 +185,38 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            {@link TagNode} with a list of {@link ICodeElement}s
 	 */
-	public void addMethods(TypeDeclaration node, TagNode tagnode) {
+	public void addMethods(TypeDeclaration node, TagNode tagnode,
+			MultiStatus status) {
 		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
 			if (!element.visited()) {
 				if (element instanceof JavaMethod) {
-					addMethod(node, (JavaMethod) element);
-	
+					JavaMethod method = (JavaMethod) element;
+					addMethod(node, method);
+					createStatus(method, tagnode, status);
 				}
 			}
 		}
+	}
+
+	// Adds a status with info to the multistatus object
+	private void createStatus(JavaMethod method, TagNode tagnode,
+			MultiStatus status) {
+		String container = "";
+		TagNode parent = tagnode.parent();
+		if (parent.source().size() == 1) {
+			ICodeElement parentElement = parent.source().get(0);
+			if (parentElement instanceof JavaClass) {
+				JavaClass javaClass = (JavaClass) parentElement;
+				container = " in the " + javaClass.className()
+						+ (javaClass.isInterface() ? " interface" : " class");
+			}
+		}
+		JavaClass javaClass = (JavaClass) parent.source().get(0);
+		status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "Method "
+				+ method.type() + " added for the " + method.name() + " method"
+				+ container + ".                          ", null));
 	}
 
 	/**

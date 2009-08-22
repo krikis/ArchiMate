@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.util.FileHandler;
@@ -20,7 +21,12 @@ import archimate.util.TagTree;
  * 
  */
 public class SourceInspector {
-
+	
+	public static final String GENERATE = "generate";
+	public static final String VALIDATE = "validate";
+	
+	// Mode of the sourceInspector
+	private String mode;
 	// TagTree of the ICodeGenerator at hand
 	private TagTree tree;
 	// IGenModel of the ICodeGenerator at hand
@@ -29,6 +35,8 @@ public class SourceInspector {
 	private ASTEngine astEngine;
 	// ProgressMonitor
 	private IProgressMonitor monitor;
+	// Status
+	private MultiStatus status;
 
 	/**
 	 * Creates a new {@link SourceInspector} and sets its {@link TagTree},
@@ -41,6 +49,7 @@ public class SourceInspector {
 		tree = generator.tree();
 		packageBase = generator.packageBase();
 		monitor = generator.monitor();
+		status = generator.status();
 	}
 
 	/**
@@ -65,12 +74,24 @@ public class SourceInspector {
 	 * Traverses the source and adds missing source elements and files
 	 */
 	public void updateSource() {
+		// Sets the mode to code generation
+		mode = GENERATE;
 		// Traverses the source and calls back when key source elements are
 		// missing
 		inspect();
 		// Adds the source files that are missing
 		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
 		createSourceFiles(tags);
+	}
+	
+	/**
+	 * Traverses the source and validates the source elements
+	 */
+	public void validateSource() {
+		// Sets the mode to validation
+		mode = VALIDATE;
+		// Traverses the 
+		inspect();
 	}
 
 	// Traverses the source and calls back when key source elements are
@@ -111,7 +132,7 @@ public class SourceInspector {
 				traverseSourceFiles(newMembers);
 			}
 			if (resource instanceof IFile) {
-				astEngine = new ASTEngine((IFile) resource, this);
+				astEngine = new ASTEngine((IFile) resource, this, mode);
 				astEngine.traverseSource();
 				monitor.worked(1);
 			}
@@ -124,8 +145,8 @@ public class SourceInspector {
 			if (monitor.isCanceled()) {
 				return;
 			}
-			ASTEngine engine = new ASTEngine(this);
-			engine.createSourceFile(iter.next());
+			ASTEngine engine = new ASTEngine(this, mode);
+			engine.createSourceFile(iter.next(), status);
 			monitor.worked(1);
 		}
 	}
@@ -140,7 +161,7 @@ public class SourceInspector {
 				return;
 			}
 			TagNode tagnode = iter.next();
-			helper.addMethods(node, tagnode);
+			helper.addMethods(node, tagnode, status);
 			monitor.worked(1);
 		}
 	}

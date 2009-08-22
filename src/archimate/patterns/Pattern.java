@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
@@ -27,7 +28,9 @@ public abstract class Pattern implements ICodeGenerator {
 	protected TagTree tree;
 	// ProgressMonitor
 	protected IProgressMonitor monitor;
-
+	// Status
+	protected MultiStatus status;
+	// UML reader
 	protected UMLAdapter umlreader;
 
 	// Returns the name of the pattern
@@ -50,6 +53,11 @@ public abstract class Pattern implements ICodeGenerator {
 		return monitor;
 	}
 
+	// Returns the status of the pattern
+	public MultiStatus status() {
+		return status;
+	}
+
 	// Estimates the number of tasks to execute
 	public int estimateTasks() {
 		if (tasks == 0) {
@@ -63,11 +71,11 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Generates code for the pattern
-	public void generate_code(final IProgressMonitor monitor) {
+	public void generate_code(final IProgressMonitor monitor, MultiStatus status) {
 		// Set progressmonitor
 		this.monitor = monitor;
-		// Reset the tree containing MVC pattern key elements
-		tree.resetVisited();
+		// Set status
+		this.status = status;
 
 		// Traverses the source and adds missing elements
 		SourceInspector inspector = new SourceInspector(this);
@@ -75,7 +83,15 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Validates the code in the project source folder
-	public void validate_code() {
+	public void validate_code(final IProgressMonitor monitor, MultiStatus status) {
+		// Set progressmonitor
+		this.monitor = monitor;
+		// Set status
+		this.status = status;
+
+		// Traverses the source and validates its elements
+		SourceInspector inspector = new SourceInspector(this);
+		inspector.validateSource();
 	}
 
 	// Creates a Class object with the given settings
@@ -108,7 +124,7 @@ public abstract class Pattern implements ICodeGenerator {
 	protected void addMethods(TagNode node, String stereotype,
 			String defaultName, String type, String className, String comment) {
 		ArrayList<String> names = umlreader.getElementNames(stereotype);
-		if (names.size() == 0) 
+		if (names.size() == 0)
 			names.add(defaultName);
 		for (int index = 0; index < names.size(); ++index) {
 			String name = names.get(index);

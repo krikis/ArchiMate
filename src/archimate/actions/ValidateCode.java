@@ -92,9 +92,9 @@ public class ValidateCode extends ArchiMateAction {
 		for (Iterator<Pattern> iter = patterns.iterator(); iter.hasNext();) {
 			Pattern pattern = iter.next();
 			monitor
-					.setTaskName("Generating Code for " + pattern.name()
+					.setTaskName("Validating Code for " + pattern.name()
 							+ "...");
-			pattern.generate_code(monitor);
+			pattern.validate_code(monitor, null);
 		}
 	}
 }

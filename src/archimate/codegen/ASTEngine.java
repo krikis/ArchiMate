@@ -3,8 +3,12 @@ package archimate.codegen;
 import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
@@ -22,6 +26,8 @@ import archimate.util.JavaClass;
  */
 public class ASTEngine {
 
+	// the mode of the engine
+	private String mode;
 	// the file to edit
 	private IFile targetFile;
 	// the SourceInspector leading the editing
@@ -32,7 +38,8 @@ public class ASTEngine {
 	 * 
 	 * @param inspector
 	 */
-	public ASTEngine(SourceInspector inspector) {
+	public ASTEngine(SourceInspector inspector, String mode) {
+		this.mode = mode;
 		this.inspector = inspector;
 	}
 
@@ -42,7 +49,8 @@ public class ASTEngine {
 	 * 
 	 * @param inspector
 	 */
-	public ASTEngine(IFile targetFile, SourceInspector inspector) {
+	public ASTEngine(IFile targetFile, SourceInspector inspector, String mode) {
+		this.mode = mode;
 		this.targetFile = targetFile;
 		this.inspector = inspector;
 	}
@@ -59,7 +67,12 @@ public class ASTEngine {
 		parser.setSource(text.toCharArray());
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		unit.recordModifications();
-		JavaInspector visitor = new JavaInspector(inspector);
+		ASTVisitor visitor = null;
+		if (mode.equals(SourceInspector.GENERATE)) {
+			visitor = new JavaInspector(inspector);
+		} else {
+			visitor = new JavaValidator(inspector);
+		}
 		unit.accept(visitor);
 		String sourceCode = "";
 		Document doc = new Document(text);
@@ -83,7 +96,7 @@ public class ASTEngine {
 	 * @param node
 	 *            The {@link TagNode} to generate code for
 	 */
-	public void createSourceFile(TagNode node) {
+	public void createSourceFile(TagNode node, MultiStatus status) {
 		for (Iterator<ICodeElement> iter = node.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
@@ -112,6 +125,12 @@ public class ASTEngine {
 					targetFile = handler.save(sourceCode, javaClass
 							.packageName(), javaClass.targetFile());
 				}
+				status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
+						"Sourcefile for "
+								+ javaClass.className()
+								+ (javaClass.isInterface() ? " interface"
+										: " class") + " added."
+								+ "                             ", null));
 				traverseSource();
 			}
 		}

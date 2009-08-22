@@ -2,7 +2,10 @@ package archimate.codegen;
 
 import java.util.ArrayList;
 
+import javax.swing.ProgressMonitor;
+
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.MultiStatus;
 
 import archimate.util.JavaClass;
 import archimate.util.TagNode;
@@ -39,11 +42,18 @@ public interface ICodeGenerator {
 	public TagTree tree();
 
 	/**
-	 * Returns the progressmonitor for the generator
+	 * Returns the {@link ProgressMonitor} for the generator
 	 * 
-	 * @return The progressmonitor for the generator
+	 * @return The {@link ProgressMonitor} for the generator
 	 */
 	public IProgressMonitor monitor();
+
+	/**
+	 * Returns the {@link MultiStatus} for the generator
+	 * 
+	 * @return The {@link MultiStatus} for the generator
+	 */
+	public MultiStatus status();
 
 	/**
 	 * Estimates the number of tasks to execute for generating code
@@ -55,11 +65,11 @@ public interface ICodeGenerator {
 	/**
 	 * Generates source code for the pattern
 	 */
-	public void generate_code(final IProgressMonitor monitor);
+	public void generate_code(final IProgressMonitor monitor, MultiStatus status);
 
 	/**
 	 * Validates the source code in the workspace
 	 */
-	public void validate_code();
+	public void validate_code(final IProgressMonitor monitor, MultiStatus status);
 
 }

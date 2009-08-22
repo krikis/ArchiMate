@@ -22,7 +22,7 @@ import archimate.Activator;
  * @author Samuel Esposito
  */
 public class ValidateModel extends ArchiMateAction {
-
+	// Dialog displaying the model validation report
 	private ErrorDialog error = null;
 
 	/**
@@ -56,22 +56,43 @@ public class ValidateModel extends ArchiMateAction {
 	// validates the UML model and reports the errors
 	private ErrorDialog readPack(org.eclipse.uml2.uml.Package myPack,
 			final IProgressMonitor monitor) {
+		// Initializing the status
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
 				"Temporary Status", null);
 		monitor.beginTask("Checking OCL Constraints...", estimateRules(myPack));
+		// Executing the action
 		readProfiles(myPack, status, monitor);
 		readStereotypes(myPack, status, monitor);
+		// Rendering the error dialog
+		return processStatus(monitor, status);
+	}
 
+	// Generates the error dialog
+	private ErrorDialog processStatus(final IProgressMonitor monitor,
+			MultiStatus status) {
 		MultiStatus newStatus = null;
 		if (status.getSeverity() == IStatus.INFO) {
+			int count = status.getChildren().length;
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"The validation completed succesfully.", null);
+					"The validation completed succesfully. " + count
+							+ (count == 1 ? " constraint" : " constraints")
+							+ " checked.", null);
 		} else if (status.getSeverity() == IStatus.ERROR) {
-			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
-					"Errors encountered during validation.", null);
+			IStatus[] children = status.getChildren();
+			int count = 0;
+			for (int index = 0; index < children.length; ++index) {
+				if (children[index].getSeverity() == IStatus.ERROR)
+					++count;
+			}
+			count /= 2;
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
+					+ (count == 1 ? " error" : " errors")
+					+ " encountered during validation.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
 					"There were no constraints to check.", null);
+			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
+					null));
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
@@ -191,12 +212,12 @@ public class ValidateModel extends ArchiMateAction {
 			status.add(new Status(IStatus.INFO, status.getPlugin(), 1,
 					"SUCCESS: " + comment, null));
 			status.add(new Status(IStatus.INFO, status.getPlugin(), 1, "   \""
-					+ oclExpr + "\"", null));
+					+ oclExpr + "\"                                  ", null));
 		} else {
 			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1,
 					"ERROR: " + comment, null));
 			status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, "   \""
-					+ oclExpr + "\"", null));
+					+ oclExpr + "\"                                  ", null));
 		}
 	}
 }
