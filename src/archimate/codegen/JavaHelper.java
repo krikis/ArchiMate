@@ -218,7 +218,6 @@ public class JavaHelper {
 						+ (javaClass.isInterface() ? "interface" : "class");
 			}
 		}
-		JavaClass javaClass = (JavaClass) parent.source().get(0);
 		status.add(new Status(IStatus.INFO, status.getPlugin(), 1, pattern
 				+ ": Method " + method.type() + " added for the \""
 				+ method.name() + "()\" method" + container

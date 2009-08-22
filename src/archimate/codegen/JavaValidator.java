@@ -114,6 +114,10 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
+			if (current.hasChildren()) {
+				ArrayList<TagNode> tags = TagTree.getUnvisited(current);
+				inspector.reportMissing(tags);
+			}
 			tree.setCurrent(current.parent());
 		}
 	}

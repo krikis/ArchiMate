@@ -6,10 +6,14 @@ import java.util.Iterator;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.util.FileHandler;
+import archimate.util.JavaClass;
+import archimate.util.JavaMethod;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
@@ -86,12 +90,12 @@ public class SourceInspector {
 	 * Traverses the source and adds missing source elements and files
 	 */
 	public void updateSource() {
-		// Sets the mode to code generation
+		// Set the mode to code generation
 		mode = GENERATE;
-		// Traverses the source and calls back when key source elements are
+		// Traverse the source and calls back when key source elements are
 		// missing
 		inspect();
-		// Adds the source files that are missing
+		// Add the source files that are missing
 		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
 		createSourceFiles(tags);
 	}
@@ -100,10 +104,13 @@ public class SourceInspector {
 	 * Traverses the source and validates the source elements
 	 */
 	public void validateSource() {
-		// Sets the mode to validation
+		// Set the mode to validation
 		mode = VALIDATE;
 		// Traverses the
 		inspect();
+		// Report the source files that are missing
+		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
+		reportMissing(tags);
 	}
 
 	// Traverses the source and calls back when key source elements are
@@ -165,6 +172,11 @@ public class SourceInspector {
 
 	/**
 	 * Creates source elements in the node for every tag in the list.
+	 * 
+	 * @param node
+	 *            the node to add the source elements to
+	 * @param tags
+	 *            the tags to create source for
 	 */
 	public void addSourceElements(TypeDeclaration node, ArrayList<TagNode> tags) {
 		JavaHelper helper = new JavaHelper(pattern);
@@ -176,6 +188,55 @@ public class SourceInspector {
 			helper.addMethods(node, tagnode, status);
 			monitor.worked(1);
 		}
+	}
+
+	/**
+	 * Reports the missing source elements for every tag
+	 * 
+	 * @param tags
+	 *            The tags to report missing source elements for
+	 */
+	public void reportMissing(ArrayList<TagNode> tags) {
+		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
+			TagNode node = iter.next();
+			for (Iterator<ICodeElement> ite2 = node.source().iterator(); ite2
+					.hasNext();) {
+				ICodeElement elem = ite2.next();
+				if (elem instanceof JavaMethod && node.parent() != null) {
+					reportMissingMethod((JavaMethod) elem, node.parent());
+				}
+				if (elem instanceof JavaClass) {
+					reportMissingFile((JavaClass) elem);
+				}
+			}
+		}
+	}
+
+	// Reports a missing source file
+	private void reportMissingFile(JavaClass javaClass) {
+		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+				+ ": Sourcefile for \"" + javaClass.className() + "\" "
+				+ (javaClass.isInterface() ? "interface" : "class")
+				+ " missing. Try to generate code or to update the model."
+				+ "                             ", null));
+	}
+
+	// Reports a missing method
+	private void reportMissingMethod(JavaMethod method, TagNode node) {
+		String container = "";
+		if (node.source().size() == 1) {
+			ICodeElement parentElement = node.source().get(0);
+			if (parentElement instanceof JavaClass) {
+				JavaClass javaClass = (JavaClass) parentElement;
+				container = " in the \"" + javaClass.className() + "\" "
+						+ (javaClass.isInterface() ? "interface" : "class");
+			}
+		}
+		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+				+ ": Method " + method.type() + " for the \"" + method.name()
+				+ "()\" method missing" + container
+				+ ". Try to generate code or to update the model."
+				+ "                          ", null));
 	}
 
 }
