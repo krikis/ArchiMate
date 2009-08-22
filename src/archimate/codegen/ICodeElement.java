@@ -43,7 +43,7 @@ public interface ICodeElement {
 	/**
 	 * Method defining whether a source element matches the identifier
 	 * 
-	 * @param identifyer
+	 * @param identifier
 	 *            String to match the source element with
 	 * @return Whether the source element matches the identifier
 	 */
