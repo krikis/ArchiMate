@@ -29,6 +29,7 @@ public class SourceInspector {
 	// Constants defining the current action of the plugin,
 	public static final String GENERATE = "generate";
 	public static final String VALIDATE = "validate";
+	public static final String UPDATE = "update";
 	// Mode of the sourceInspector
 	private String mode;
 	// TagTree of the ICodeGenerator at hand
@@ -111,6 +112,17 @@ public class SourceInspector {
 		// Report the source files that are missing
 		ArrayList<TagNode> tags = tree.getAllUnvisited();
 		reportMissing(tags);
+	}
+
+	/**
+	 * Traverses the source and updates the UML model
+	 */
+	public void updateModel() {
+		// Set the mode to validation
+		mode = UPDATE;
+		// Traverses the source and updates the model when UML elements are
+		// missing
+		inspect();
 	}
 
 	// Traverses the source and calls back when key source elements are

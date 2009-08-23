@@ -202,7 +202,6 @@ public class JavaMethod implements ICodeElement {
 					return true;
 			}
 		}
-		System.out.println(expression.getClass());
 		return false;
 	}
 

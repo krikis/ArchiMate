@@ -107,10 +107,14 @@ public class TagNode {
 
 	/**
 	 * Sets the visited state to true
+	 * @return whether the state changed
 	 */
-	public void setVisited() {
-		if (unvisited == 0)
+	public boolean setVisited() {
+		if (unvisited == 0 && !visited) {
 			visited = true;
+			return true;
+		}
+		return false;
 	}
 
 	/**

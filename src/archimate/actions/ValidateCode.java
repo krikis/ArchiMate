@@ -60,9 +60,9 @@ public class ValidateCode extends ArchiMateAction {
 	}
 
 	// Reads out the profiles and creates a Pattern object for each one of them
-	private ErrorDialog readProfiles(org.eclipse.uml2.uml.Package myPack,
+	private ErrorDialog readProfiles(org.eclipse.uml2.uml.Package umlPackage,
 			final IProgressMonitor monitor) {
-		EList<Profile> profiles = myPack.getAppliedProfiles();
+		EList<Profile> profiles = umlPackage.getAppliedProfiles();
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
 		int tasks = 0;
@@ -74,9 +74,9 @@ public class ValidateCode extends ArchiMateAction {
 			Pattern pattern = null;
 			String name = profile.getName();
 			if (name.equals("MVC")) {
-				pattern = new MVCPattern(myPack);
+				pattern = new MVCPattern(umlPackage);
 			} else if (name.equals("Callback")) {
-				pattern = new CallbackPrimitive(myPack);
+				pattern = new CallbackPrimitive(umlPackage);
 			} else {
 				break;
 			}

@@ -30,7 +30,7 @@ import archimate.patterns.primitives.callback.CallbackPrimitive;
 public class GenerateCode extends ArchiMateAction {
 	// Dialog displaying the code generation report
 	private ErrorDialog error = null;
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -60,9 +60,9 @@ public class GenerateCode extends ArchiMateAction {
 	}
 
 	// Reads out the profiles and creates a Pattern object for each one of them
-	private ErrorDialog readProfiles(org.eclipse.uml2.uml.Package myPack,
+	private ErrorDialog readProfiles(org.eclipse.uml2.uml.Package umlPackage,
 			final IProgressMonitor monitor) {
-		EList<Profile> profiles = myPack.getAppliedProfiles();
+		EList<Profile> profiles = umlPackage.getAppliedProfiles();
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
 		int tasks = 0;
@@ -74,14 +74,14 @@ public class GenerateCode extends ArchiMateAction {
 			Pattern pattern = null;
 			String name = profile.getName();
 			if (name.equals("MVC")) {
-				pattern = new MVCPattern(myPack);
+				pattern = new MVCPattern(umlPackage);
 			} else if (name.equals("Callback")) {
-				pattern = new CallbackPrimitive(myPack);
-			} else {
-				break;
+				pattern = new CallbackPrimitive(umlPackage);
 			}
-			tasks += pattern.estimateTasks();
-			patterns.add(pattern);
+			if (pattern != null) {
+				tasks += pattern.estimateTasks();
+				patterns.add(pattern);
+			}
 		}
 		// Initializing the status
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,

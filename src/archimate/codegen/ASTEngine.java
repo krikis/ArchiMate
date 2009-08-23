@@ -100,23 +100,27 @@ public class ASTEngine {
 		// Select the right ASTVisitor
 		if (mode.equals(SourceInspector.GENERATE)) {
 			visitor = new JavaInspector(inspector, pattern);
-		} else {
+		} else if (mode.equals(SourceInspector.VALIDATE)) {
 			visitor = new JavaValidator(inspector, pattern);
+		} else if (mode.equals(SourceInspector.UPDATE)) {
+			visitor = new UMLUpdater(inspector, pattern);
 		}
-		unit.accept(visitor);
-		String sourceCode = "";
-		Document doc = new Document(text);
-		TextEdit edits = unit.rewrite(doc, null);
-		if (edits.hasChildren()) {
-			try {
-				edits.apply(doc);
-			} catch (BadLocationException e) {
-				System.out.println("Unable to apply changes to source.");
-				e.printStackTrace();
+		if (visitor != null) {
+			unit.accept(visitor);
+			String sourceCode = "";
+			Document doc = new Document(text);
+			TextEdit edits = unit.rewrite(doc, null);
+			if (edits.hasChildren()) {
+				try {
+					edits.apply(doc);
+				} catch (BadLocationException e) {
+					System.out.println("Unable to apply changes to source.");
+					e.printStackTrace();
+				}
+				sourceCode += doc.get();
+				handler.save(sourceCode, targetFile);
+				handler.selectAndReveal(targetFile);
 			}
-			sourceCode += doc.get();
-			handler.save(sourceCode, targetFile);
-			handler.selectAndReveal(targetFile);
 		}
 	}
 

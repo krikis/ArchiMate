@@ -1,21 +1,34 @@
 package archimate.actions;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
-import org.eclipse.core.runtime.*;
 import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.command.*;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.uml2.uml.Profile;
+
+import archimate.Activator;
+import archimate.patterns.Pattern;
+import archimate.patterns.mvc.MVCPattern;
+import archimate.patterns.primitives.callback.CallbackPrimitive;
 
 /**
- * This class implements the Validate Code action. The code in the source folder
- * of the java project is validated with respect to the selected UML package.
+ * This class implements the Update UML Model action. The elements in the UML
+ * model are updated with respect to the current state of the source code.
  * 
  * @author Samuel Esposito
  */
 public class UpdateModel extends ArchiMateAction {
-
+	// Dialog displaying the code generation report
 	private ErrorDialog error = null;
 
 	/*
@@ -31,7 +44,7 @@ public class UpdateModel extends ArchiMateAction {
 			try {
 				dialog.run(true, true, new IRunnableWithProgress() {
 					public void run(final IProgressMonitor monitor) {
-						// Code here
+						error = readProfiles(myPackage, monitor);
 						monitor.done();
 					}
 				});
@@ -44,5 +57,84 @@ public class UpdateModel extends ArchiMateAction {
 				error.open();
 			}
 		}
+	}
+
+	// Reads out the profiles and creates a Pattern object for each one of them
+	private ErrorDialog readProfiles(org.eclipse.uml2.uml.Package umlPackage,
+			final IProgressMonitor monitor) {
+		EList<Profile> profiles = umlPackage.getAppliedProfiles();
+		// Calculating number of tasks
+		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
+		int tasks = 0;
+		for (int i = 0; i < profiles.size(); ++i) {
+			if (monitor.isCanceled()) {
+				return null;
+			}
+			Profile profile = profiles.get(i);
+			Pattern pattern = null;
+			String name = profile.getName();
+			if (name.equals("MVC")) {
+				pattern = new MVCPattern(umlPackage);
+			} else if (name.equals("Callback")) {
+				pattern = new CallbackPrimitive(umlPackage);
+			} else {
+				break;
+			}
+			tasks += pattern.estimateTasks();
+			patterns.add(pattern);
+		}
+		// Initializing the status
+		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
+				"Temporary Status", null);
+		// Setting up progressmonitor
+		monitor.beginTask("Initializing...", tasks);
+		// Processing patterns
+		for (Iterator<Pattern> iter = patterns.iterator(); iter.hasNext();) {
+			Pattern pattern = iter.next();
+			monitor
+					.setTaskName("Validating Code for " + pattern.name()
+							+ "...");
+			pattern.update_model(monitor, status);
+		}
+		return processStatus(monitor, status);
+	}
+
+	// Generates the error dialog
+	private ErrorDialog processStatus(final IProgressMonitor monitor,
+			MultiStatus status) {
+		MultiStatus newStatus = null;
+		if (status.getSeverity() == IStatus.INFO) {
+			int count = status.getChildren().length;
+			newStatus = new MultiStatus(
+					Activator.PLUGIN_ID,
+					1,
+					"The model was successfully updated. " + count + " UML "
+							+ (count == 1 ? "element" : "elements") + " added.",
+					null);
+		} else if (status.getSeverity() == IStatus.WARNING) {
+			IStatus[] children = status.getChildren();
+			int count = 0;
+			for (int index = 0; index < children.length; ++index) {
+				if (children[index].getSeverity() == IStatus.WARNING)
+					++count;
+			}
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
+					+ (count == 1 ? " irregularity" : " irregularities")
+					+ " encountered while updating the model.", null);
+		} else {
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
+					"The UML model is already up to date.", null);
+			status
+					.add(new Status(IStatus.INFO, status.getPlugin(), 1, "",
+							null));
+		}
+		newStatus.addAll(status);
+		ErrorDialog dialog = null;
+		if (!monitor.isCanceled()) {
+			dialog = new ErrorDialog(window.getShell(),
+					"Archimate UML Model Update", null, newStatus, status
+							.getSeverity());
+		}
+		return dialog;
 	}
 }

@@ -24,7 +24,7 @@ import archimate.util.TagTree;
  */
 public abstract class Pattern implements ICodeGenerator {
 
-	// Nr of estimated tasks
+	// Nr. of estimated tasks
 	protected int tasks = 0;
 	// The name of the pattern
 	protected String name;
@@ -54,7 +54,7 @@ public abstract class Pattern implements ICodeGenerator {
 		return tree;
 	}
 
-	// Returns the progressmonitor of the pattern
+	// Returns the progress monitor of the pattern
 	public IProgressMonitor monitor() {
 		return monitor;
 	}
@@ -78,7 +78,7 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Generates code for the pattern
 	public void generate_code(final IProgressMonitor monitor, MultiStatus status) {
-		// Set progressmonitor
+		// Set progress monitor
 		this.monitor = monitor;
 		// Set status
 		this.status = status;
@@ -90,7 +90,7 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Validates the code in the project source folder
 	public void validate_code(final IProgressMonitor monitor, MultiStatus status) {
-		// Set progressmonitor
+		// Set progress monitor
 		this.monitor = monitor;
 		// Set status
 		this.status = status;
@@ -98,6 +98,18 @@ public abstract class Pattern implements ICodeGenerator {
 		// Traverses the source and validates its elements
 		SourceInspector inspector = new SourceInspector(this);
 		inspector.validateSource();
+	}
+
+	// Updates the currently selected UML model
+	public void update_model(final IProgressMonitor monitor, MultiStatus status) {
+		// Set progress monitor
+		this.monitor = monitor;
+		// Set status
+		this.status = status;
+
+		// Traverses the source and validates its elements
+		SourceInspector inspector = new SourceInspector(this);
+		inspector.updateModel();
 	}
 
 	// Creates a Class object with the given settings
@@ -147,7 +159,6 @@ public abstract class Pattern implements ICodeGenerator {
 			if (name.equals(""))
 				method.setOptional();
 			method.setComment(comment);
-			System.out.println(method.name() + " | " + method.optional());
 			node.addSource(method);
 		}
 	}
@@ -169,8 +180,6 @@ public abstract class Pattern implements ICodeGenerator {
 				if (method.optional())
 					newMethod.setOptional();
 				newMethod.setComment(comment);
-				System.out.println(newMethod.name() + " | "
-						+ newMethod.optional());
 				node.addSource(newMethod);
 			}
 		}

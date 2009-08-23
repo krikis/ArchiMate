@@ -53,15 +53,15 @@ public class ValidateModel extends ArchiMateAction {
 	}
 
 	// validates the UML model and reports the errors
-	private ErrorDialog readPack(org.eclipse.uml2.uml.Package myPack,
+	private ErrorDialog readPack(org.eclipse.uml2.uml.Package umlPackage,
 			final IProgressMonitor monitor) {
 		// Initializing the status
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
 				"Temporary Status", null);
-		monitor.beginTask("Checking OCL Constraints...", estimateRules(myPack));
+		monitor.beginTask("Checking OCL Constraints...", estimateRules(umlPackage));
 		// Executing the action
-		readProfiles(myPack, status, monitor);
-		readStereotypes(myPack, status, monitor);
+		readProfiles(umlPackage, status, monitor);
+		readStereotypes(umlPackage, status, monitor);
 		// Rendering the error dialog
 		return processStatus(monitor, status);
 	}

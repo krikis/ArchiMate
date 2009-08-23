@@ -81,8 +81,9 @@ public class JavaInspector extends ASTVisitor {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
 			self.tickOffSource(name);
-			self.setVisited();
-			monitor.worked(1);
+			boolean toggle = self.setVisited();
+			if (toggle)
+				monitor.worked(1);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
 				return true;
@@ -129,7 +130,9 @@ public class JavaInspector extends ASTVisitor {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
 			self.tickOffSource(name);
-			self.setVisited();
+			boolean toggle = self.setVisited();
+			if (toggle)
+				monitor.worked(1);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
 				return true;

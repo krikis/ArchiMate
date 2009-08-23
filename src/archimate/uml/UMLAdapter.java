@@ -13,16 +13,16 @@ import org.eclipse.uml2.uml.*;
  */
 public class UMLAdapter {
 	// package subject to reading
-	private org.eclipse.uml2.uml.Package myPackage;
+	private org.eclipse.uml2.uml.Package umlPackage;
 
 	/**
 	 * Creates new UMLAdapter for the given package
 	 * 
-	 * @param myPackage
+	 * @param umlPackage
 	 *            The package to read
 	 */
-	public UMLAdapter(org.eclipse.uml2.uml.Package myPackage) {
-		this.myPackage = myPackage;
+	public UMLAdapter(org.eclipse.uml2.uml.Package umlPackage) {
+		this.umlPackage = umlPackage;
 	}
 
 	/**
@@ -35,7 +35,7 @@ public class UMLAdapter {
 	 */
 	public String getElementName(String stereotypeName) {
 		String name = "";
-		EList<NamedElement> elements = myPackage.getOwnedMembers();
+		EList<NamedElement> elements = umlPackage.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
@@ -67,9 +67,9 @@ public class UMLAdapter {
 	}
 
 	// Recursively traverses the UML tree until a desired element was found
-	private String traverseSome(Namespace UMLElement, String stereotypeName) {
+	private String traverseSome(Namespace umlElement, String stereotypeName) {
 		String name = "";
-		EList<NamedElement> elements = UMLElement.getOwnedMembers();
+		EList<NamedElement> elements = umlElement.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
@@ -110,7 +110,7 @@ public class UMLAdapter {
 	 */
 	public ArrayList<String> getElementNames(String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();
-		EList<NamedElement> elements = myPackage.getOwnedMembers();
+		EList<NamedElement> elements = umlPackage.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			if (element.getName() != null) {
@@ -131,10 +131,10 @@ public class UMLAdapter {
 	}
 
 	// Recursively traverses the UML tree until all matching elements are found
-	private ArrayList<String> traverseAll(Namespace UMLElement,
+	private ArrayList<String> traverseAll(Namespace umlElement,
 			String stereotypeName) {
 		ArrayList<String> names = new ArrayList<String>();
-		EList<NamedElement> elements = UMLElement.getOwnedMembers();
+		EList<NamedElement> elements = umlElement.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
 			if (element.getName() != null) {

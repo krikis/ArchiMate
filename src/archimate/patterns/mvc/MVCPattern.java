@@ -38,14 +38,14 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	 * <code>IGenModel</code> object with all settings for the current Java
 	 * Project.
 	 * 
-	 * @param myPackage
+	 * @param umlPackage
 	 *            The UML package in the open UML or GMF editor
 	 */
-	public MVCPattern(org.eclipse.uml2.uml.Package myPackage) {
+	public MVCPattern(org.eclipse.uml2.uml.Package umlPackage) {
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
-		umlreader = new UMLAdapter(myPackage);
+		umlreader = new UMLAdapter(umlPackage);
 		// Set the pattern name
 		name = "MVC Pattern";
 		// Setup the tag tree

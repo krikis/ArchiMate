@@ -84,8 +84,9 @@ public class JavaValidator extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			helper.compare(node, self);
-			self.setVisited();
-			monitor.worked(1);
+			boolean toggle = self.setVisited();
+			if (toggle)
+				monitor.worked(1);
 			tree.setCurrent(self);
 		}
 		helper.checkRestricted(node, tree.current(), tree
@@ -126,7 +127,9 @@ public class JavaValidator extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			helper.compare(node, self);
-			self.setVisited();
+			boolean toggle = self.setVisited();
+			if (toggle)
+				monitor.worked(1);
 			tree.setCurrent(self);
 		}
 		return true;

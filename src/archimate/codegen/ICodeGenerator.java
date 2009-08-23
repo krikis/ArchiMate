@@ -1,7 +1,5 @@
 package archimate.codegen;
 
-import javax.swing.ProgressMonitor;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 
@@ -37,9 +35,9 @@ public interface ICodeGenerator {
 	public TagTree tree();
 
 	/**
-	 * Returns the {@link ProgressMonitor} for the generator
+	 * Returns the {@link IProgressMonitor} for the generator
 	 * 
-	 * @return The {@link ProgressMonitor} for the generator
+	 * @return The {@link IProgressMonitor} for the generator
 	 */
 	public IProgressMonitor monitor();
 
@@ -59,12 +57,32 @@ public interface ICodeGenerator {
 
 	/**
 	 * Generates source code for the pattern
+	 * 
+	 * @param monitor
+	 *            the {@link IProgressMonitor} object
+	 * @param status
+	 *            the {@link MultiStatus} object
 	 */
 	public void generate_code(final IProgressMonitor monitor, MultiStatus status);
 
 	/**
 	 * Validates the source code in the workspace
+	 * 
+	 * @param monitor
+	 *            the {@link IProgressMonitor} object
+	 * @param status
+	 *            the {@link MultiStatus} object
 	 */
 	public void validate_code(final IProgressMonitor monitor, MultiStatus status);
+
+	/**
+	 * Updates the currently selecte UML model
+	 * 
+	 * @param monitor
+	 *            the {@link IProgressMonitor} object
+	 * @param status
+	 *            the {@link MultiStatus} object
+	 */
+	public void update_model(final IProgressMonitor monitor, MultiStatus status);
 
 }
