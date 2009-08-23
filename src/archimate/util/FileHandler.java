@@ -25,9 +25,12 @@ import archimate.codegen.ASTEngine;
  * 
  */
 public class FileHandler {
-
+	// The source folder of the java project
 	private String targetFolder;
 
+	/**
+	 * Creates a new {@link FileHandler} and sets the targetFolder
+	 */
 	public FileHandler() {
 		targetFolder = Activator.projectRoot + "/src";
 	}

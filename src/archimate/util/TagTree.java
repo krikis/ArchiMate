@@ -37,6 +37,10 @@ public class TagTree {
 	 * 
 	 * @param interfaceName
 	 *            name of the restricted interface
+	 * @param type
+	 *            the type of the interface
+	 * @param packageName
+	 *            the name of the package
 	 */
 	public void addRestrictedInterface(String interfaceName, String type,
 			String packageName) {
@@ -48,6 +52,10 @@ public class TagTree {
 	 * 
 	 * @param method
 	 *            name of the restricted method
+	 * @param type
+	 *            the type of the class the method is defined in
+	 * @param packageName
+	 *            the package of the class the method is defined in
 	 */
 	public void addRestrictedMethod(String method, String type,
 			String packageName) {

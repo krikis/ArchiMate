@@ -28,27 +28,43 @@ import archimate.codegen.JavaHelper;
  * @author Samuel Esposito
  */
 public class JavaMethod implements ICodeElement {
-
+	// Constants defining the methods type
 	public static final String DECLARATION = "declaration";
 	public static final String IMPLEMENTATION = "implementation";
 	public static final String INVOCATION = "invocation";
-
+	// Whether the code element has been visited
 	private boolean visited;
-
+	// Whether the code element is optional
 	private boolean optional;
-
+	// The method name
 	private String name;
-
+	// The type of the method, either DECLARATION, IMPLEMENTATION or INVOCATION
 	private String type;
-
+	// The packagename of the class in which the method is implemented
 	private String packageName;
-
+	// The archiMateTag corresponding with this method
 	private String archiMateTag;
-
+	// The name of the class in which the method is implemented
 	private String className;
-
+	// The comment going with the method
 	private String comment;
 
+	/**
+	 * Creates a {@link JavaMethod} object
+	 * 
+	 * @param name
+	 *            the name of the method
+	 * @param tag
+	 *            The archiMateTag corresponding with this method
+	 * @param type
+	 *            The type of the method, either DECLARATION, IMPLEMENTATION or
+	 *            INVOCATION
+	 * @param className
+	 *            The name of the class in which the method is implemented
+	 * @param packageName
+	 *            The packagename of the class in which the method is
+	 *            implemented
+	 */
 	public JavaMethod(String name, String tag, String type, String className,
 			String packageName) {
 		visited = false;
@@ -108,20 +124,17 @@ public class JavaMethod implements ICodeElement {
 				}
 			}
 			if (!invocation) {
-				status
-						.add(new Status(
-								IStatus.ERROR,
-								status.getPlugin(),
-								1,
-								pattern
-										+ ": The method \""
-										+ invocationMethod()
-										+ "()\" doesn't implement the invocation of the method \""
-										+ name
-										+ "()\".                          ",
-								null));
+				reportTypeError(status, pattern);
 			}
 		}
+	}
+
+	// Reports the occurrence of a method type error
+	private void reportTypeError(MultiStatus status, String pattern) {
+		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+				+ ": The method \"" + invocationMethod()
+				+ "()\" doesn't implement the invocation of the method \""
+				+ name + "()\".                          ", null));
 	}
 
 	// Checks the invocation of a method
@@ -169,8 +182,7 @@ public class JavaMethod implements ICodeElement {
 			// Check variable type
 			if (variable.getType() instanceof SimpleType) {
 				SimpleType type = (SimpleType) variable.getType();
-				if (type.getName().getFullyQualifiedName().equals(
-						invocationClass())) {
+				if (type.getName().getFullyQualifiedName().equals(className())) {
 					varType = true;
 				}
 			}
@@ -186,8 +198,7 @@ public class JavaMethod implements ICodeElement {
 			ClassInstanceCreation instance = (ClassInstanceCreation) expression;
 			if (instance.getType() instanceof SimpleType) {
 				SimpleType type = (SimpleType) instance.getType();
-				if (type.getName().getFullyQualifiedName().equals(
-						invocationClass()))
+				if (type.getName().getFullyQualifiedName().equals(className()))
 					return true;
 			}
 		}
@@ -215,63 +226,143 @@ public class JavaMethod implements ICodeElement {
 		optional = true;
 	}
 
+	/**
+	 * Sets the method name
+	 * 
+	 * @param name
+	 *            the method name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
 
+	/**
+	 * Sets the method type
+	 * 
+	 * @param type
+	 *            the method type, either DECLARATION, IMPLEMENTATION or
+	 *            INVOCATION
+	 */
 	public void setType(String type) {
 		this.type = type;
 	}
 
+	/**
+	 * Sets the method archiMateTag
+	 * 
+	 * @param tag
+	 *            the method archiMateTag
+	 */
 	public void setArchiMateTag(String tag) {
 		archiMateTag = tag;
 	}
 
+	/**
+	 * Sets the name of the class the method is implemented in
+	 * 
+	 * @param name
+	 *            the name of the class the method is implemented in
+	 */
 	public void setClassName(String name) {
 		className = name;
 	}
 
+	/**
+	 * Returns the name of the method
+	 * 
+	 * @return the name of the method
+	 */
 	public String name() {
 		return name;
 	}
 
-	// Returns the method package
+	/**
+	 * Returns the method package
+	 * 
+	 * @return the method package
+	 */
 	public String packageName() {
 		return packageName;
 	}
 
+	/**
+	 * Returns the method type
+	 * 
+	 * @return the method type
+	 */
 	public String type() {
 		return type;
 	}
 
+	/*
+	 * (non-Javadoc) Returns whether the method has any archiMateTags
+	 * 
+	 * @see archimate.codegen.ICodeElement#archiMateTagsDefined()
+	 */
 	public boolean archiMateTagsDefined() {
 		return archiMateTag.length() > 0;
 	}
 
+	/*
+	 * (non-Javadoc) Returns the methods archiMateTag
+	 * 
+	 * @see archimate.codegen.ICodeElement#archiMateTag()
+	 */
 	public String archiMateTag() {
 		return archiMateTag;
 	}
 
+	/**
+	 * Returns the name of the invoking method
+	 * 
+	 * @return the name of the invoking method
+	 */
 	public String invocationMethod() {
 		return name + "Invocation";
 	}
 
-	public String invocationClass() {
+	/**
+	 * Returns the name of the class the method was implemented in
+	 * 
+	 * @return the name of the class the method was implemented in
+	 */
+	public String className() {
 		return className;
 	}
 
+	/**
+	 * Returns the object on which the method is invoked
+	 * 
+	 * @return the object on which the method is invoked
+	 */
 	public String invocationObject() {
 		return JavaHelper.camelize(className);
 	}
 
+	/**
+	 * Sets the comment going with the method
+	 * 
+	 * @param comment
+	 *            the comment going with the method
+	 */
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
 
+	/*
+	 * (non-Javadoc) Whether a comment is defined or not
+	 * 
+	 * @see archimate.codegen.ICodeElement#commentDefined()
+	 */
 	public boolean commentDefined() {
 		return comment.length() > 0;
 	}
 
+	/*
+	 * (non-Javadoc) Returns the comment going with the method
+	 * 
+	 * @see archimate.codegen.ICodeElement#comment()
+	 */
 	public String comment() {
 		return comment;
 	}

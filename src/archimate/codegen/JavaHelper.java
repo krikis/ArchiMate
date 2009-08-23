@@ -266,7 +266,7 @@ public class JavaHelper {
 			md.setBody(methodBlock);
 			// Add method invocation
 			if (method.type().equals(JavaMethod.INVOCATION)) {
-				String objectClass = method.invocationClass();
+				String objectClass = method.className();
 				String objectName = method.invocationObject();
 				addObject(methodBlock, objectClass, objectName,
 						new ArrayList<String>());

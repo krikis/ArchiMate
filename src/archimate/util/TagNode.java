@@ -118,6 +118,8 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns whether the node has children or not
+	 * 
 	 * @return Whether the node has children or not
 	 */
 	public boolean hasChildren() {
@@ -152,7 +154,8 @@ public class TagNode {
 	/**
 	 * Adds a {@link ICodeElement} to the list of source elements. If the list
 	 * contains an element with the same identifier, the element is silently
-	 * ignored.
+	 * ignored. This method also keeps track of the nr of unvisited code
+	 * elements and the occurrence of non-optional source elements
 	 * 
 	 * @param code
 	 *            {@link ICodeElement} that will be added to the list of source
