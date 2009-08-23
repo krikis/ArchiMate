@@ -41,7 +41,7 @@ public class JavaInspector extends ASTVisitor {
 		this.tree = inspector.tree();
 		this.inspector = inspector;
 		this.monitor = inspector.monitor();
-		helper = new JavaHelper(pattern);
+		helper = new JavaHelper(inspector.status(), pattern);
 	}
 
 	/*
@@ -107,7 +107,7 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
 			if (current.hasChildren()) {
-				ArrayList<TagNode> tags = TagTree.getUnvisited(current);
+				ArrayList<TagNode> tags = tree.getUnvisited();
 				inspector.addSourceElements(node, tags);
 			}
 			tree.setCurrent(current.parent());

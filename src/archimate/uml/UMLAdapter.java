@@ -39,26 +39,29 @@ public class UMLAdapter {
 		EList<NamedElement> elements = myPackage.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
-			if (element.getName() != null) {
-				EList<Stereotype> stereotypes = element.getAppliedStereotypes();
-				for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
-						.hasNext();) {
-					Stereotype stereotype = ite2.next();
-					if (stereotype.getName().equals(stereotypeName)) {
-						name = element.getName();
-						if (name.equals("") && element instanceof TypedElement) {
-							TypedElement typedElement = (TypedElement) element;
-							Type type = typedElement.getType();
-							if (type.getName() != null) {
-								name = type.getName();
-							}
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					name = element.getName();
+					if ((name == null || name.equals(""))
+							&& element instanceof TypedElement) {
+						TypedElement typedElement = (TypedElement) element;
+						Type type = typedElement.getType();
+						if (type.getName() != null) {
+							name = type.getName();
 						}
-						return name;
 					}
+					if (name != null)
+						return name;
+					return "";
 				}
 			}
 			if (element instanceof Namespace) {
-				return traverseSome((Namespace) element, stereotypeName);
+				name = traverseSome((Namespace) element, stereotypeName);
+				if (!name.equals(""))
+					return name;
 			}
 		}
 		return name;
@@ -70,26 +73,29 @@ public class UMLAdapter {
 		EList<NamedElement> elements = UMLElement.getOwnedMembers();
 		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
 			NamedElement element = iter.next();
-			if (element.getName() != null) {
-				EList<Stereotype> stereotypes = element.getAppliedStereotypes();
-				for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
-						.hasNext();) {
-					Stereotype stereotype = ite2.next();
-					if (stereotype.getName().equals(stereotypeName)) {
-						name = element.getName();
-						if (name.equals("") && element instanceof TypedElement) {
-							TypedElement typedElement = (TypedElement) element;
-							Type type = typedElement.getType();
-							if (type.getName() != null) {
-								name = type.getName();
-							}
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					name = element.getName();
+					if ((name == null || name.equals(""))
+							&& element instanceof TypedElement) {
+						TypedElement typedElement = (TypedElement) element;
+						Type type = typedElement.getType();
+						if (type.getName() != null) {
+							name = type.getName();
 						}
-						return name;
 					}
+					if (name != null)
+						return name;
+					return "";
 				}
 			}
 			if (element instanceof Namespace) {
-				return traverseSome((Namespace) element, stereotypeName);
+				name = traverseSome((Namespace) element, stereotypeName);
+				if (!name.equals(""))
+					return name;
 			}
 		}
 		return name;

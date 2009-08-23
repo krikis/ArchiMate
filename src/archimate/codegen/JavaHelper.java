@@ -11,8 +11,10 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
+import archimate.util.InterfaceImpl;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
+import archimate.util.Restriction;
 import archimate.util.TagNode;
 
 /**
@@ -42,14 +44,19 @@ public class JavaHelper {
 	public static final String METHOD_DECLARATION = "method_declaration";
 	// The current pattern
 	private String pattern;
+	// The status
+	private MultiStatus status;
 
 	/**
 	 * Creates a new {@link JavaHelper}
 	 * 
+	 * @param status
+	 *            the {@link MultiStatus}
 	 * @param currentPattern
 	 *            the pattern currently processed
 	 */
-	public JavaHelper(String currentPattern) {
+	public JavaHelper(MultiStatus status, String currentPattern) {
+		this.status = status;
 		pattern = currentPattern;
 	}
 
@@ -170,10 +177,11 @@ public class JavaHelper {
 		classType.setName(ast.newSimpleName(javaClass.className()));
 		// add implemented interfaces
 		if (!javaClass.isInterface()) {
-			for (Iterator<String> iter = javaClass.interfaces().iterator(); iter
-					.hasNext();) {
+			for (Iterator<InterfaceImpl> iter = javaClass.interfaces()
+					.iterator(); iter.hasNext();) {
 				classType.superInterfaceTypes().add(
-						ast.newSimpleType(ast.newSimpleName(iter.next())));
+						ast.newSimpleType(ast.newSimpleName(iter.next()
+								.interfaceName())));
 			}
 		}
 		unit.types().add(classType);
@@ -311,6 +319,15 @@ public class JavaHelper {
 	/**
 	 * Adds a statement that creates an object. For instance: {@code Object
 	 * object = new Object(params)}
+	 * 
+	 * @param methodBlock
+	 *            the methodblock to add the object to
+	 * @param type
+	 *            the type of the object
+	 * @param name
+	 *            the name of the object
+	 * @param arglist
+	 *            the arguments for the object instantiation
 	 */
 	public void addObject(Block methodBlock, String type, String name,
 			ArrayList<String> arglist) {
@@ -406,11 +423,8 @@ public class JavaHelper {
 	 *            the given {@link TagNode}
 	 * @param status
 	 *            the {@link MultiStatus} to set
-	 * @param pattern
-	 *            the currently processed pattern
 	 */
-	public void compare(TypeDeclaration node, TagNode tagnode,
-			MultiStatus status, String pattern) {
+	public void compare(TypeDeclaration node, TagNode tagnode) {
 		ICodeElement element = tagnode.getSource(getName(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
@@ -430,16 +444,185 @@ public class JavaHelper {
 	 *            the given {@link TagNode}
 	 * @param status
 	 *            the {@link MultiStatus} to set
-	 * @param pattern
-	 *            the currently processed pattern
 	 */
-	public void compare(MethodDeclaration node, TagNode tagnode,
-			MultiStatus status, String pattern) {
+	public void compare(MethodDeclaration node, TagNode tagnode) {
 		ICodeElement element = tagnode.getSource(getName(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
 			tagnode.setVisited(element);
 			element.diff(node, status, pattern);
 		}
+	}
+
+	/**
+	 * Checks whether the {@link TypeDeclaration} is a violation of an interface
+	 * restriction
+	 * 
+	 * @param node
+	 *            the {@link TypeDeclaration} to analyze
+	 * @param tagnode
+	 *            the current {@link TagNode}
+	 * @param methods
+	 *            the restricted interfaces to trace
+	 */
+	public void checkRestricted(TypeDeclaration node, TagNode tagnode,
+			ArrayList<Restriction> interfaces) {
+		for (Iterator iter = node.superInterfaceTypes().iterator(); iter
+				.hasNext();) {
+			Object object = iter.next();
+			if (object instanceof SimpleType) {
+				SimpleType simpleType = (SimpleType) object;
+				IBinding binding = simpleType.resolveBinding();
+				if (binding instanceof ITypeBinding) {
+					ITypeBinding type = (ITypeBinding) binding;
+					IPackageBinding packageBinding = type.getPackage();
+					checkRestricted(node, tagnode, interfaces, type.getName(),
+							packageBinding.getName());
+				}
+			}
+		}
+	}
+
+	// Checks whether the interface implementation was intended
+	private void checkRestricted(TypeDeclaration node, TagNode tagnode,
+			ArrayList<Restriction> interfaces, String interfaceName,
+			String packageName) {
+		for (Iterator<Restriction> iter = interfaces.iterator(); iter.hasNext();) {
+			Restriction interfaceRest = iter.next();
+			if (interfaceRest.name().equals(interfaceName)
+					&& interfaceRest.packageName().equals(packageName)) {
+				checkRestricted(node, tagnode, interfaceName, packageName);
+			}
+		}
+	}
+
+	// Checks whether the interface implementation was intended
+	private void checkRestricted(TypeDeclaration node, TagNode tagnode,
+			String interfaceName, String packageName) {
+		boolean found = false;
+		// Check whether the interface implementation was intended
+		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
+				.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof JavaClass) {
+				JavaClass javaClass = (JavaClass) element;
+				for (Iterator<InterfaceImpl> ite2 = javaClass.interfaces()
+						.iterator(); ite2.hasNext();) {
+					InterfaceImpl interfaceImpl = ite2.next();
+					if (interfaceImpl.interfaceName().equals(interfaceName)
+							&& interfaceImpl.packageName().equals(packageName)) {
+						found = true;
+					}
+				}
+			}
+		}
+		// The interface implementation was not intended
+		if (!found) {
+			reportError(node, interfaceName);
+		}
+	}
+
+	// Reports the violation of an interface implementation
+	private void reportError(TypeDeclaration node, String interfaceName) {
+		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+				+ ": The implementation of the \"" + interfaceName
+				+ "\" interface is not allowed in the class \"" + getName(node)
+				+ "\"." + "                             ", null));
+	}
+
+	/**
+	 * Checks whether the {@link MethodInvocation} is a violation of a method
+	 * restriction
+	 * 
+	 * @param node
+	 *            the {@link MethodInvocation} to analyze
+	 * @param tagnode
+	 *            the current {@link TagNode}
+	 * @param methods
+	 *            the restricted methods to trace
+	 * @param status
+	 *            the status
+	 * @param pattern
+	 *            the pattern currently processed
+	 */
+	public void checkRestricted(MethodInvocation node, TagNode tagnode,
+			ArrayList<Restriction> methods) {
+		for (Iterator<Restriction> iter = methods.iterator(); iter.hasNext();) {
+			Restriction method = iter.next();
+			if (node.getName().getFullyQualifiedName().equals(method.name())) {
+				ITypeBinding type = null;
+				// the method is invoked on a variable
+				if (node.getExpression() instanceof SimpleName) {
+					SimpleName simpleName = (SimpleName) node.getExpression();
+					IBinding binding = simpleName.resolveBinding();
+					if (binding instanceof IVariableBinding) {
+						IVariableBinding variable = (IVariableBinding) binding;
+						type = variable.getType();
+					}
+				}
+				// the method is invoked on an instancecreation
+				if (node.getExpression() instanceof ClassInstanceCreation) {
+					ClassInstanceCreation instance = (ClassInstanceCreation) node
+							.getExpression();
+					IBinding binding = instance.getType().resolveBinding();
+					if (binding instanceof ITypeBinding) {
+						type = (ITypeBinding) binding;
+					}
+				}
+				// check the type of the object on which the method is invoked
+				if (type != null) {
+					IPackageBinding packageBinding = type.getPackage();
+					if (method.type().equals(type.getName())
+							&& method.packageName().equals(
+									packageBinding.getName())) {
+						checkRestricted(node, tagnode, method);
+					}
+				}
+			}
+		}
+	}
+
+	// Checks whether the method invocation was
+	// intended by the pattern
+	private void checkRestricted(MethodInvocation node, TagNode tagnode,
+			Restriction method) {
+		boolean found = false;
+		// Check whether the invocation was intended
+		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
+				.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof JavaMethod) {
+				JavaMethod javaMethod = (JavaMethod) element;
+				if (javaMethod.name().equals(method.name())
+						&& javaMethod.packageName()
+								.equals(method.packageName())) {
+					found = true;
+				}
+			}
+		}
+		// The invocation was not intended
+		if (!found) {
+			reportError(node, method);
+		}
+	}
+
+	// Reports the violation of a method invocation
+	private void reportError(MethodInvocation node, Restriction method) {
+		String container = "";
+		ASTNode parent = node;
+		// Get the containing class
+		while (parent.getParent() != null) {
+			parent = parent.getParent();
+			if (parent instanceof TypeDeclaration) {
+				container = " in the class \""
+						+ getName((TypeDeclaration) parent) + "\"";
+				break;
+			}
+		}
+		// Report the violation
+		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
+				+ ": The invocation of the method \"" + method.name()
+				+ "()\" is not allowed" + container + "."
+				+ "                             ", null));
 	}
 }

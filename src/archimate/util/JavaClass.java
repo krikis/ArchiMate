@@ -30,6 +30,8 @@ public class JavaClass implements ICodeElement {
 
 	private boolean visited;
 
+	private boolean optional;
+
 	private String packageName;
 
 	private ArrayList<String> imports = new ArrayList<String>();
@@ -44,11 +46,12 @@ public class JavaClass implements ICodeElement {
 
 	private String type;
 
-	private ArrayList<String> interfaces = new ArrayList<String>();
+	private ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
 
 	public JavaClass(String packageName, String className, String tag,
 			String type) {
 		visited = false;
+		optional = false;
 		this.packageName = packageName;
 		this.className = className;
 		archiMateTags.add(tag);
@@ -98,27 +101,31 @@ public class JavaClass implements ICodeElement {
 	// Checks the implemented interfaces
 	private void checkInterfaces(TypeDeclaration javaClass, MultiStatus status,
 			String pattern) {
-		for (Iterator<String> iter = interfaces.iterator(); iter.hasNext();) {
-			String interfaceName = iter.next();
-			boolean found = false;
-			for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
-					.hasNext();) {
-				Object object = ite2.next();
-				if (object instanceof SimpleType) {
-					SimpleType type = (SimpleType) object;
-					if (type.getName().getFullyQualifiedName().equals(
-							interfaceName)) {
-						found = true;
-						break;
+		for (Iterator<InterfaceImpl> iter = interfaces.iterator(); iter
+				.hasNext();) {
+			InterfaceImpl interfaceImpl = iter.next();
+			if (!interfaceImpl.optional()) {
+				String interfaceName = interfaceImpl.interfaceName();
+				boolean found = false;
+				for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
+						.hasNext();) {
+					Object object = ite2.next();
+					if (object instanceof SimpleType) {
+						SimpleType type = (SimpleType) object;
+						if (type.getName().getFullyQualifiedName().equals(
+								interfaceName)) {
+							found = true;
+							break;
+						}
 					}
 				}
-			}
-			if (!found) {
-				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
-						pattern + ": The \"" + className
-								+ "\" class doesn't implement the \""
-								+ interfaceName + "\" interface."
-								+ "                             ", null));
+				if (!found) {
+					status.add(new Status(IStatus.WARNING, status.getPlugin(),
+							1, pattern + ": The \"" + className
+									+ "\" class doesn't implement the \""
+									+ interfaceName + "\" interface."
+									+ "                             ", null));
+				}
 			}
 		}
 	}
@@ -172,6 +179,16 @@ public class JavaClass implements ICodeElement {
 	// Marks the java class as visited
 	public void setVisited() {
 		visited = true;
+	}
+
+	// Returns whether the javaClass is optional
+	public boolean optional() {
+		return optional;
+	}
+
+	// Marks the javaClass as optional
+	public void setOptional() {
+		optional = true;
 	}
 
 	public String targetFile() {
@@ -272,11 +289,11 @@ public class JavaClass implements ICodeElement {
 		return type.equals(INTERFACE);
 	}
 
-	public void addInterface(String interfaceName) {
+	public void addInterface(InterfaceImpl interfaceName) {
 		interfaces.add(interfaceName);
 	}
 
-	public void addInterfaces(ArrayList<String> interfaces) {
+	public void addInterfaces(ArrayList<InterfaceImpl> interfaces) {
 		this.interfaces.addAll(interfaces);
 	}
 
@@ -284,7 +301,7 @@ public class JavaClass implements ICodeElement {
 		return interfaces.size() > 0;
 	}
 
-	public ArrayList<String> interfaces() {
+	public ArrayList<InterfaceImpl> interfaces() {
 		return interfaces;
 	}
 

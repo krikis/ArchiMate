@@ -28,6 +28,8 @@ public class TagNode {
 	private ArrayList<ICodeElement> source;
 	// count of the unvisited source elements
 	private int unvisited;
+	// whether the tagnode contains only optional source elements
+	private boolean onlyOptional = true;
 
 	/**
 	 * Creates a new node with the given tag
@@ -162,7 +164,10 @@ public class TagNode {
 				return;
 		}
 		source.add(code);
-		++unvisited;
+		if (!code.optional()) {
+			++unvisited;
+			onlyOptional = false;
+		}
 	}
 
 	/**
@@ -214,7 +219,17 @@ public class TagNode {
 	 */
 	public void setVisited(ICodeElement element) {
 		element.setVisited();
-		--unvisited;
+		if (!element.optional())
+			--unvisited;
+	}
+
+	/**
+	 * Returns whether the node contains only optional source elements
+	 * 
+	 * @return Whether the node contains only optional source elements
+	 */
+	public boolean onlyOptional() {
+		return onlyOptional;
 	}
 
 }

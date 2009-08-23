@@ -1,7 +1,11 @@
 package archimate.codegen;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.ASTNode;
+
+import archimate.util.Restriction;
 
 public interface ICodeElement {
 
@@ -71,5 +75,12 @@ public interface ICodeElement {
 	 * Marks a source code element as visited
 	 */
 	public void setVisited();
+
+	/**
+	 * Returns whether a code element has to be visited
+	 * 
+	 * @return Whether a code element has to be visited
+	 */
+	public boolean optional();
 
 }

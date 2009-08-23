@@ -91,6 +91,13 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 	public ArchiMateAction() {
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.actions.ActionDelegate#run(org.eclipse.jface.action.IAction
+	 * )
+	 */
 	public void run(IAction action) {
 	}
 

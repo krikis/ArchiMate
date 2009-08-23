@@ -19,6 +19,10 @@ public class TagTree {
 	private TagNode root;
 	// currently selected node
 	private TagNode current;
+	// restricted interfaces
+	ArrayList<Restriction> interfaces = new ArrayList<Restriction>();
+	// restricted methods
+	ArrayList<Restriction> methods = new ArrayList<Restriction>();
 
 	/**
 	 * Creates a new tree, sets the tree root and marks it as selected
@@ -26,6 +30,46 @@ public class TagTree {
 	public TagTree() {
 		root = new TagNode(ROOT);
 		current = root;
+	}
+
+	/**
+	 * Adds an interface name to the list of restricted interfaces
+	 * 
+	 * @param interfaceName
+	 *            name of the restricted interface
+	 */
+	public void addRestrictedInterface(String interfaceName, String type,
+			String packageName) {
+		interfaces.add(new Restriction(interfaceName, type, packageName));
+	}
+
+	/**
+	 * Adds an method to the list of restricted methods
+	 * 
+	 * @param method
+	 *            name of the restricted method
+	 */
+	public void addRestrictedMethod(String method, String type,
+			String packageName) {
+		methods.add(new Restriction(method, type, packageName));
+	}
+
+	/**
+	 * Returns the list of restricted interfaces
+	 * 
+	 * @return The list of restricted interfaces
+	 */
+	public ArrayList<Restriction> restrictedInterfaces() {
+		return interfaces;
+	}
+
+	/**
+	 * Returns the list of restricted methods
+	 * 
+	 * @return The list of restricted methods
+	 */
+	public ArrayList<Restriction> restrictedMethods() {
+		return methods;
 	}
 
 	/**
@@ -111,13 +155,42 @@ public class TagTree {
 	}
 
 	/**
-	 * Searches the node children for all unvisited nodes
+	 * Searches the children of the current node for all unvisited nodes
 	 * 
-	 * @param node
-	 *            The node which children are searched
 	 * @return A list of nodes which are unvisited
 	 */
-	public static ArrayList<TagNode> getUnvisited(TagNode node) {
+	public ArrayList<TagNode> getUnvisited() {
+		ArrayList<TagNode> unvisited = new ArrayList<TagNode>();
+		for (Iterator<TagNode> iter = current.children().iterator(); iter
+				.hasNext();) {
+			TagNode child = iter.next();
+			if (!child.visited()) {
+				unvisited.add(child);
+			}
+		}
+		return unvisited;
+	}
+
+	/**
+	 * Searches the tree for all unvisited nodes
+	 * 
+	 * @return A list of nodes which are unvisited
+	 */
+	public ArrayList<TagNode> getAllUnvisited() {
+		ArrayList<TagNode> unvisited = new ArrayList<TagNode>();
+		for (Iterator<TagNode> iter = root.children().iterator(); iter
+				.hasNext();) {
+			TagNode child = iter.next();
+			if (!child.visited()) {
+				unvisited.add(child);
+			}
+			unvisited.addAll(getAllUnvisited(child));
+		}
+		return unvisited;
+	}
+
+	// Recursively searches for all unvisited nodes in a tree
+	private ArrayList<TagNode> getAllUnvisited(TagNode node) {
 		ArrayList<TagNode> unvisited = new ArrayList<TagNode>();
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {
@@ -125,6 +198,7 @@ public class TagTree {
 			if (!child.visited()) {
 				unvisited.add(child);
 			}
+			unvisited.addAll(getAllUnvisited(child));
 		}
 		return unvisited;
 	}

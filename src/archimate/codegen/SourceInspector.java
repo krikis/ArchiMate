@@ -96,7 +96,7 @@ public class SourceInspector {
 		// missing
 		inspect();
 		// Add the source files that are missing
-		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
+		ArrayList<TagNode> tags = tree.getUnvisited();
 		createSourceFiles(tags);
 	}
 
@@ -109,7 +109,7 @@ public class SourceInspector {
 		// Traverses the
 		inspect();
 		// Report the source files that are missing
-		ArrayList<TagNode> tags = TagTree.getUnvisited(tree.root());
+		ArrayList<TagNode> tags = tree.getAllUnvisited();
 		reportMissing(tags);
 	}
 
@@ -179,7 +179,7 @@ public class SourceInspector {
 	 *            the tags to create source for
 	 */
 	public void addSourceElements(TypeDeclaration node, ArrayList<TagNode> tags) {
-		JavaHelper helper = new JavaHelper(pattern);
+		JavaHelper helper = new JavaHelper(status, pattern);
 		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
 			if (monitor.isCanceled()) {
 				return;
@@ -202,11 +202,14 @@ public class SourceInspector {
 			for (Iterator<ICodeElement> ite2 = node.source().iterator(); ite2
 					.hasNext();) {
 				ICodeElement elem = ite2.next();
-				if (elem instanceof JavaMethod && node.parent() != null) {
-					reportMissingMethod((JavaMethod) elem, node.parent());
-				}
-				if (elem instanceof JavaClass) {
-					reportMissingFile((JavaClass) elem);
+				if ((!elem.optional() || node.onlyOptional())
+						&& !elem.visited()) {
+					if (elem instanceof JavaMethod && node.parent() != null) {
+						reportMissingMethod((JavaMethod) elem, node.parent());
+					}
+					if (elem instanceof JavaClass) {
+						reportMissingFile((JavaClass) elem);
+					}
 				}
 			}
 		}

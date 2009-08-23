@@ -49,7 +49,7 @@ public class JavaValidator extends ASTVisitor {
 		monitor = inspector.monitor();
 		status = inspector.status();
 		this.pattern = pattern;
-		helper = new JavaHelper(pattern);
+		helper = new JavaHelper(status, pattern);
 	}
 
 	/*
@@ -87,16 +87,14 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			String name = helper.getName(node);
-			helper.compare(node, self, status, pattern);
+			helper.compare(node, self);
 			self.setVisited();
 			monitor.worked(1);
 			tree.setCurrent(self);
-			if (self.hasChildren()) {
-				return true;
-			}
 		}
-		return false;
+		helper.checkRestricted(node, tree.current(), tree
+				.restrictedInterfaces());
+		return true;
 	}
 
 	/*
@@ -114,10 +112,6 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
-			if (current.hasChildren()) {
-				ArrayList<TagNode> tags = TagTree.getUnvisited(current);
-				inspector.reportMissing(tags);
-			}
 			tree.setCurrent(current.parent());
 		}
 	}
@@ -135,15 +129,11 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			String name = helper.getName(node);
-			helper.compare(node, self, status, pattern);
+			helper.compare(node, self);
 			self.setVisited();
 			tree.setCurrent(self);
-			if (self.hasChildren()) {
-				return true;
-			}
 		}
-		return false;
+		return true;
 	}
 
 	/*
@@ -162,5 +152,10 @@ public class JavaValidator extends ASTVisitor {
 				&& current.parent().hasChild(tag)) {
 			tree.setCurrent(current.parent());
 		}
+	}
+
+	public boolean visit(MethodInvocation node) {
+		helper.checkRestricted(node, tree.current(), tree.restrictedMethods());
+		return false;
 	}
 }

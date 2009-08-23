@@ -38,11 +38,11 @@ public class ValidateCode extends ArchiMateAction {
 	// Dialog displaying the code generation report
 	private ErrorDialog error = null;
 
-	/**
-	 * The action has been activated. The argument of the method represents the
-	 * 'real' action sitting in the workbench UI.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @see IWorkbenchWindowActionDelegate#run
+	 * @see
+	 * archimate.actions.ArchiMateAction#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
 		if (command != UnexecutableCommand.INSTANCE) {

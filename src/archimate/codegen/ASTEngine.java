@@ -6,6 +6,9 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -82,13 +85,20 @@ public class ASTEngine {
 	 */
 	public void traverseSource() {
 		FileHandler handler = new FileHandler();
+		ICompilationUnit compilationUnit = JavaCore
+				.createCompilationUnitFrom(targetFile);
 		String text = handler.getSource(targetFile);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setSource(text.toCharArray());
+		parser.setSource(compilationUnit);
+		// Enable binding resolution when code validation is intended
+		if (mode.equals(SourceInspector.VALIDATE)) {
+			parser.setResolveBindings(true);
+		}
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 		unit.recordModifications();
 		ASTVisitor visitor = null;
+		// Select the right ASTVisitor
 		if (mode.equals(SourceInspector.GENERATE)) {
 			visitor = new JavaInspector(inspector, pattern);
 		} else {
@@ -129,7 +139,7 @@ public class ASTEngine {
 				parser.setSource("".toCharArray());
 				CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 				unit.recordModifications();
-				JavaHelper helper = new JavaHelper(pattern);
+				JavaHelper helper = new JavaHelper(status, pattern);
 				helper.addClass(unit, javaClass);
 				String sourceCode = "";
 				Document doc = new Document("");

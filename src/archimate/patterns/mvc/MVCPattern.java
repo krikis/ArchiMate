@@ -49,7 +49,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Set the pattern name
 		name = "MVC Pattern";
 		// Setup the tag tree
-		tree = constructTree();
+		constructTree();
 	}
 
 	private void setVariables() {
@@ -64,8 +64,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	 * 
 	 * @return Tree defining the structure of the MVC pattern key elements
 	 */
-	private TagTree constructTree() {
-		TagTree tree = new TagTree();
+	private void constructTree() {
+		tree = new TagTree();
 		TagNode root = tree.root();
 		// Adds interface and classes for updating the data
 		constructDataCommunication(root);
@@ -73,7 +73,6 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		constructUpdateCommunication(root);
 		// Adds interface and classes for executing commands
 		constructCommandCommunication(root);
-		return tree;
 	}
 
 	// Adds interface and classes for updating the data
@@ -90,7 +89,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create interface method declarations
 		TagNode dataMessage = new TagNode(DATA_MESSAGE);
 		addMethods(dataMessage, "DataMessage", "updateData",
-				JavaMethod.DECLARATION, null,
+				JavaMethod.DECLARATION,
 				"This method updates the data in the model.");
 		dataInterface.addChild(dataMessage);
 		root.addChild(dataInterface);
@@ -99,8 +98,11 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		ArrayList<String> modelStereotypes = new ArrayList<String>();
 		modelStereotypes.add("ModelDataPort");
 		modelStereotypes.add("ModelDataInstance");
-		ArrayList<String> interfaces = new ArrayList<String>();
-		interfaces.add(dataInterfaceClass.className());
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		interfaces
+				.add(new InterfaceImpl(dataInterfaceClass.className(),
+						dataInterfaceClass.packageName(), dataInterfaceClass
+								.optional()));
 		JavaClass modelDataClass = createClass(modelData, modelStereotypes,
 				modelPackage, null, JavaClass.CLASS, "ModelData", interfaces,
 				"This class implements the ModelDataPort of the MVC Pattern");
@@ -108,7 +110,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create class methods
 		TagNode dataMethod = new TagNode(DATA_METHOD);
 		addMethods(dataMethod, dataMessage.source(), JavaMethod.IMPLEMENTATION,
-				null, "This method implements updating the data in the model.");
+				null, null,
+				"This method implements updating the data in the model.");
 		modelData.addChild(dataMethod);
 		root.addChild(modelData);
 		// Create class using data interface
@@ -127,7 +130,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create invocation methods
 		TagNode dataInvocation = new TagNode(DATA_INVOCATION);
 		addMethods(dataInvocation, dataMessage.source(), JavaMethod.INVOCATION,
-				modelDataClass.className(),
+				modelDataClass.className(), modelDataClass.packageName(),
 				"This method invokes updating the data in the model.");
 		controlData.addChild(dataInvocation);
 		root.addChild(controlData);
@@ -147,17 +150,19 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create interface method declarations
 		TagNode updateMessage = new TagNode(UPDATE_MESSAGE);
 		addMethods(updateMessage, "UpdateMessage", "updateInterface",
-				JavaMethod.DECLARATION, null,
+				JavaMethod.DECLARATION,
 				"This method updates the interface in the view.");
 		updateInterface.addChild(updateMessage);
 		root.addChild(updateInterface);
-		// Create class implementing udpate interface
+		// Create class implementing update interface
 		TagNode viewUpdate = new TagNode(VIEW_UPDATE);
 		ArrayList<String> viewStereotypes = new ArrayList<String>();
 		viewStereotypes.add("ViewUpdatePort");
 		viewStereotypes.add("ViewUpdateInstance");
-		ArrayList<String> interfaces = new ArrayList<String>();
-		interfaces.add(updateInterfaceClass.className());
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		interfaces.add(new InterfaceImpl(updateInterfaceClass.className(),
+				updateInterfaceClass.packageName(), updateInterfaceClass
+						.optional()));
 		JavaClass viewUpdateClass = createClass(viewUpdate, viewStereotypes,
 				viewPackage, null, JavaClass.CLASS, "ViewUpdate", interfaces,
 				"This class implements the ViewUpdatePort of the MVC Pattern");
@@ -165,7 +170,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create class methods
 		TagNode updateMethod = new TagNode(UPDATE_METHOD);
 		addMethods(updateMethod, updateMessage.source(),
-				JavaMethod.IMPLEMENTATION, null,
+				JavaMethod.IMPLEMENTATION, null, null,
 				"This method implements updating the interface in the view.");
 		viewUpdate.addChild(updateMethod);
 		root.addChild(viewUpdate);
@@ -185,6 +190,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		TagNode updateInvocation = new TagNode(UPDATE_INVOCATION);
 		addMethods(updateInvocation, updateMessage.source(),
 				JavaMethod.INVOCATION, viewUpdateClass.className(),
+				viewUpdateClass.packageName(),
 				"This method invokes updating of the interface in the view.");
 		modelUpdate.addChild(updateInvocation);
 		root.addChild(modelUpdate);
@@ -195,7 +201,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create command interface
 		TagNode commandInterface = new TagNode(COMMAND_INTERFACE);
 		ArrayList<String> commandStereotypes = new ArrayList<String>();
-		commandStereotypes.add("UpdateInterface");
+		commandStereotypes.add("CommandInterface");
 		JavaClass commandInterfaceClass = createClass(commandInterface,
 				commandStereotypes, controlPackage, null, JavaClass.INTERFACE,
 				"ICommand", null,
@@ -204,7 +210,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create interface method declarations
 		TagNode commandMessage = new TagNode(COMMAND_MESSAGE);
 		addMethods(commandMessage, "CommandMessage", "executeCommand",
-				JavaMethod.DECLARATION, null,
+				JavaMethod.DECLARATION,
 				"This method executes the commands from the view.");
 		commandInterface.addChild(commandMessage);
 		root.addChild(commandInterface);
@@ -213,8 +219,10 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		ArrayList<String> controlStereotypes = new ArrayList<String>();
 		controlStereotypes.add("ControlCommandPort");
 		controlStereotypes.add("ControlCommandInstance");
-		ArrayList<String> interfaces = new ArrayList<String>();
-		interfaces.add(commandInterfaceClass.className());
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		interfaces.add(new InterfaceImpl(commandInterfaceClass.className(),
+				commandInterfaceClass.packageName(), commandInterfaceClass
+						.optional()));
 		JavaClass controlCommandClass = createClass(controlCommand,
 				controlStereotypes, controlPackage, null, JavaClass.CLASS,
 				"ControlCommand", interfaces,
@@ -223,7 +231,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create class methods
 		TagNode commandMethod = new TagNode(COMMAND_METHOD);
 		addMethods(commandMethod, commandMessage.source(),
-				JavaMethod.IMPLEMENTATION, null,
+				JavaMethod.IMPLEMENTATION, null, null,
 				"This method implements execution of a command from the view.");
 		controlCommand.addChild(commandMethod);
 		root.addChild(controlCommand);
@@ -243,6 +251,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		TagNode commandInvocation = new TagNode(COMMAND_INVOCATION);
 		addMethods(commandInvocation, commandMessage.source(),
 				JavaMethod.INVOCATION, controlCommandClass.className(),
+				controlCommandClass.packageName(),
 				"This method invokes execution of a command from the view.");
 		viewCommand.addChild(commandInvocation);
 		root.addChild(viewCommand);

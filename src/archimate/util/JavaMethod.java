@@ -9,14 +9,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -25,7 +23,7 @@ import archimate.codegen.ICodeElement;
 import archimate.codegen.JavaHelper;
 
 /**
- * Class modelling a java method
+ * Class modeling a java method
  * 
  * @author Samuel Esposito
  */
@@ -37,9 +35,13 @@ public class JavaMethod implements ICodeElement {
 
 	private boolean visited;
 
+	private boolean optional;
+
 	private String name;
 
 	private String type;
+
+	private String packageName;
 
 	private String archiMateTag;
 
@@ -47,11 +49,15 @@ public class JavaMethod implements ICodeElement {
 
 	private String comment;
 
-	public JavaMethod(String name, String tag, String type, String className) {
+	public JavaMethod(String name, String tag, String type, String className,
+			String packageName) {
+		visited = false;
+		optional = false;
 		this.name = name;
 		archiMateTag = tag;
 		this.type = type;
 		this.className = className;
+		this.packageName = packageName;
 	}
 
 	// Returns the method name
@@ -199,6 +205,16 @@ public class JavaMethod implements ICodeElement {
 		visited = true;
 	}
 
+	// Returns whether the javaClass is optional
+	public boolean optional() {
+		return optional;
+	}
+
+	// Marks the javaClass as optional
+	public void setOptional() {
+		optional = true;
+	}
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -217,6 +233,11 @@ public class JavaMethod implements ICodeElement {
 
 	public String name() {
 		return name;
+	}
+
+	// Returns the method package
+	public String packageName() {
+		return packageName;
 	}
 
 	public String type() {
