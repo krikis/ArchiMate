@@ -12,21 +12,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.emf.common.command.*;
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.*;
 import org.eclipse.uml2.uml.Profile;
 
 import archimate.Activator;
 import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
 import archimate.patterns.primitives.callback.CallbackPrimitive;
-import archimate.util.FileHandler;
 
 /**
  * This class implements the Validate Code action. The code in the source folder

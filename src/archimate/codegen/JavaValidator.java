@@ -1,8 +1,5 @@
 package archimate.codegen;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.*;
@@ -16,7 +13,6 @@ import archimate.util.*;
  * <code>endVisit</code> method, after the children are visited.
  * 
  * @author Samuel Esposito
- * 
  */
 public class JavaValidator extends ASTVisitor {
 
@@ -154,6 +150,13 @@ public class JavaValidator extends ASTVisitor {
 		}
 	}
 
+	/*
+	 * (non-Javadoc) Visits a MethodInvocation node and checks if it misuses a
+	 * restricted method
+	 * 
+	 * @seeorg.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.
+	 * MethodDeclaration)
+	 */
 	public boolean visit(MethodInvocation node) {
 		helper.checkRestricted(node, tree.current(), tree.restrictedMethods());
 		return false;

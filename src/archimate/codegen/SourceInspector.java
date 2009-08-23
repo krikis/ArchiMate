@@ -26,9 +26,9 @@ import archimate.util.TagTree;
  */
 public class SourceInspector {
 
+	// Constants defining the current action of the plugin,
 	public static final String GENERATE = "generate";
 	public static final String VALIDATE = "validate";
-
 	// Mode of the sourceInspector
 	private String mode;
 	// TagTree of the ICodeGenerator at hand
@@ -185,7 +185,7 @@ public class SourceInspector {
 				return;
 			}
 			TagNode tagnode = iter.next();
-			helper.addMethods(node, tagnode, status);
+			helper.addMethods(node, tagnode);
 			monitor.worked(1);
 		}
 	}

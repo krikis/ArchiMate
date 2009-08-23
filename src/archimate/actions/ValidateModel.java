@@ -11,7 +11,6 @@ import org.eclipse.ocl.uml.*;
 import org.eclipse.ocl.uml.OCL.*;
 import org.eclipse.emf.common.command.*;
 import org.eclipse.emf.common.util.*;
-import org.eclipse.ui.*;
 import org.eclipse.uml2.uml.*;
 import archimate.Activator;
 

@@ -1,21 +1,16 @@
 package archimate.codegen;
 
-import java.util.ArrayList;
-
 import javax.swing.ProgressMonitor;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 
-import archimate.util.JavaClass;
-import archimate.util.TagNode;
 import archimate.util.TagTree;
 
 /**
  * Interface defining the required methods for a Pattern specification
  * 
  * @author Samuel Esposito
- * 
  */
 public interface ICodeGenerator {
 

@@ -1,19 +1,12 @@
 package archimate.actions;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 
 import org.eclipse.core.runtime.*;
 import org.eclipse.jface.action.*;
 import org.eclipse.jface.dialogs.*;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ocl.uml.*;
-import org.eclipse.ocl.uml.OCL.*;
 import org.eclipse.emf.common.command.*;
-import org.eclipse.emf.common.util.*;
-import org.eclipse.ui.*;
-import org.eclipse.uml2.uml.*;
-import archimate.Activator;
 
 /**
  * This class implements the Validate Code action. The code in the source folder

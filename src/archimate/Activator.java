@@ -90,10 +90,22 @@ public class Activator extends AbstractUIPlugin {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
+	/**
+	 * Logs the error
+	 * 
+	 * @param e
+	 *            the error to log
+	 */
 	public static void log(Throwable e) {
 		log(new Status(IStatus.ERROR, PLUGIN_ID, IStatus.ERROR, "Error", e)); //$NON-NLS-1$
 	}
 
+	/**
+	 * Logs the status
+	 * 
+	 * @param status
+	 *            the ststus to log
+	 */
 	private static void log(IStatus status) {
 		getDefault().getLog().log(status);
 	}

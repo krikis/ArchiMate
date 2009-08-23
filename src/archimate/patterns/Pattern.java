@@ -17,6 +17,11 @@ import archimate.util.JavaMethod;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
+/**
+ * This class implements the generic methods for Patterns and Primitives
+ * 
+ * @author Samuel Esposito
+ */
 public abstract class Pattern implements ICodeGenerator {
 
 	// Nr of estimated tasks

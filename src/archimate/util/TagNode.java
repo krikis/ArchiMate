@@ -3,11 +3,7 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.jdt.core.dom.ASTNode;
-
 import archimate.codegen.ICodeElement;
-import archimate.codegen.JavaHelper;
 
 /**
  * This class implements a node of a {@link TagTree}

@@ -7,7 +7,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -126,6 +125,8 @@ public class ASTEngine {
 	 * 
 	 * @param node
 	 *            The {@link TagNode} to generate code for
+	 * @param status
+	 *            The status
 	 */
 	public void createSourceFile(TagNode node, MultiStatus status) {
 		for (Iterator<ICodeElement> iter = node.source().iterator(); iter

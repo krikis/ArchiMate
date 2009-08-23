@@ -198,8 +198,7 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            {@link TagNode} with a list of {@link ICodeElement}s
 	 */
-	public void addMethods(TypeDeclaration node, TagNode tagnode,
-			MultiStatus status) {
+	public void addMethods(TypeDeclaration node, TagNode tagnode) {
 		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
@@ -207,15 +206,14 @@ public class JavaHelper {
 				if (element instanceof JavaMethod) {
 					JavaMethod method = (JavaMethod) element;
 					addMethod(node, method);
-					createStatus(method, tagnode, status);
+					createStatus(method, tagnode);
 				}
 			}
 		}
 	}
 
 	// Adds a status with info to the multistatus object
-	private void createStatus(JavaMethod method, TagNode tagnode,
-			MultiStatus status) {
+	private void createStatus(JavaMethod method, TagNode tagnode) {
 		String container = "";
 		TagNode parent = tagnode.parent();
 		if (parent.source().size() == 1) {
@@ -421,8 +419,6 @@ public class JavaHelper {
 	 *            the {@link TypeDeclaration} to compare with
 	 * @param tagnode
 	 *            the given {@link TagNode}
-	 * @param status
-	 *            the {@link MultiStatus} to set
 	 */
 	public void compare(TypeDeclaration node, TagNode tagnode) {
 		ICodeElement element = tagnode.getSource(getName(node));
@@ -442,8 +438,6 @@ public class JavaHelper {
 	 *            the {@link MethodDeclaration} to compare with
 	 * @param tagnode
 	 *            the given {@link TagNode}
-	 * @param status
-	 *            the {@link MultiStatus} to set
 	 */
 	public void compare(MethodDeclaration node, TagNode tagnode) {
 		ICodeElement element = tagnode.getSource(getName(node));
@@ -462,7 +456,7 @@ public class JavaHelper {
 	 *            the {@link TypeDeclaration} to analyze
 	 * @param tagnode
 	 *            the current {@link TagNode}
-	 * @param methods
+	 * @param interfaces
 	 *            the restricted interfaces to trace
 	 */
 	public void checkRestricted(TypeDeclaration node, TagNode tagnode,
@@ -540,10 +534,6 @@ public class JavaHelper {
 	 *            the current {@link TagNode}
 	 * @param methods
 	 *            the restricted methods to trace
-	 * @param status
-	 *            the status
-	 * @param pattern
-	 *            the pattern currently processed
 	 */
 	public void checkRestricted(MethodInvocation node, TagNode tagnode,
 			ArrayList<Restriction> methods) {
@@ -582,8 +572,7 @@ public class JavaHelper {
 		}
 	}
 
-	// Checks whether the method invocation was
-	// intended by the pattern
+	// Checks whether the method invocation was intended by the pattern
 	private void checkRestricted(MethodInvocation node, TagNode tagnode,
 			Restriction method) {
 		boolean found = false;

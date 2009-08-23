@@ -1,12 +1,13 @@
 package archimate.codegen;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.ASTNode;
 
-import archimate.util.Restriction;
-
+/**
+ * Interface defining a source code element
+ * 
+ * @author Samuel Esposito
+ */
 public interface ICodeElement {
 
 	/**

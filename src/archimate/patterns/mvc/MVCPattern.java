@@ -52,6 +52,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		constructTree();
 	}
 
+	// Sets the package names
 	private void setVariables() {
 		packageBase = "app";
 		modelPackage = packageBase + ".model";

@@ -10,7 +10,6 @@ import org.eclipse.uml2.uml.*;
  * Utility class reading out UML models
  * 
  * @author Samuel Esposito
- * 
  */
 public class UMLAdapter {
 	// package subject to reading
