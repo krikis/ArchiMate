@@ -6,8 +6,7 @@
          point="org.eclipse.ui.actionSets">
       <actionSet
             id="ArchiMate.actionSet"
-            label="ArchiMate"
-            visible="true">
+            label="ArchiMate">
          <menu
                label="ArchiMate"
                id="archiMateMenu">
@@ -115,6 +114,21 @@
                menubarPath="additions">
          </action>
       </viewerContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.actionSetPartAssociations">
+      <actionSetPartAssociation
+            targetID="ArchiMate.actionSet">
+         <part
+               id="org.eclipse.uml2.uml.editor.presentation.UMLEditorID">
+         </part>
+         <part
+               id="org.eclipse.uml2.diagram.component.part.UMLDiagramEditorID">
+         </part>
+         <part
+               id="org.eclipse.uml2.diagram.sequence.part.UMLDiagramEditorID">
+         </part>
+      </actionSetPartAssociation>
    </extension>
 
 </plugin>
