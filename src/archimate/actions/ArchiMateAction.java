@@ -184,11 +184,6 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 					}
 				}
 
-				// Get editor file path
-				if (workbenchPart != null)
-					Activator.projectRoot = getEditorFile().getProject()
-							.getFullPath();
-
 				// Nothing more to do and we don't want to do the default stuff
 				// below.
 				//
@@ -225,6 +220,11 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 		return (IFile) getEditor().getEditorInput().getAdapter(IFile.class);
 	}
 
+	// sets the project root
+	protected void setProjectRoot() {
+		Activator.projectRoot = getEditorFile().getProject().getFullPath();
+	}
+	
 	// returns the target UML model
 	protected org.eclipse.uml2.uml.Package getSelectedPackage() {
 		if (getEditor() instanceof DiagramDocumentEditor) {

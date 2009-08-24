@@ -37,7 +37,7 @@ public abstract class Pattern implements ICodeGenerator {
 	// Status
 	protected MultiStatus status;
 	// UML reader
-	protected UMLAdapter umlreader;
+	protected UMLAdapter umlReader;
 
 	// Returns the name of the pattern
 	public String name() {
@@ -52,6 +52,11 @@ public abstract class Pattern implements ICodeGenerator {
 	// Returns the TagTree of the pattern
 	public TagTree tree() {
 		return tree;
+	}
+
+	// Returns the UML reader
+	public UMLAdapter umlReader() {
+		return umlReader;
 	}
 
 	// Returns the progress monitor of the pattern
@@ -120,7 +125,7 @@ public abstract class Pattern implements ICodeGenerator {
 		String name = "";
 		for (Iterator<String> iter = stereotypes.iterator(); iter.hasNext();) {
 			String stereotype = iter.next();
-			name = umlreader.getElementName(stereotype);
+			name = umlReader.getElementName(stereotype);
 			if (!name.equals("")) {
 				break;
 			}
@@ -147,7 +152,7 @@ public abstract class Pattern implements ICodeGenerator {
 	// the TagNodes sourcelist
 	protected void addMethods(TagNode node, String stereotype,
 			String defaultName, String type, String comment) {
-		ArrayList<String> names = umlreader.getElementNames(stereotype);
+		ArrayList<String> names = umlReader.getElementNames(stereotype);
 		if (names.size() == 0)
 			names.add("");
 		for (int index = 0; index < names.size(); ++index) {

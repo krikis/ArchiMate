@@ -31,6 +31,7 @@ public class ValidateModel extends ArchiMateAction {
 	 * archimate.actions.ArchiMateAction#run(org.eclipse.jface.action.IAction)
 	 */
 	public void run(IAction action) {
+		setProjectRoot();
 		if (command != UnexecutableCommand.INSTANCE) {
 			ProgressMonitorDialog dialog = new ProgressMonitorDialog(
 					workbenchPart.getSite().getShell());

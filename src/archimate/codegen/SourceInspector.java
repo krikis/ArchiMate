@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
+import archimate.uml.UMLAdapter;
 import archimate.util.FileHandler;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
@@ -34,6 +35,8 @@ public class SourceInspector {
 	private String mode;
 	// TagTree of the ICodeGenerator at hand
 	private TagTree tree;
+	// The umlReader
+	private UMLAdapter umlReader;
 	// IGenModel of the ICodeGenerator at hand
 	private String packageBase;
 	// ASTEngine for traversing the code
@@ -58,6 +61,7 @@ public class SourceInspector {
 		monitor = generator.monitor();
 		status = generator.status();
 		pattern = generator.name();
+		umlReader = generator.umlReader();
 	}
 
 	/**
@@ -67,6 +71,15 @@ public class SourceInspector {
 	 */
 	public TagTree tree() {
 		return tree;
+	}
+
+	/**
+	 * Returns the current {@link UMLAdapter}
+	 * 
+	 * @return The current {@link UMLAdapter}
+	 */
+	public UMLAdapter umlReader() {
+		return umlReader;
 	}
 
 	/**

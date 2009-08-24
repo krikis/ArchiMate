@@ -9,9 +9,10 @@ import archimate.util.*;
 
 /**
  * This class implements an ASTVisitor which traverses the parsed source code
- * like a tree. Every source element is visited twice, once with the
- * <code>visit</code> method, before the children are visited, and once with the
- * <code>endVisit</code> method, after the children are visited.
+ * and adds source elements where missing. Every source element is visited
+ * twice, once with the <code>visit</code> method, before the children are
+ * visited, and once with the <code>endVisit</code> method, after the children
+ * are visited.
  * 
  * @author Samuel Esposito
  * 
@@ -42,28 +43,6 @@ public class JavaInspector extends ASTVisitor {
 		this.inspector = inspector;
 		this.monitor = inspector.monitor();
 		helper = new JavaHelper(inspector.status(), pattern);
-	}
-
-	/*
-	 * (non-Javadoc) Called before a node was visited
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.dom.ASTVisitor#preVisit(org.eclipse.jdt.core.dom
-	 * .ASTNode)
-	 */
-	public void preVisit(ASTNode node) {
-
-	}
-
-	/*
-	 * (non-Javadoc) Called after a node is visited
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.dom.ASTVisitor#postVisit(org.eclipse.jdt.core.dom
-	 * .ASTNode)
-	 */
-	public void postVisit(ASTNode node) {
-
 	}
 
 	/*

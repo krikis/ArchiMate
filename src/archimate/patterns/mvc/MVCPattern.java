@@ -10,24 +10,24 @@ import archimate.util.*;
 public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the MVC pattern
-	static final String DATA_INTERFACE = "MVC_DataInterface";
-	static final String DATA_MESSAGE = "MVC_DataMessage";
-	static final String MODEL_DATA = "MVC_ModelDataPort";
-	static final String DATA_METHOD = "MVC_DataMethod";
-	static final String CONTROL_DATA = "MVC_ControlDataPort";
-	static final String DATA_INVOCATION = "MVC_DataInvocation";
-	static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
-	static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
-	static final String VIEW_UPDATE = "MVC_ViewUpdatePort";
-	static final String UPDATE_METHOD = "MVC_UpdateMethod";
-	static final String MODEL_UPDATE = "MVC_ModelUpdatePort";
-	static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
-	static final String COMMAND_INTERFACE = "MVC_CommandInterface";
-	static final String COMMAND_MESSAGE = "MVC_CommandMessage";
-	static final String VIEW_COMMAND = "MVC_ViewCommandPort";
-	static final String COMMAND_METHOD = "MVC_CommandMethod";
-	static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
-	static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
+	public static final String DATA_INTERFACE = "MVC_DataInterface";
+	public static final String DATA_MESSAGE = "MVC_DataMessage";
+	public static final String MODEL_DATA = "MVC_ModelDataPort";
+	public static final String DATA_METHOD = "MVC_DataMethod";
+	public static final String CONTROL_DATA = "MVC_ControlDataPort";
+	public static final String DATA_INVOCATION = "MVC_DataInvocation";
+	public static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
+	public static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
+	public static final String VIEW_UPDATE = "MVC_ViewUpdatePort";
+	public static final String UPDATE_METHOD = "MVC_UpdateMethod";
+	public static final String MODEL_UPDATE = "MVC_ModelUpdatePort";
+	public static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
+	public static final String COMMAND_INTERFACE = "MVC_CommandInterface";
+	public static final String COMMAND_MESSAGE = "MVC_CommandMessage";
+	public static final String VIEW_COMMAND = "MVC_ViewCommandPort";
+	public static final String COMMAND_METHOD = "MVC_CommandMethod";
+	public static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
+	public static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
 	// Names of the packages in the pattern
 	private String modelPackage;
 	private String viewPackage;
@@ -45,7 +45,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
-		umlreader = new UMLAdapter(umlPackage);
+		umlReader = new UMLAdapter(umlPackage);
 		// Set the pattern name
 		name = "MVC Pattern";
 		// Setup the tag tree

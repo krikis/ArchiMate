@@ -3,6 +3,7 @@ package archimate.codegen;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 
+import archimate.uml.UMLAdapter;
 import archimate.util.TagTree;
 
 /**
@@ -33,6 +34,12 @@ public interface ICodeGenerator {
 	 * @return The <code>TagTree</code> of the current pattern
 	 */
 	public TagTree tree();
+	
+	/**
+	 * Returns the {@link UMLAdapter}
+	 * @return the {@link UMLAdapter}
+	 */
+	public UMLAdapter umlReader();
 
 	/**
 	 * Returns the {@link IProgressMonitor} for the generator

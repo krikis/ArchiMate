@@ -5,6 +5,9 @@ import java.util.Iterator;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.uml2.uml.*;
+import org.eclipse.uml2.uml.internal.impl.*;
+
+import archimate.patterns.mvc.MVCPattern;
 
 /**
  * Utility class reading out UML models
@@ -23,6 +26,62 @@ public class UMLAdapter {
 	 */
 	public UMLAdapter(org.eclipse.uml2.uml.Package umlPackage) {
 		this.umlPackage = umlPackage;
+	}
+
+	/**
+	 * Searches for the first UML element which has the given stereotype applied
+	 * to it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The found element
+	 */
+	public NamedElement getElement(String stereotypeName) {
+		NamedElement namedElement = null;
+		EList<NamedElement> elements = umlPackage.getOwnedMembers();
+		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
+			NamedElement element = iter.next();
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					return element;
+				}
+			}
+			if (element instanceof Namespace) {
+				namedElement = traverseSomeElements((Namespace) element,
+						stereotypeName);
+				if (namedElement != null)
+					return namedElement;
+			}
+		}
+		return namedElement;
+	}
+
+	// Recursively traverses the UML tree until a desired element was found
+	private NamedElement traverseSomeElements(Namespace umlElement,
+			String stereotypeName) {
+		NamedElement namedElement = null;
+		EList<NamedElement> elements = umlElement.getOwnedMembers();
+		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
+			NamedElement element = iter.next();
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					return element;
+				}
+			}
+			if (element instanceof Namespace) {
+				namedElement = traverseSomeElements((Namespace) element,
+						stereotypeName);
+				if (namedElement != null)
+					return namedElement;
+			}
+		}
+		return namedElement;
 	}
 
 	/**
@@ -152,6 +211,117 @@ public class UMLAdapter {
 			}
 		}
 		return names;
+	}
+
+	private Interaction getInteraction() {
+		EList<NamedElement> elements = umlPackage.getOwnedMembers();
+		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
+			NamedElement element = iter.next();
+			if (element instanceof Interaction) {
+				return (Interaction) element;
+			}
+		}
+		return null;
+	}
+
+	private Stereotype getStereotype(String name) {
+		for (Profile profile : umlPackage.getAllAppliedProfiles()) {
+			for (Stereotype stereotype : profile.getOwnedStereotypes()) {
+				if (stereotype.getName().equals(name)) {
+					return stereotype;
+				}
+			}
+		}
+		return null;
+	}
+
+	public String addMessage(String archiMateTag, String name) {
+		ArrayList<String> stereotypes = getStereotypes(archiMateTag);
+		if (stereotypes.size() == 3) {
+			NamedElement start = getElement(stereotypes.get(0));
+			NamedElement stop = getElement(stereotypes.get(1));
+			if (start instanceof Lifeline && stop instanceof Lifeline) {
+				Lifeline sender = (Lifeline) start;
+				Lifeline receiver = (Lifeline) stop;
+				addMessage(sender, receiver, name, stereotypes.get(2));
+			}
+		}
+		return getMessageTag(archiMateTag);
+	}
+
+	private void addMessage(Lifeline sender, Lifeline receiver, String name, String stereotype) {
+		Interaction interaction = getInteraction();
+		if (interaction != null) {
+			Message message = interaction.createMessage(name);
+			message.applyStereotype(getStereotype(stereotype));
+			interaction.getMessages().add(message);
+			MessageOccurrenceSpecification messOcc1 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			messOcc1.setName("invocation-start");
+			messOcc1.setEnclosingInteraction(interaction);
+			messOcc1.setMessage(message);
+			messOcc1.getCovereds().add(sender);
+			MessageOccurrenceSpecification messOcc2 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			messOcc2.setName("execution-start");
+			messOcc2.setEnclosingInteraction(interaction);
+			messOcc2.setMessage(message);
+			messOcc2.getCovereds().add(receiver);
+			BehaviorExecutionSpecification behEx1 = UMLFactory.eINSTANCE.createBehaviorExecutionSpecification();
+			behEx1.setName("invocation-body");
+			behEx1.setEnclosingInteraction(interaction);
+			behEx1.setStart(messOcc1);
+			BehaviorExecutionSpecification behEx2 = UMLFactory.eINSTANCE.createBehaviorExecutionSpecification();
+			behEx2.setName("execution-body");
+			behEx2.setEnclosingInteraction(interaction);
+			behEx2.setStart(messOcc2);
+			MessageOccurrenceSpecification messOcc3 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			messOcc3.setName("invocation-end");
+			messOcc3.setEnclosingInteraction(interaction);
+			messOcc3.getCovereds().add(sender);
+			behEx1.setFinish(messOcc3);
+			behEx1.getCovereds().add(sender);
+			MessageOccurrenceSpecification messOcc4 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			messOcc4.setName("execution-end");
+			messOcc4.setEnclosingInteraction(interaction);
+			messOcc4.getCovereds().add(receiver);
+			behEx2.setFinish(messOcc4);
+			behEx2.getCovereds().add(receiver);
+			message.setSendEvent(messOcc1);
+			message.setReceiveEvent(messOcc2);
+			
+		}		
+	}
+
+	private String getMessageTag(String archiMateTag) {
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			return MVCPattern.DATA_MESSAGE;
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			return MVCPattern.UPDATE_MESSAGE;
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			return MVCPattern.COMMAND_MESSAGE;
+		}
+		return "";
+	}
+
+	private ArrayList<String> getStereotypes(String archiMateTag) {
+		ArrayList<String> stereotypes = new ArrayList<String>();
+		if (archiMateTag.equals(MVCPattern.DATA_INTERFACE)) {
+			stereotypes.add("ControlDataInstance");
+			stereotypes.add("ModelDataInstance");
+			stereotypes.add("DataMessage");
+		}
+		if (archiMateTag.equals(MVCPattern.UPDATE_INTERFACE)) {
+			stereotypes.add("ModelUpdateInstance");
+			stereotypes.add("ViewUpdateInstance");
+			stereotypes.add("UpdateMessage");
+		}
+		if (archiMateTag.equals(MVCPattern.COMMAND_INTERFACE)) {
+			stereotypes.add("ViewCommandInstance");
+			stereotypes.add("ControlCommandInstance");
+			stereotypes.add("CommandMessage");
+		}
+		return stereotypes;
 	}
 
 }

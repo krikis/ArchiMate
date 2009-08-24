@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
+import archimate.uml.UMLAdapter;
 import archimate.util.InterfaceImpl;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
@@ -613,5 +614,77 @@ public class JavaHelper {
 				+ ": The invocation of the method \"" + method.name()
 				+ "()\" is not allowed" + container + "."
 				+ "                             ", null));
+	}
+
+	/**
+	 * Searches for methods which are not yet represented in the UML model
+	 * 
+	 * @param node
+	 *            TODO
+	 * @param self
+	 *            the {@link MethodDeclaration}
+	 * @param umlReader
+	 *            the {@link UMLAdapter}
+	 */
+	public void findNewMethod(MethodDeclaration node, TagNode self,
+			UMLAdapter umlReader) {
+		// Checks whether the method is a declaration
+		String archiMateTag = "";
+		for (Iterator<ICodeElement> iter = self.source().iterator(); iter
+				.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element instanceof JavaClass
+					&& ((JavaClass) element).isInterface()) {
+				archiMateTag = self.tag();
+			}
+		}
+		// Tries to match the method with a UML element
+		if (!archiMateTag.equals("")) {
+			String name = node.getName().getFullyQualifiedName();
+			boolean match = false;
+			for (Iterator<TagNode> iter = self.children().iterator(); iter
+					.hasNext();) {
+				for (Iterator<ICodeElement> ite2 = iter.next().source()
+						.iterator(); ite2.hasNext();) {
+					ICodeElement element = ite2.next();
+					if (element instanceof JavaMethod) {
+						JavaMethod method = (JavaMethod) element;
+						if (name.equals(method.name())) {
+							match = true;
+							break;
+						}
+					}
+				}
+			}
+			// Adds the method to the UML model
+			if (!match) {
+				String tag = umlReader.addMessage(archiMateTag, name);
+				addArchimateTag(node, tag);
+				reportAddedMessage(name);
+			}
+		}
+	}
+
+	private void reportAddedMessage(String name) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private void addArchimateTag(MethodDeclaration node, String archiMateTag) {
+		if (getArchiMateTag(node).equals("")){
+			AST ast = node.getAST();
+			Javadoc javadoc = node.getJavadoc();
+			if (javadoc == null) {
+				javadoc = ast.newJavadoc();
+			}
+			TagElement tag = ast.newTagElement();
+			TextElement te = ast.newTextElement();
+			tag.setTagName(ARCHIMATETAG);
+			te = ast.newTextElement();
+			tag.fragments().add(te);
+			te.setText(archiMateTag);
+			javadoc.tags().add(tag);
+			node.setJavadoc(javadoc);
+		}
 	}
 }

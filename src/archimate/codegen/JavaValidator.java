@@ -8,7 +8,7 @@ import archimate.util.*;
 
 /**
  * This class implements an ASTVisitor which traverses the parsed source code
- * like a tree. Every source element is visited twice, once with the
+ * and validates it. Every source element is visited twice, once with the
  * <code>visit</code> method, before the children are visited, and once with the
  * <code>endVisit</code> method, after the children are visited.
  * 
@@ -18,16 +18,12 @@ public class JavaValidator extends ASTVisitor {
 
 	// TagTree of the ICodeGenerator at hand
 	private TagTree tree;
-	// SourceInspector object to call back
-	private SourceInspector inspector;
 	// JavaHelper for accessing the source code
 	private JavaHelper helper;
 	// ProgressMonitor
 	private IProgressMonitor monitor;
 	// Status
 	private MultiStatus status;
-	// The current pattern
-	private String pattern;
 
 	/**
 	 * Creates a new {@link JavaValidator} and sets the {@link TagTree} and
@@ -40,34 +36,10 @@ public class JavaValidator extends ASTVisitor {
 	 */
 	public JavaValidator(SourceInspector inspector, String pattern) {
 		super(true);
-		this.inspector = inspector;
 		tree = inspector.tree();
 		monitor = inspector.monitor();
 		status = inspector.status();
-		this.pattern = pattern;
 		helper = new JavaHelper(status, pattern);
-	}
-
-	/*
-	 * (non-Javadoc) Called before a node was visited
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.dom.ASTVisitor#preVisit(org.eclipse.jdt.core.dom
-	 * .ASTNode)
-	 */
-	public void preVisit(ASTNode node) {
-
-	}
-
-	/*
-	 * (non-Javadoc) Called after a node is visited
-	 * 
-	 * @see
-	 * org.eclipse.jdt.core.dom.ASTVisitor#postVisit(org.eclipse.jdt.core.dom
-	 * .ASTNode)
-	 */
-	public void postVisit(ASTNode node) {
-
 	}
 
 	/*
