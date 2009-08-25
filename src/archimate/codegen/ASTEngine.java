@@ -16,9 +16,11 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
 
+import archimate.uml.UMLUpdater;
 import archimate.util.FileHandler;
 import archimate.util.TagNode;
 import archimate.util.JavaClass;
+import archimate.validation.JavaValidator;
 
 /**
  * Utility class providing methods for editing Java source files

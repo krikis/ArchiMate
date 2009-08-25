@@ -658,9 +658,10 @@ public class JavaHelper {
 			}
 			// Adds the method to the UML model
 			if (!match) {
-				String tag = umlReader.addMessage(archiMateTag, name);
-				addArchimateTag(node, tag);
-				reportAddedMessage(name);
+				// TODO complete implementation
+//				String tag = umlReader.addMessage(archiMateTag, name);
+//				addArchimateTag(node, tag);
+//				reportAddedMessage(name);
 			}
 		}
 	}
