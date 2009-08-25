@@ -8,6 +8,7 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -88,7 +89,6 @@ public class ASTEngine {
 		FileHandler handler = new FileHandler();
 		ICompilationUnit compilationUnit = JavaCore
 				.createCompilationUnitFrom(targetFile);
-		String text = handler.getSource(targetFile);
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(compilationUnit);
@@ -110,18 +110,22 @@ public class ASTEngine {
 		if (visitor != null) {
 			unit.accept(visitor);
 			String sourceCode = "";
-			Document doc = new Document(text);
-			TextEdit edits = unit.rewrite(doc, null);
-			if (edits.hasChildren()) {
-				try {
+			Document doc = null;
+			try {
+				doc = new Document(compilationUnit.getSource());
+				TextEdit edits = unit.rewrite(doc, null);
+				if (edits.hasChildren()) {
 					edits.apply(doc);
-				} catch (BadLocationException e) {
-					System.out.println("Unable to apply changes to source.");
-					e.printStackTrace();
+					sourceCode += doc.get();
+					handler.save(sourceCode, targetFile);
+					handler.selectAndReveal(targetFile);
 				}
-				sourceCode += doc.get();
-				handler.save(sourceCode, targetFile);
-				handler.selectAndReveal(targetFile);
+			} catch (BadLocationException e) {
+				System.out.println("Unable to apply changes to source.");
+				e.printStackTrace();
+			} catch (JavaModelException e1) {
+				System.out.println("Unable to apply changes to source.");
+				e1.printStackTrace();
 			}
 		}
 	}
