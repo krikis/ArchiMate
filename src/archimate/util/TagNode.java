@@ -41,33 +41,8 @@ public class TagNode {
 	}
 
 	/**
-	 * @return The nodes children
-	 */
-	public ArrayList<TagNode> children() {
-		return children;
-	}
-
-	/**
-	 * Returns the number of children in a node
+	 * Returns the nodes parent
 	 * 
-	 * @return The number of children in a node
-	 */
-	public int nrOfChildren() {
-		return children.size();
-	}
-
-	/**
-	 * Adds a child to the node
-	 * 
-	 * @param node
-	 *            The new child
-	 */
-	public void addChild(TagNode node) {
-		node.parent = this;
-		children.add(node);
-	}
-
-	/**
 	 * @return The nodes parent
 	 */
 	public TagNode parent() {
@@ -85,6 +60,17 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns whether the node has a parent or not
+	 * 
+	 * @return Whether the node has a parent or not
+	 */
+	public boolean hasParent() {
+		return parent != null;
+	}
+
+	/**
+	 * Returns the nodes tag
+	 * 
 	 * @return The nodes tag
 	 */
 	public String tag() {
@@ -92,7 +78,18 @@ public class TagNode {
 	}
 
 	/**
-	 * @return Whether the node has been visited or not
+	 * Returns the nodes associated stereotype
+	 * 
+	 * @return The nodes associated stereotype
+	 */
+	public String stereotype() {
+		return tag.split("_")[1];
+	}
+
+	/**
+	 * Returns whether the node has been visited
+	 * 
+	 * @return Whether the node has been visited
 	 */
 	public boolean visited() {
 		return visited;
@@ -107,6 +104,7 @@ public class TagNode {
 
 	/**
 	 * Sets the visited state to true
+	 * 
 	 * @return whether the state changed
 	 */
 	public boolean setVisited() {
@@ -115,6 +113,38 @@ public class TagNode {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Marks the source element as visited.
+	 * 
+	 * @param element
+	 *            the visited element
+	 */
+	public void setVisited(ICodeElement element) {
+		element.setVisited();
+		if (!element.optional())
+			--unvisited;
+	}
+
+	/**
+	 * Adds a child to the node
+	 * 
+	 * @param node
+	 *            The new child
+	 */
+	public void addChild(TagNode node) {
+		node.parent = this;
+		children.add(node);
+	}
+
+	/**
+	 * Returns the number of children in a node
+	 * 
+	 * @return The number of children in a node
+	 */
+	public int nrOfChildren() {
+		return children.size();
 	}
 
 	/**
@@ -143,12 +173,29 @@ public class TagNode {
 	}
 
 	/**
-	 * Returns whether the node has a parent or not
+	 * Returns the nodes children
 	 * 
-	 * @return Whether the node has a parent or not
+	 * @return The nodes children
 	 */
-	public boolean hasParent() {
-		return parent != null;
+	public ArrayList<TagNode> children() {
+		return children;
+	}
+
+	/**
+	 * Searches the nodes children for a child with a certain tag
+	 * 
+	 * @param tag
+	 *            The tag to match
+	 * @return The child with the matching tag
+	 */
+	public TagNode child(String tag) {
+		for (Iterator<TagNode> iter = children.iterator(); iter.hasNext();) {
+			TagNode node = iter.next();
+			if (node.tag().equals(tag)) {
+				return node;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -174,12 +221,38 @@ public class TagNode {
 	}
 
 	/**
+	 * Returns whether source has been defined
+	 * 
+	 * @return Whether source has been defined
+	 */
+	public boolean sourceDefined() {
+		return source.size() > 0;
+	}
+
+	/**
 	 * Returns the list of {@link ICodeElement}s
 	 * 
 	 * @return The list of {@link ICodeElement}s
 	 */
 	public ArrayList<ICodeElement> source() {
 		return source;
+	}
+
+	/**
+	 * Returns the source element that matches with the archiMateTag
+	 * 
+	 * @param identifier
+	 *            the identifier to match with
+	 * @return The source element that matches with the identifier
+	 */
+	public ICodeElement getSourceByTag(String tag) {
+		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element.archiMateTag().equals(tag)) {
+				return element;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -215,24 +288,23 @@ public class TagNode {
 	}
 
 	/**
-	 * Marks the source element as visited.
-	 * 
-	 * @param element
-	 *            the visited element
-	 */
-	public void setVisited(ICodeElement element) {
-		element.setVisited();
-		if (!element.optional())
-			--unvisited;
-	}
-
-	/**
 	 * Returns whether the node contains only optional source elements
 	 * 
 	 * @return Whether the node contains only optional source elements
 	 */
 	public boolean onlyOptional() {
 		return onlyOptional;
+	}
+
+	/**
+	 * Returns the stereotype corresponding with the archimateTag
+	 * 
+	 * @param archimateTag
+	 *            the tag to return the stereotype for
+	 * @return The corresponding stereotype
+	 */
+	public static String inStereo(String archimateTag) {
+		return archimateTag.split("_")[1];
 	}
 
 }

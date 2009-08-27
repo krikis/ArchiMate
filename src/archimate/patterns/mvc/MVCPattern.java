@@ -10,24 +10,30 @@ import archimate.util.*;
 public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the MVC pattern
+	// Model Package
 	public static final String DATA_INTERFACE = "MVC_DataInterface";
+	public static final String DATA_INTERFACE_INSTANCE = "MVC_DataInterfaceInstance";
 	public static final String DATA_MESSAGE = "MVC_DataMessage";
-	public static final String MODEL_DATA = "MVC_ModelDataPort";
+	public static final String MODEL = "MVC_Model";
+	public static final String MODEL_INSTANCE = "MVC_ModelInstance";
 	public static final String DATA_METHOD = "MVC_DataMethod";
-	public static final String CONTROL_DATA = "MVC_ControlDataPort";
-	public static final String DATA_INVOCATION = "MVC_DataInvocation";
-	public static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
-	public static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
-	public static final String VIEW_UPDATE = "MVC_ViewUpdatePort";
-	public static final String UPDATE_METHOD = "MVC_UpdateMethod";
-	public static final String MODEL_UPDATE = "MVC_ModelUpdatePort";
 	public static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
-	public static final String COMMAND_INTERFACE = "MVC_CommandInterface";
-	public static final String COMMAND_MESSAGE = "MVC_CommandMessage";
-	public static final String VIEW_COMMAND = "MVC_ViewCommandPort";
-	public static final String COMMAND_METHOD = "MVC_CommandMethod";
-	public static final String CONTROL_COMMAND = "MVC_ControlCommandPort";
+	// View Package
+	public static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
+	public static final String UPDATE_INTERFACE_INSTANCE = "MVC_UpdateInterfaceInstance";
+	public static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
+	public static final String VIEW = "MVC_View";
+	public static final String VIEW_INSTANCE = "MVC_ViewInstance";
+	public static final String UPDATE_METHOD = "MVC_UpdateMethod";
 	public static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
+	// Controller Package
+	public static final String COMMAND_INTERFACE = "MVC_CommandInterface";
+	public static final String COMMAND_INTERFACE_INSTANCE = "MVC_CommandInterfaceInstance";
+	public static final String COMMAND_MESSAGE = "MVC_CommandMessage";
+	public static final String CONTROLLER = "MVC_Controller";
+	public static final String CONTROLLER_INSTANCE = "MVC_ControllerInstance";
+	public static final String COMMAND_METHOD = "MVC_CommandMethod";
+	public static final String DATA_INVOCATION = "MVC_DataInvocation";
 	// Names of the packages in the pattern
 	private String modelPackage;
 	private String viewPackage;
@@ -68,12 +74,281 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private void constructTree() {
 		tree = new TagTree();
 		TagNode root = tree.root();
-		// Adds interface and classes for updating the data
-		constructDataCommunication(root);
-		// Adds interface and classes for updating the view
-		constructUpdateCommunication(root);
-		// Adds interface and classes for executing commands
-		constructCommandCommunication(root);
+
+		// Create Data interface
+		TagNode dataInterface = dataInterface(root);
+		// Create Update interface
+		TagNode updateInterface = updateInterface(root);
+		// Create Command interface
+		TagNode commandInterface = commandInterface(root);
+
+		// Create Model Class
+		TagNode modelClass = modelClass(root, dataInterface);
+		// Create View Class
+		TagNode viewClass = viewClass(root, updateInterface);
+		// Create Controller Class
+		TagNode controllerClass = controllerClass(root, commandInterface);
+
+		// Create Data interface
+		TagNode dataInterfaceInstance = dataInterfaceInstance(root,
+				dataInterface);
+		// Create Update interface
+		TagNode updateInterfaceInstance = updateInterfaceInstance(root,
+				updateInterface);
+		// Create Command interface
+		TagNode commandInterfaceInstance = commandInterfaceInstance(root,
+				commandInterface);
+
+		// Create Model Class
+		TagNode modelInstanceClass = modelInstanceClass(root,
+				dataInterfaceInstance, modelClass);
+		// Create View Class
+		TagNode viewInstanceClass = viewInstanceClass(root,
+				updateInterfaceInstance, viewClass);
+		// Create Controller Class
+		TagNode controllerInstanceClass = controllerInstanceClass(root,
+				commandInterfaceInstance, controllerClass);
+
+		// Add updateInvocationMethods
+		addUpdateInvocationMethods(modelClass, updateInterface);
+
+		// // Adds interface and classes for updating the data
+		// constructDataCommunication(root);
+		// // Adds interface and classes for updating the view
+		// constructUpdateCommunication(root);
+		// // Adds interface and classes for executing commands
+		// constructCommandCommunication(root);
+	}
+
+	// Create Data interface
+	private TagNode dataInterface(TagNode root) {
+		TagNode dataInterface = new TagNode(DATA_INTERFACE);
+		JavaClass dataInterfaceClass = createClass(dataInterface, modelPackage,
+				null, JavaClass.INTERFACE, "IData", null,
+				"This interface specifies the Data interface of the MVC Pattern");
+		dataInterface.addSource(dataInterfaceClass);
+		root.addChild(dataInterface);
+		return dataInterface;
+	}
+
+	// Create Update interface
+	private TagNode updateInterface(TagNode root) {
+		TagNode updateInterface = new TagNode(UPDATE_INTERFACE);
+		JavaClass updateInterfaceClass = createClass(updateInterface,
+				viewPackage, null, JavaClass.INTERFACE, "IUpdate", null,
+				"This interface specifies the Update interface of the MVC Pattern");
+		updateInterface.addSource(updateInterfaceClass);
+		return updateInterface;
+	}
+
+	// Create Command interface
+	private TagNode commandInterface(TagNode root) {
+		TagNode commandInterface = new TagNode(COMMAND_INTERFACE);
+		JavaClass commandInterfaceClass = createClass(commandInterface,
+				controlPackage, null, JavaClass.INTERFACE, "ICommand", null,
+				"This interface specifies the Command interface of the MVC Pattern");
+		commandInterface.addSource(commandInterfaceClass);
+		return commandInterface;
+	}
+
+	// Create Model class implementing Data interface
+	private TagNode modelClass(TagNode root, TagNode dataInterface) {
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		TagNode model = new TagNode(MODEL);
+		ICodeElement element = dataInterface.getSourceByTag(DATA_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass dataInterfaceClass = (JavaClass) element;
+			interfaces.add(new InterfaceImpl(dataInterfaceClass.className(),
+					dataInterfaceClass.packageName(), dataInterfaceClass
+							.optional()));
+		}
+		JavaClass modelDataClass = createClass(model, modelPackage, null,
+				JavaClass.CLASS, "Model", interfaces,
+				"This class implements the Model of the MVC Pattern");
+		model.addSource(modelDataClass);
+		root.addChild(model);
+		return model;
+	}
+
+	// Create View class implementing update interface
+	private TagNode viewClass(TagNode root, TagNode updateInterface) {
+		TagNode view = new TagNode(VIEW);
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		ICodeElement element = updateInterface.getSourceByTag(UPDATE_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass updateInterfaceClass = (JavaClass) element;
+			interfaces.add(new InterfaceImpl(updateInterfaceClass.className(),
+					updateInterfaceClass.packageName(), updateInterfaceClass
+							.optional()));
+		}
+		JavaClass viewUpdateClass = createClass(view, viewPackage, null,
+				JavaClass.CLASS, "View", interfaces,
+				"This class implements the View of the MVC Pattern");
+		view.addSource(viewUpdateClass);
+		root.addChild(view);
+		return view;
+	}
+
+	// Create Controller class implementing command interface
+	private TagNode controllerClass(TagNode root, TagNode commandInterface) {
+		TagNode controller = new TagNode(CONTROLLER);
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		ICodeElement element = commandInterface
+				.getSourceByTag(COMMAND_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass commandInterfaceClass = (JavaClass) element;
+			interfaces.add(new InterfaceImpl(commandInterfaceClass.className(),
+					commandInterfaceClass.packageName(), commandInterfaceClass
+							.optional()));
+		}
+		JavaClass controlCommandClass = createClass(controller,
+				controlPackage, null, JavaClass.CLASS, "Controller",
+				interfaces,
+				"This class implements the Controller of the MVC Pattern");
+		controller.addSource(controlCommandClass);
+		root.addChild(controller);
+		return controller;
+	}
+
+	// Create Data interface instance
+	private TagNode dataInterfaceInstance(TagNode root, TagNode superInterface) {
+		TagNode dataInterface = new TagNode(DATA_INTERFACE_INSTANCE);
+		String modelName = umlReader.getElementName(TagNode
+				.inStereo(MODEL_INSTANCE));
+		String interfaceName = (modelName.equals("") ? "IMyData" : "I"
+				+ modelName + "Data");
+		JavaClass dataInterfaceClass = createClass(dataInterface, modelPackage,
+				null, JavaClass.INTERFACE, interfaceName, null,
+				"This interface specifies the " + interfaceName
+						+ " interface of the MVC Pattern");
+		// Set whether the interface is optional
+		if (!modelName.equals("")) {
+			dataInterfaceClass.setOptional(false);
+		}
+		// Set the superClass
+		ICodeElement element = superInterface.getSourceByTag(DATA_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass superInterfaceClass = (JavaClass) element;
+			dataInterfaceClass.setSuperClass(superInterfaceClass.className());
+		}
+		dataInterface.addSource(dataInterfaceClass);
+		// Create interface method declarations
+		TagNode dataMessage = new TagNode(DATA_MESSAGE);
+		addMethods(dataMessage, "modifyData", JavaMethod.DECLARATION,
+				"This method updates the data in the " + modelName
+						+ (modelName.equals("") ? " " : "") + "model.");
+		dataInterface.addChild(dataMessage);
+		root.addChild(dataInterface);
+		return dataInterface;
+	}
+
+	// Create Update interface instance
+	private TagNode updateInterfaceInstance(TagNode root, TagNode superInterface) {
+		TagNode updateInterface = new TagNode(UPDATE_INTERFACE_INSTANCE);
+		String viewName = umlReader.getElementName(TagNode
+				.inStereo(VIEW_INSTANCE));
+		String interfaceName = (viewName.equals("") ? "IMyUpdate" : "I"
+				+ viewName + "Update");
+		JavaClass updateInterfaceClass = createClass(updateInterface,
+				viewPackage, null, JavaClass.INTERFACE, interfaceName, null,
+				"This interface specifies the " + interfaceName
+						+ " interface of the MVC Pattern");
+		// Set whether the interface is optional
+		if (!viewName.equals("")) {
+			updateInterfaceClass.setOptional(false);
+		}
+		// Set the superClass
+		ICodeElement element = superInterface.getSourceByTag(UPDATE_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass superInterfaceClass = (JavaClass) element;
+			updateInterfaceClass.setSuperClass(superInterfaceClass.className());
+		}
+		updateInterface.addSource(updateInterfaceClass);
+		// Create interface method declarations
+		TagNode updateMessage = new TagNode(UPDATE_MESSAGE);
+		addMethods(updateMessage, "updateView", JavaMethod.DECLARATION,
+				"This method updates the interface in the " + viewName
+						+ (viewName.equals("") ? " " : "") + "view.");
+		updateInterface.addChild(updateMessage);
+		root.addChild(updateInterface);
+		return updateInterface;
+	}
+
+	// Create Command interface instance
+	private TagNode commandInterfaceInstance(TagNode root,
+			TagNode superInterface) {
+		TagNode commandInterface = new TagNode(COMMAND_INTERFACE_INSTANCE);
+		String controllerName = umlReader.getElementName(TagNode
+				.inStereo(CONTROLLER_INSTANCE));
+		String interfaceName = (controllerName.equals("") ? "IMyCommand" : "I"
+				+ controllerName + "Command");
+		JavaClass commandInterfaceClass = createClass(commandInterface,
+				controlPackage, null, JavaClass.INTERFACE, interfaceName, null,
+				"This interface specifies the " + interfaceName
+						+ " interface of the MVC Pattern");
+		// Set whether the interface is optional
+		if (!controllerName.equals("")) {
+			commandInterfaceClass.setOptional(false);
+		}
+		// Set the superClass
+		ICodeElement element = superInterface.getSourceByTag(COMMAND_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass superInterfaceClass = (JavaClass) element;
+			commandInterfaceClass
+					.setSuperClass(superInterfaceClass.className());
+		}
+		commandInterface.addSource(commandInterfaceClass);
+		// Create interface method declarations
+		TagNode commandMessage = new TagNode(COMMAND_MESSAGE);
+		addMethods(commandMessage, "executeCommand", JavaMethod.DECLARATION,
+				"This method executes the commands in the " + controllerName
+						+ (controllerName.equals("") ? " " : "")
+						+ "controller.");
+		commandInterface.addChild(commandMessage);
+		root.addChild(commandInterface);
+		return commandInterface;
+	}
+
+	// Create Model instance class implementing Data interface
+	private TagNode modelInstanceClass(TagNode root, TagNode dataInterface) {
+		ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+		TagNode model = new TagNode(MODEL);
+		ICodeElement element = dataInterface.getSourceByTag(DATA_INTERFACE);
+		if (element instanceof JavaClass) {
+			JavaClass dataInterfaceClass = (JavaClass) element;
+			interfaces.add(new InterfaceImpl(dataInterfaceClass.className(),
+					dataInterfaceClass.packageName(), dataInterfaceClass
+							.optional()));
+		}
+		JavaClass modelDataClass = createClass(model, modelPackage, null,
+				JavaClass.CLASS, "ModelData", interfaces,
+				"This class implements the Model of the MVC Pattern");
+		model.addSource(modelDataClass);
+		// Create class methods
+		TagNode dataMethods = new TagNode(DATA_METHOD);
+		TagNode dataMessages = dataInterface.child(DATA_MESSAGE);
+		if (dataMessages != null) {
+			addMethods(dataMethods, dataMessages.source(),
+					JavaMethod.IMPLEMENTATION, null, null,
+					"This method implements updating the data in the model.");
+		}
+		model.addChild(dataMethods);
+		root.addChild(model);
+		return model;
+	}
+
+	// Create invocation methods
+	private void updateInvocationMethods(TagNode model, TagNode view,
+			TagNode updateInterface) {
+		TagNode updateInvocation = new TagNode(UPDATE_INVOCATION);
+		TagNode updateMessage = updateInterface.child(UPDATE_METHOD);
+		if (updateMessage != null) {
+			addMethods(updateInvocation, updateMessage.source(),
+					JavaMethod.INVOCATION, viewUpdateClass.className(),
+					viewUpdateClass.packageName(),
+					"This method invokes updating of the interface in the view.");
+		}
+		model.addChild(updateInvocation);
 	}
 
 	// Adds interface and classes for updating the data

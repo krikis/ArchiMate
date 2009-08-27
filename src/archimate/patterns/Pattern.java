@@ -118,18 +118,10 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Creates a Class object with the given settings
-	protected JavaClass createClass(TagNode node,
-			ArrayList<String> stereotypes, String packageName,
+	protected JavaClass createClass(TagNode node, String packageName,
 			ArrayList<String> imports, String type, String defaultName,
 			ArrayList<InterfaceImpl> interfaces, String comment) {
-		String name = "";
-		for (Iterator<String> iter = stereotypes.iterator(); iter.hasNext();) {
-			String stereotype = iter.next();
-			name = umlReader.getElementName(stereotype);
-			if (!name.equals("")) {
-				break;
-			}
-		}
+		String name = umlReader.getElementName(node.stereotype());
 		String className = name.equals("") ? defaultName : name;
 		// add restricted interface
 		if (type.equals(JavaClass.INTERFACE) && !name.equals("")) {
@@ -138,7 +130,7 @@ public abstract class Pattern implements ICodeGenerator {
 		JavaClass newClass = new JavaClass(packageName, className, node.tag(),
 				type);
 		if (name.equals(""))
-			newClass.setOptional();
+			newClass.setOptional(true);
 		if (imports != null)
 			newClass.addImports(imports);
 		if (interfaces != null)
@@ -150,9 +142,9 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Creates a list of Method objects with the given settings and adds it to
 	// the TagNodes sourcelist
-	protected void addMethods(TagNode node, String stereotype,
-			String defaultName, String type, String comment) {
-		ArrayList<String> names = umlReader.getElementNames(stereotype);
+	protected void addMethods(TagNode node, String defaultName, String type,
+			String comment) {
+		ArrayList<String> names = umlReader.getElementNames(node.stereotype());
 		if (names.size() == 0)
 			names.add("");
 		for (int index = 0; index < names.size(); ++index) {

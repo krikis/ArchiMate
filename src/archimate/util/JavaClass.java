@@ -41,6 +41,10 @@ public class JavaClass implements ICodeElement {
 	private String className;
 	// Type of the class, either CLASS or INTERFACE
 	private String type;
+	// Whether the class is abstract
+	private boolean isAbstract;
+	// The superclass that is extended
+	private String superClass;
 	// List of implemented interfaces
 	private ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
 
@@ -61,6 +65,8 @@ public class JavaClass implements ICodeElement {
 			String type) {
 		visited = false;
 		optional = false;
+		isAbstract = false;
+		superClass = "";
 		this.packageName = packageName;
 		this.className = className;
 		archiMateTags.add(tag);
@@ -196,8 +202,8 @@ public class JavaClass implements ICodeElement {
 	}
 
 	// Marks the javaClass as optional
-	public void setOptional() {
-		optional = true;
+	public void setOptional(boolean value) {
+		optional = value;
 	}
 
 	/**
@@ -406,6 +412,50 @@ public class JavaClass implements ICodeElement {
 	 */
 	public String className() {
 		return className;
+	}
+
+	/**
+	 * Marks the class as an abstract class
+	 */
+	public void setAbstract() {
+		isAbstract = true;
+	}
+
+	/**
+	 * Returns whether the class is abstract
+	 * 
+	 * @return Whether the class is abstract
+	 */
+	public boolean isAbstract() {
+		return isAbstract;
+	}
+
+	/**
+	 * Sets the superclass
+	 * 
+	 * @param className
+	 *            the name of the superclass
+	 */
+	public void setSuperClass(String className) {
+		superClass = className;
+	}
+
+	/**
+	 * Returns whether the class has a superclass
+	 * 
+	 * @return Whether the class has a superclass
+	 */
+	public boolean hasSuperClass() {
+		return superClass.length() > 0;
+	}
+
+	/**
+	 * Returns the superclass
+	 * 
+	 * @return The superclass
+	 */
+	public String superClass() {
+		return superClass;
 	}
 
 	/**
