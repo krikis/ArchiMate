@@ -5,7 +5,6 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.*;
 
 import archimate.codegen.JavaHelper;
-import archimate.codegen.SourceInspector;
 import archimate.util.*;
 
 /**

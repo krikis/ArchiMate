@@ -8,9 +8,13 @@ import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IPackageBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 
 import archimate.codegen.ICodeElement;
 
@@ -44,9 +48,9 @@ public class JavaClass implements ICodeElement {
 	// Whether the class is abstract
 	private boolean isAbstract;
 	// The superclass that is extended
-	private String superClass;
+	private SuperClassType superClass;
 	// List of implemented interfaces
-	private ArrayList<InterfaceImpl> interfaces = new ArrayList<InterfaceImpl>();
+	private ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
 
 	/**
 	 * Creates a new {@link JavaClass} object
@@ -66,7 +70,7 @@ public class JavaClass implements ICodeElement {
 		visited = false;
 		optional = false;
 		isAbstract = false;
-		superClass = "";
+		superClass = null;
 		this.packageName = packageName;
 		this.className = className;
 		archiMateTags.add(tag);
@@ -89,7 +93,9 @@ public class JavaClass implements ICodeElement {
 			TypeDeclaration javaClass = (TypeDeclaration) node;
 			// Checks the class type
 			checkClassType(javaClass, status, pattern);
-			// Checks the implemented interfaces
+			// Checks the superclass type
+			checkSuperClassType(javaClass, status, pattern);
+			// Checks the interfaces
 			checkInterfaces(javaClass, status, pattern);
 			ASTNode root = javaClass.getRoot();
 			if (root instanceof CompilationUnit) {
@@ -113,24 +119,102 @@ public class JavaClass implements ICodeElement {
 		}
 	}
 
-	// Checks the implemented interfaces
+	// Checks the superclass
+	private void checkSuperClassType(TypeDeclaration javaClass,
+			MultiStatus status, String pattern) {
+		if (!isInterface() && hasSuperClass() && !superClass.optional()) {
+			boolean found = false;
+			if (javaClass.getSuperclassType() instanceof SimpleType) {
+				SimpleType simpleType = (SimpleType) javaClass
+						.getSuperclassType();
+				IBinding binding = simpleType.resolveBinding();
+				if (binding instanceof ITypeBinding) {
+					ITypeBinding type = (ITypeBinding) binding;
+					IPackageBinding packageBinding = type.getPackage();
+					if (superClass.className().equals(type.getName())
+							&& superClass.packageName().equals(
+									packageBinding.getName())) {
+						found = true;
+					}
+				}
+			}
+			if (!found) {
+				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
+						pattern + ": The \"" + className
+								+ "\" class doesn't extend the \""
+								+ superClass.className() + "\" class."
+								+ "                             ", null));
+			}
+		}
+	}
+
+	// Checks the interfaces
 	private void checkInterfaces(TypeDeclaration javaClass, MultiStatus status,
 			String pattern) {
-		for (Iterator<InterfaceImpl> iter = interfaces.iterator(); iter
+		if (isInterface()) {
+			checkExtendedInterfaces(javaClass, status, pattern);
+		} else {
+			checkImplementedInterfaces(javaClass, status, pattern);
+		}
+	}
+
+	// Checks the extended interfaces
+	private void checkExtendedInterfaces(TypeDeclaration javaClass,
+			MultiStatus status, String pattern) {
+		if (hasSuperClass() && !superClass.optional()) {
+			boolean found = false;
+			for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
+					.hasNext();) {
+				Object object = ite2.next();
+				if (object instanceof SimpleType) {
+					SimpleType simpleType = (SimpleType) object;
+					IBinding binding = simpleType.resolveBinding();
+					if (binding instanceof ITypeBinding) {
+						ITypeBinding type = (ITypeBinding) binding;
+						IPackageBinding packageBinding = type.getPackage();
+						if (superClass.className().equals(type.getName())
+								&& superClass.packageName().equals(
+										packageBinding.getName())) {
+							found = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!found) {
+				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
+						pattern + ": The \"" + className
+								+ "\" interface doesn't extend the \""
+								+ superClass.className() + "\" interface."
+								+ "                             ", null));
+			}
+		}
+	}
+
+	// Checks the implemented interfaces
+	private void checkImplementedInterfaces(TypeDeclaration javaClass,
+			MultiStatus status, String pattern) {
+		for (Iterator<InterfaceType> iter = interfaces.iterator(); iter
 				.hasNext();) {
-			InterfaceImpl interfaceImpl = iter.next();
-			if (!interfaceImpl.optional()) {
-				String interfaceName = interfaceImpl.interfaceName();
+			InterfaceType interfaceType = iter.next();
+			if (!interfaceType.optional()) {
 				boolean found = false;
 				for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
 						.hasNext();) {
 					Object object = ite2.next();
 					if (object instanceof SimpleType) {
-						SimpleType type = (SimpleType) object;
-						if (type.getName().getFullyQualifiedName().equals(
-								interfaceName)) {
-							found = true;
-							break;
+						SimpleType simpleType = (SimpleType) object;
+						IBinding binding = simpleType.resolveBinding();
+						if (binding instanceof ITypeBinding) {
+							ITypeBinding type = (ITypeBinding) binding;
+							IPackageBinding packageBinding = type.getPackage();
+							if (interfaceType.interfaceName().equals(
+									type.getName())
+									&& interfaceType.packageName().equals(
+											packageBinding.getName())) {
+								found = true;
+								break;
+							}
 						}
 					}
 				}
@@ -138,7 +222,8 @@ public class JavaClass implements ICodeElement {
 					status.add(new Status(IStatus.WARNING, status.getPlugin(),
 							1, pattern + ": The \"" + className
 									+ "\" class doesn't implement the \""
-									+ interfaceName + "\" interface."
+									+ interfaceType.interfaceName()
+									+ "\" interface."
 									+ "                             ", null));
 				}
 			}
@@ -436,8 +521,8 @@ public class JavaClass implements ICodeElement {
 	 * @param className
 	 *            the name of the superclass
 	 */
-	public void setSuperClass(String className) {
-		superClass = className;
+	public void setSuperClass(SuperClassType superClass) {
+		this.superClass = superClass;
 	}
 
 	/**
@@ -446,7 +531,7 @@ public class JavaClass implements ICodeElement {
 	 * @return Whether the class has a superclass
 	 */
 	public boolean hasSuperClass() {
-		return superClass.length() > 0;
+		return superClass != null;
 	}
 
 	/**
@@ -454,7 +539,7 @@ public class JavaClass implements ICodeElement {
 	 * 
 	 * @return The superclass
 	 */
-	public String superClass() {
+	public SuperClassType superClass() {
 		return superClass;
 	}
 
@@ -484,7 +569,7 @@ public class JavaClass implements ICodeElement {
 	 * @param interfaceName
 	 *            the interface to add
 	 */
-	public void addInterface(InterfaceImpl interfaceName) {
+	public void addInterface(InterfaceType interfaceName) {
 		interfaces.add(interfaceName);
 	}
 
@@ -494,7 +579,7 @@ public class JavaClass implements ICodeElement {
 	 * @param interfaces
 	 *            the collection of interfaces to add
 	 */
-	public void addInterfaces(ArrayList<InterfaceImpl> interfaces) {
+	public void addInterfaces(ArrayList<InterfaceType> interfaces) {
 		this.interfaces.addAll(interfaces);
 	}
 
@@ -512,7 +597,7 @@ public class JavaClass implements ICodeElement {
 	 * 
 	 * @return the implemented interfaces
 	 */
-	public ArrayList<InterfaceImpl> interfaces() {
+	public ArrayList<InterfaceType> interfaces() {
 		return interfaces;
 	}
 

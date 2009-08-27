@@ -117,8 +117,8 @@ public class ValidateCode extends ArchiMateAction {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
 					"The source code is not in sync with the UML model. "
 							+ count + " source code "
-							+ (count == 1 ? "element" : "elements")
-							+ " deviate from the UML model.", null);
+							+ (count == 1 ? "element deviates" : "elements deviate")
+							+ " from the UML model.", null);
 		} else if (status.getSeverity() == IStatus.ERROR) {
 			IStatus[] children = status.getChildren();
 			int count = 0;

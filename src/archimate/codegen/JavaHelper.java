@@ -12,7 +12,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
 import archimate.uml.UMLAdapter;
-import archimate.util.InterfaceImpl;
+import archimate.util.InterfaceType;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
 import archimate.util.Restriction;
@@ -176,9 +176,14 @@ public class JavaHelper {
 		classType.setInterface(javaClass.isInterface());
 		setModifier(ast, classType, Modifier.PUBLIC);
 		classType.setName(ast.newSimpleName(javaClass.className()));
+		// add superclass
+		if (javaClass.hasSuperClass()) {
+			classType.setSuperclassType(ast.newSimpleType(ast
+					.newSimpleName(javaClass.superClass().className())));
+		}
 		// add implemented interfaces
 		if (!javaClass.isInterface()) {
-			for (Iterator<InterfaceImpl> iter = javaClass.interfaces()
+			for (Iterator<InterfaceType> iter = javaClass.interfaces()
 					.iterator(); iter.hasNext();) {
 				classType.superInterfaceTypes().add(
 						ast.newSimpleType(ast.newSimpleName(iter.next()
@@ -462,17 +467,19 @@ public class JavaHelper {
 	 */
 	public void checkRestricted(TypeDeclaration node, TagNode tagnode,
 			ArrayList<Restriction> interfaces) {
-		for (Iterator iter = node.superInterfaceTypes().iterator(); iter
-				.hasNext();) {
-			Object object = iter.next();
-			if (object instanceof SimpleType) {
-				SimpleType simpleType = (SimpleType) object;
-				IBinding binding = simpleType.resolveBinding();
-				if (binding instanceof ITypeBinding) {
-					ITypeBinding type = (ITypeBinding) binding;
-					IPackageBinding packageBinding = type.getPackage();
-					checkRestricted(node, tagnode, interfaces, type.getName(),
-							packageBinding.getName());
+		if (!node.isInterface()) {
+			for (Iterator iter = node.superInterfaceTypes().iterator(); iter
+					.hasNext();) {
+				Object object = iter.next();
+				if (object instanceof SimpleType) {
+					SimpleType simpleType = (SimpleType) object;
+					IBinding binding = simpleType.resolveBinding();
+					if (binding instanceof ITypeBinding) {
+						ITypeBinding type = (ITypeBinding) binding;
+						IPackageBinding packageBinding = type.getPackage();
+						checkRestricted(node, tagnode, interfaces, type
+								.getName(), packageBinding.getName());
+					}
 				}
 			}
 		}
@@ -501,9 +508,9 @@ public class JavaHelper {
 			ICodeElement element = iter.next();
 			if (element instanceof JavaClass) {
 				JavaClass javaClass = (JavaClass) element;
-				for (Iterator<InterfaceImpl> ite2 = javaClass.interfaces()
+				for (Iterator<InterfaceType> ite2 = javaClass.interfaces()
 						.iterator(); ite2.hasNext();) {
-					InterfaceImpl interfaceImpl = ite2.next();
+					InterfaceType interfaceImpl = ite2.next();
 					if (interfaceImpl.interfaceName().equals(interfaceName)
 							&& interfaceImpl.packageName().equals(packageName)) {
 						found = true;
@@ -659,9 +666,9 @@ public class JavaHelper {
 			// Adds the method to the UML model
 			if (!match) {
 				// TODO complete implementation
-//				String tag = umlReader.addMessage(archiMateTag, name);
-//				addArchimateTag(node, tag);
-//				reportAddedMessage(name);
+				// String tag = umlReader.addMessage(archiMateTag, name);
+				// addArchimateTag(node, tag);
+				// reportAddedMessage(name);
 			}
 		}
 	}
@@ -672,7 +679,7 @@ public class JavaHelper {
 	}
 
 	private void addArchimateTag(MethodDeclaration node, String archiMateTag) {
-		if (getArchiMateTag(node).equals("")){
+		if (getArchiMateTag(node).equals("")) {
 			AST ast = node.getAST();
 			Javadoc javadoc = node.getJavadoc();
 			if (javadoc == null) {

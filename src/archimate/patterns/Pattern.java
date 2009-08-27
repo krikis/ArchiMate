@@ -8,12 +8,12 @@ import org.eclipse.core.runtime.MultiStatus;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
-import archimate.codegen.SourceInspector;
 import archimate.uml.UMLAdapter;
-import archimate.util.InterfaceImpl;
+import archimate.util.InterfaceType;
 import archimate.util.JavaClass;
 import archimate.util.FileHandler;
 import archimate.util.JavaMethod;
+import archimate.util.SourceInspector;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
@@ -120,7 +120,7 @@ public abstract class Pattern implements ICodeGenerator {
 	// Creates a Class object with the given settings
 	protected JavaClass createClass(TagNode node, String packageName,
 			ArrayList<String> imports, String type, String defaultName,
-			ArrayList<InterfaceImpl> interfaces, String comment) {
+			ArrayList<InterfaceType> interfaces, String comment) {
 		String name = umlReader.getElementName(node.stereotype());
 		String className = name.equals("") ? defaultName : name;
 		// add restricted interface
