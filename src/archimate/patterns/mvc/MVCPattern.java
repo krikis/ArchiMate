@@ -75,11 +75,11 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		tree = new TagTree();
 		TagNode root = tree.root();
 
-		// Create Data interface
+		// Create DataInterface
 		TagNode dataInterface = dataInterface(root);
-		// Create Update interface
+		// Create UpdateInterface
 		TagNode updateInterface = updateInterface(root);
-		// Create Command interface
+		// Create CommandInterface
 		TagNode commandInterface = commandInterface(root);
 
 		// Create Model Class
@@ -89,35 +89,35 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create Controller Class
 		TagNode controllerClass = controllerClass(root, commandInterface);
 
-		// Create Data interface
+		// Create DataInterface instance
 		TagNode dataInterfaceInstance = dataInterfaceInstance(root,
 				dataInterface);
-		// Create Update interface
+		// Create UpdateInterface instance
 		TagNode updateInterfaceInstance = updateInterfaceInstance(root,
 				updateInterface);
-		// Create Command interface
+		// Create CommandInterface instance
 		TagNode commandInterfaceInstance = commandInterfaceInstance(root,
 				commandInterface);
 
-		// Create Model Class
+		// Create Model instance Class
 		TagNode modelInstanceClass = modelInstanceClass(root,
 				dataInterfaceInstance, modelClass);
-		// Create View Class
+		// Create View instance Class
 		TagNode viewInstanceClass = viewInstanceClass(root,
 				updateInterfaceInstance, viewClass);
-		// Create Controller Class
+		// Create Controller instance Class
 		TagNode controllerInstanceClass = controllerInstanceClass(root,
 				commandInterfaceInstance, controllerClass);
 
 		// Add updateInvocationMethods
-		updateInvocationMethods(modelInstanceClass, updateInterfaceInstance,
-				viewInstanceClass);
+		updateInvocationMethods(modelInstanceClass,
+				viewInstanceClass, updateInterfaceInstance);
 		// Add commandInvocationMethods
-		commandInvocationMethods(viewInstanceClass, commandInterfaceInstance,
-				controllerInstanceClass);
+		commandInvocationMethods(viewInstanceClass,
+				controllerInstanceClass, commandInterfaceInstance);
 		// Add dataInvocationMethods
-		dataInvocationMethods(controllerInstanceClass, dataInterfaceInstance,
-				modelInstanceClass);
+		dataInvocationMethods(controllerInstanceClass,
+				modelInstanceClass, dataInterfaceInstance);
 	}
 
 	// Create DataInterface
@@ -231,8 +231,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		if (element instanceof JavaClass) {
 			JavaClass superInterfaceClass = (JavaClass) element;
 			dataInterfaceClass.setSuperClass(new SuperClassType(
-					superInterfaceClass.className(), superInterfaceClass.packageName(),
-					superInterfaceClass.optional()));
+					superInterfaceClass.className(), superInterfaceClass
+							.packageName(), superInterfaceClass.optional()));
 		}
 		dataInterface.addSource(dataInterfaceClass);
 		// Create interface method declarations
@@ -250,8 +250,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		TagNode updateInterface = new TagNode(UPDATE_INTERFACE_INSTANCE);
 		String viewName = umlReader.getElementName(TagNode
 				.inStereo(VIEW_INSTANCE));
-		String interfaceName = (viewName.equals("") ? "IMyUpdate" : "I"
-				+ viewName + "Update");
+		String interfaceName = (viewName.equals("") ? "IMyUpdate" : "IUpdate"
+				+ viewName);
 		JavaClass updateInterfaceClass = createClass(updateInterface,
 				viewPackage, null, JavaClass.INTERFACE, interfaceName, null,
 				"This interface specifies the " + interfaceName
@@ -265,8 +265,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		if (element instanceof JavaClass) {
 			JavaClass superInterfaceClass = (JavaClass) element;
 			updateInterfaceClass.setSuperClass(new SuperClassType(
-					superInterfaceClass.className(), superInterfaceClass.packageName(),
-					superInterfaceClass.optional()));
+					superInterfaceClass.className(), superInterfaceClass
+							.packageName(), superInterfaceClass.optional()));
 		}
 		updateInterface.addSource(updateInterfaceClass);
 		// Create interface method declarations
@@ -300,8 +300,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		if (element instanceof JavaClass) {
 			JavaClass superInterfaceClass = (JavaClass) element;
 			commandInterfaceClass.setSuperClass(new SuperClassType(
-					superInterfaceClass.className(), superInterfaceClass.packageName(),
-					superInterfaceClass.optional()));
+					superInterfaceClass.className(), superInterfaceClass
+							.packageName(), superInterfaceClass.optional()));
 		}
 		commandInterface.addSource(commandInterfaceClass);
 		// Create interface method declarations
@@ -431,10 +431,16 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private void updateInvocationMethods(TagNode model, TagNode view,
 			TagNode updateInterface) {
 		TagNode updateInvocation = new TagNode(UPDATE_INVOCATION);
-		TagNode updateMessage = updateInterface.child(UPDATE_METHOD);
+		TagNode updateMessage = updateInterface.child(UPDATE_MESSAGE);
 		ICodeElement element = view.getSourceByTag(VIEW_INSTANCE);
 		if (updateMessage != null && element instanceof JavaClass) {
 			JavaClass viewClass = (JavaClass) element;
+			ICodeElement elem = model.getSourceByTag(MODEL_INSTANCE);
+			if (elem instanceof JavaClass) {
+				JavaClass modelClass = (JavaClass) elem;
+				modelClass.addImport(viewClass.packageName() + "."
+						+ viewClass.className());
+			}
 			addMethods(updateInvocation, updateMessage.source(),
 					JavaMethod.INVOCATION, viewClass.className(), viewClass
 							.packageName(),
@@ -444,13 +450,19 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	}
 
 	// Create command invocation methods
-	private void dataInvocationMethods(TagNode view, TagNode controller,
+	private void commandInvocationMethods(TagNode view, TagNode controller,
 			TagNode commandInterface) {
 		TagNode commandInvocation = new TagNode(COMMAND_INVOCATION);
-		TagNode commandMessage = commandInterface.child(COMMAND_METHOD);
+		TagNode commandMessage = commandInterface.child(COMMAND_MESSAGE);
 		ICodeElement element = controller.getSourceByTag(CONTROLLER_INSTANCE);
 		if (commandMessage != null && element instanceof JavaClass) {
 			JavaClass controllerClass = (JavaClass) element;
+			ICodeElement elem = view.getSourceByTag(VIEW_INSTANCE);
+			if (elem instanceof JavaClass) {
+				JavaClass viewClass = (JavaClass) elem;
+				viewClass.addImport(controllerClass.packageName() + "."
+						+ controllerClass.className());
+			}
 			addMethods(commandInvocation, commandMessage.source(),
 					JavaMethod.INVOCATION, controllerClass.className(),
 					controllerClass.packageName(),
@@ -460,13 +472,19 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	}
 
 	// Create data invocation methods
-	private void commandInvocationMethods(TagNode controller, TagNode model,
+	private void dataInvocationMethods(TagNode controller, TagNode model,
 			TagNode dataInterface) {
 		TagNode dataInvocation = new TagNode(DATA_INVOCATION);
-		TagNode dataMessage = dataInterface.child(DATA_METHOD);
+		TagNode dataMessage = dataInterface.child(DATA_MESSAGE);
 		ICodeElement element = model.getSourceByTag(MODEL_INSTANCE);
 		if (dataMessage != null && element instanceof JavaClass) {
 			JavaClass modelClass = (JavaClass) element;
+			ICodeElement elem = controller.getSourceByTag(CONTROLLER_INSTANCE);
+			if (elem instanceof JavaClass) {
+				JavaClass controllerClass = (JavaClass) elem;
+				controllerClass.addImport(modelClass.packageName() + "."
+						+ modelClass.className());
+			}
 			addMethods(dataInvocation, dataMessage.source(),
 					JavaMethod.INVOCATION, modelClass.className(), modelClass
 							.packageName(),
