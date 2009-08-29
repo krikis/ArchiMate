@@ -241,9 +241,9 @@ public class SourceInspector {
 	// Reports a missing source file
 	private void reportMissingFile(JavaClass javaClass) {
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
-				+ ": Sourcefile for \"" + javaClass.className() + "\" "
+				+ ": A sourcefile for the \"" + javaClass.className() + "\" "
 				+ (javaClass.isInterface() ? "interface" : "class")
-				+ " missing. Try to generate code or to update the model."
+				+ " is missing. Try to generate code or to update the model."
 				+ "                             ", null));
 	}
 
@@ -260,7 +260,7 @@ public class SourceInspector {
 		}
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
 				+ ": Method " + method.type() + " for the \"" + method.name()
-				+ "()\" method missing" + container
+				+ "()\" method is missing" + container
 				+ ". Try to generate code or to update the model."
 				+ "                          ", null));
 	}

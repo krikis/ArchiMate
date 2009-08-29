@@ -59,13 +59,13 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
-			self.tickOffSource(name);
+			boolean found = self.tickOffSource(name);
 			boolean toggle = self.setVisited();
 			if (toggle)
 				monitor.worked(1);
 			tree.setCurrent(self);
 			if (self.hasChildren()) {
-				return true;
+				return found;
 			}
 		}
 		return false;
@@ -86,7 +86,8 @@ public class JavaInspector extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
-			if (current.hasChildren()) {
+			String name = helper.getName(node);
+			if (current.hasChildren() && current.getSource(name) != null) {
 				ArrayList<TagNode> tags = tree.getUnvisited();
 				inspector.addSourceElements(node, tags);
 			}

@@ -277,14 +277,17 @@ public class TagNode {
 	 * 
 	 * @param name
 	 *            The name identifying the encountered source
+	 * @returns Whether the source has been found
 	 */
-	public void tickOffSource(String name) {
+	public boolean tickOffSource(String name) {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
 			if (element.equals(name)) {
 				setVisited(element);
+				return true;
 			}
 		}
+		return false;
 	}
 
 	/**

@@ -167,6 +167,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		JavaClass modelClass = createClass(model, modelPackage, null,
 				JavaClass.CLASS, "Model", interfaces,
 				"This class implements the Model of the MVC Pattern");
+		modelClass.setAbstract();
 		model.addSource(modelClass);
 		root.addChild(model);
 		return model;
@@ -186,6 +187,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		JavaClass viewClass = createClass(view, viewPackage, null,
 				JavaClass.CLASS, "View", interfaces,
 				"This class implements the View of the MVC Pattern");
+		viewClass.setAbstract();
 		view.addSource(viewClass);
 		root.addChild(view);
 		return view;
@@ -206,6 +208,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		JavaClass controllerClass = createClass(controller, controlPackage,
 				null, JavaClass.CLASS, "Controller", interfaces,
 				"This class implements the Controller of the MVC Pattern");
+		controllerClass.setAbstract();
 		controller.addSource(controllerClass);
 		root.addChild(controller);
 		return controller;

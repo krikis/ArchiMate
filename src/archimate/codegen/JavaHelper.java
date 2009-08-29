@@ -175,6 +175,8 @@ public class JavaHelper {
 		TypeDeclaration classType = ast.newTypeDeclaration();
 		classType.setInterface(javaClass.isInterface());
 		setModifier(ast, classType, Modifier.PUBLIC);
+		if (javaClass.isAbstract())
+			setModifier(ast, classType, Modifier.ABSTRACT);
 		classType.setName(ast.newSimpleName(javaClass.className()));
 		// add superclass
 		if (javaClass.hasSuperClass()) {
@@ -386,6 +388,10 @@ public class JavaHelper {
 		case Modifier.STATIC:
 			classType.modifiers().add(
 					ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+			break;
+		case Modifier.ABSTRACT:
+			classType.modifiers().add(
+					ast.newModifier(Modifier.ModifierKeyword.ABSTRACT_KEYWORD));
 			break;
 		}
 	}

@@ -5,6 +5,11 @@ import java.util.StringTokenizer;
 
 import org.eclipse.jdt.core.dom.*;
 
+/**
+ * This class is used as selfdocumenting reference for using the AST API
+ * 
+ * @author Samuel Esposito
+ */
 public class TestAST {
 
 	CompilationUnit unit;
