@@ -59,7 +59,8 @@ public class ValidateModel extends ArchiMateAction {
 		// Initializing the status
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
 				"Temporary Status", null);
-		monitor.beginTask("Checking OCL Constraints...", estimateRules(umlPackage));
+		monitor.beginTask("Checking OCL Constraints...",
+				estimateRules(umlPackage));
 		// Executing the action
 		readProfiles(umlPackage, status, monitor);
 		readStereotypes(umlPackage, status, monitor);

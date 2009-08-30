@@ -206,12 +206,14 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            {@link TagNode} with a list of {@link ICodeElement}s
 	 */
-	public void addMethods(TypeDeclaration node, TagNode tagnode) {
+	public void addMethods(TypeDeclaration node, ICodeElement code,
+			TagNode tagnode) {
 		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
 			if (!element.visited()) {
-				if (element instanceof JavaMethod) {
+				if (element instanceof JavaMethod
+						&& code.children().contains(element)) {
 					JavaMethod method = (JavaMethod) element;
 					addMethod(node, method);
 					createStatus(method, tagnode);

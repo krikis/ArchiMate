@@ -3,6 +3,10 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.core.commands.operations.ICompositeOperation;
+
+import archimate.codegen.ICodeElement;
+
 /**
  * This class implements the tree containing all <code>archiMateTags</code> in a
  * hierarchical structure
@@ -19,6 +23,8 @@ public class TagTree {
 	private TagNode root;
 	// currently selected node
 	private TagNode current;
+	// currently selected code
+	private ICodeElement currentCode;
 	// restricted interfaces
 	ArrayList<Restriction> interfaces = new ArrayList<Restriction>();
 	// restricted methods
@@ -88,10 +94,40 @@ public class TagTree {
 	}
 
 	/**
+	 * Marks a node as selected
+	 * 
+	 * @param node
+	 *            the node you want to select
+	 */
+	public void setCurrent(TagNode node) {
+		if (node != null)
+			current = node;
+	}
+
+	/**
 	 * @return the node currently selected
 	 */
 	public TagNode current() {
 		return current;
+	}
+
+	/**
+	 * Sets the current code element to the given element
+	 * 
+	 * @param code
+	 *            the code element to be marked as current
+	 */
+	public void setCurrentCode(ICodeElement code) {
+		currentCode = code;
+	}
+
+	/**
+	 * Returns the currently selected code element
+	 * 
+	 * @return The currently selected code element
+	 */
+	public ICodeElement currentCode() {
+		return currentCode;
 	}
 
 	/**
@@ -111,35 +147,6 @@ public class TagTree {
 			nodes += nodes(iter.next());
 		}
 		return nodes;
-	}
-
-	/**
-	 * Marks a node as selected
-	 * 
-	 * @param node
-	 *            the node you want to select
-	 */
-	public void setCurrent(TagNode node) {
-		if (node != null)
-			current = node;
-	}
-
-	/**
-	 * Prints a list of all tree nodes and their state to the standard output
-	 * for debug purposes
-	 */
-	public void printTree() {
-		printNodes(root.children());
-	}
-
-	// Prints debug information for all children of a node
-	private void printNodes(ArrayList<TagNode> children) {
-		for (Iterator<TagNode> iter = children.iterator(); iter.hasNext();) {
-			TagNode node = iter.next();
-			System.out.println(node.tag()
-					+ (node.visited() ? " :: visited" : ""));
-			printNodes(node.children());
-		}
 	}
 
 	/**
@@ -225,6 +232,22 @@ public class TagTree {
 				.hasNext();) {
 			resetVisited(iter.next());
 		}
+	}
+
+	// Returns a list of all tree nodes and their state for debug purposes
+	public String toString() {
+		return printNodes(root.children(), "");
+	}
+
+	// Recursively returns the state of all nodes in the tree
+	private String printNodes(ArrayList<TagNode> children, String prefix) {
+		String out = "";
+		for (Iterator<TagNode> iter = children.iterator(); iter.hasNext();) {
+			TagNode node = iter.next();
+			out += prefix + node.toString();
+			out += printNodes(node.children(), prefix + "-");
+		}
+		return out;
 	}
 
 }

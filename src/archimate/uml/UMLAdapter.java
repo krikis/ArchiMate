@@ -85,6 +85,116 @@ public class UMLAdapter {
 	}
 
 	/**
+	 * Searches for all UML elements which have the given stereotype applied to
+	 * it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The found UML elements
+	 */
+	public ArrayList<NamedElement> getElements(String stereotypeName) {
+		ArrayList<NamedElement> namedElements = new ArrayList<NamedElement>();
+		EList<NamedElement> elements = umlPackage.getOwnedMembers();
+		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
+			NamedElement element = iter.next();
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					namedElements.add(element);
+				}
+			}
+			if (element instanceof Namespace) {
+				namedElements.addAll(traverseElements((Namespace) element,
+						stereotypeName));
+			}
+		}
+		return namedElements;
+	}
+
+	// Recursively traverses the UML tree until all matching elements are found
+	private ArrayList<NamedElement> traverseElements(Namespace umlElement,
+			String stereotypeName) {
+		ArrayList<NamedElement> namedElements = new ArrayList<NamedElement>();
+		EList<NamedElement> elements = umlElement.getOwnedMembers();
+		for (Iterator<NamedElement> iter = elements.iterator(); iter.hasNext();) {
+			NamedElement element = iter.next();
+			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
+			for (Iterator<Stereotype> ite2 = stereotypes.iterator(); ite2
+					.hasNext();) {
+				Stereotype stereotype = ite2.next();
+				if (stereotype.getName().equals(stereotypeName)) {
+					namedElements.add(element);
+				}
+			}
+			if (element instanceof Namespace) {
+				namedElements.addAll(traverseElements((Namespace) element,
+						stereotypeName));
+			}
+		}
+		return namedElements;
+	}
+
+	/**
+	 * Searches for all sent messages which have the given stereotype applied to
+	 * it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The found messages
+	 */
+	public ArrayList<NamedElement> getSent(NamedElement umlElement,
+			String stereotypeName) {
+		ArrayList<NamedElement> sent = new ArrayList<NamedElement>();
+		if (umlElement instanceof Lifeline) {
+			Lifeline lifeline = (Lifeline) umlElement;
+			for (NamedElement element : getElements(stereotypeName)) {
+				if (element instanceof Message) {
+					Message message = (Message) element;
+					MessageEnd messageEnd = message.getSendEvent();
+					if (messageEnd instanceof MessageOccurrenceSpecification) {
+						MessageOccurrenceSpecification messOcc = (MessageOccurrenceSpecification) messageEnd;
+						if (messOcc.getCovereds().contains(lifeline)) {
+							sent.add(message);
+						}
+					}
+				}
+			}
+		}
+		return sent;
+	}
+
+	/**
+	 * Searches for all received messages which have the given stereotype
+	 * applied to it
+	 * 
+	 * @param stereotypeName
+	 *            The name of the stereotype to match
+	 * @return The found messages
+	 */
+	public ArrayList<NamedElement> getReceived(NamedElement umlElement,
+			String stereotypeName) {
+		ArrayList<NamedElement> received = new ArrayList<NamedElement>();
+		if (umlElement instanceof Lifeline) {
+			Lifeline lifeline = (Lifeline) umlElement;
+			for (NamedElement element : getElements(stereotypeName)) {
+				if (element instanceof Message) {
+					Message message = (Message) element;
+					MessageEnd messageEnd = message.getReceiveEvent();
+					if (messageEnd instanceof MessageOccurrenceSpecification) {
+						MessageOccurrenceSpecification messOcc = (MessageOccurrenceSpecification) messageEnd;
+						if (messOcc.getCovereds().contains(lifeline)) {
+							received.add(message);
+						}
+					}
+				}
+			}
+		}
+		return received;
+	}
+
+	/**
 	 * Searches for the first UML element which has the given stereotype applied
 	 * to it
 	 * 
@@ -249,37 +359,44 @@ public class UMLAdapter {
 		return getMessageTag(archiMateTag);
 	}
 
-	private void addMessage(Lifeline sender, Lifeline receiver, String name, String stereotype) {
+	private void addMessage(Lifeline sender, Lifeline receiver, String name,
+			String stereotype) {
 		Interaction interaction = getInteraction();
 		if (interaction != null) {
 			Message message = interaction.createMessage(name);
 			message.applyStereotype(getStereotype(stereotype));
 			interaction.getMessages().add(message);
-			MessageOccurrenceSpecification messOcc1 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			MessageOccurrenceSpecification messOcc1 = UMLFactory.eINSTANCE
+					.createMessageOccurrenceSpecification();
 			messOcc1.setName("invocation-start");
 			messOcc1.setEnclosingInteraction(interaction);
 			messOcc1.setMessage(message);
 			messOcc1.getCovereds().add(sender);
-			MessageOccurrenceSpecification messOcc2 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			MessageOccurrenceSpecification messOcc2 = UMLFactory.eINSTANCE
+					.createMessageOccurrenceSpecification();
 			messOcc2.setName("execution-start");
 			messOcc2.setEnclosingInteraction(interaction);
 			messOcc2.setMessage(message);
 			messOcc2.getCovereds().add(receiver);
-			BehaviorExecutionSpecification behEx1 = UMLFactory.eINSTANCE.createBehaviorExecutionSpecification();
+			BehaviorExecutionSpecification behEx1 = UMLFactory.eINSTANCE
+					.createBehaviorExecutionSpecification();
 			behEx1.setName("invocation-body");
 			behEx1.setEnclosingInteraction(interaction);
 			behEx1.setStart(messOcc1);
-			BehaviorExecutionSpecification behEx2 = UMLFactory.eINSTANCE.createBehaviorExecutionSpecification();
+			BehaviorExecutionSpecification behEx2 = UMLFactory.eINSTANCE
+					.createBehaviorExecutionSpecification();
 			behEx2.setName("execution-body");
 			behEx2.setEnclosingInteraction(interaction);
 			behEx2.setStart(messOcc2);
-			MessageOccurrenceSpecification messOcc3 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			MessageOccurrenceSpecification messOcc3 = UMLFactory.eINSTANCE
+					.createMessageOccurrenceSpecification();
 			messOcc3.setName("invocation-end");
 			messOcc3.setEnclosingInteraction(interaction);
 			messOcc3.getCovereds().add(sender);
 			behEx1.setFinish(messOcc3);
 			behEx1.getCovereds().add(sender);
-			MessageOccurrenceSpecification messOcc4 = UMLFactory.eINSTANCE.createMessageOccurrenceSpecification();
+			MessageOccurrenceSpecification messOcc4 = UMLFactory.eINSTANCE
+					.createMessageOccurrenceSpecification();
 			messOcc4.setName("execution-end");
 			messOcc4.setEnclosingInteraction(interaction);
 			messOcc4.getCovereds().add(receiver);
@@ -287,8 +404,8 @@ public class UMLAdapter {
 			behEx2.getCovereds().add(receiver);
 			message.setSendEvent(messOcc1);
 			message.setReceiveEvent(messOcc2);
-			
-		}		
+
+		}
 	}
 
 	private String getMessageTag(String archiMateTag) {

@@ -1,7 +1,11 @@
 package archimate.codegen;
 
+import java.util.ArrayList;
+
+import org.eclipse.core.commands.operations.ICompositeOperation;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.uml2.uml.NamedElement;
 
 /**
  * Interface defining a source code element
@@ -9,20 +13,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
  * @author Samuel Esposito
  */
 public interface ICodeElement {
-
-	/**
-	 * Returns whether there is a comment defined
-	 * 
-	 * @return Whether there is a comment defined
-	 */
-	public boolean commentDefined();
-
-	/**
-	 * Returns the code elements comments
-	 * 
-	 * @return The code elements comments
-	 */
-	public String comment();
 
 	/**
 	 * Returns whether there are archiMateTags defined
@@ -83,5 +73,79 @@ public interface ICodeElement {
 	 * @return Whether a code element has to be visited
 	 */
 	public boolean optional();
+
+	/**
+	 * Marks a source code element as optional
+	 */
+	public void setOptional(boolean value);
+
+	/**
+	 * Sets the UML element associated with the code element
+	 */
+	public void setUmlElement(NamedElement umlElement);
+
+	/**
+	 * Returns the UML element associated with the code element
+	 * 
+	 * @return the UML element associated with the code element
+	 */
+	public NamedElement umlElement();
+
+	/**
+	 * Returns the parent of the code element
+	 * 
+	 * @return The parent of the code element
+	 */
+	public ICodeElement parent();
+
+	/**
+	 * Sets the parent of the code element
+	 */
+	public void setParent(ICodeElement parent);
+
+	/**
+	 * Returns the children of the code element
+	 * 
+	 * @return The children of the code element
+	 */
+	public ArrayList<ICodeElement> children();
+
+	/**
+	 * Adds the given code element to the children of the code element
+	 * 
+	 * @param child
+	 *            the code element to add
+	 */
+	public void addChild(ICodeElement child);
+
+	/**
+	 * Adds a collection of code elements to the children of the code element
+	 * 
+	 * @param children
+	 *            the collection of code elements to add
+	 */
+	public void addChildren(ArrayList<ICodeElement> children);
+
+	/**
+	 * Sets the comment going with the method
+	 * 
+	 * @param comment
+	 *            the comment going with the method
+	 */
+	public void setComment(String comment);
+
+	/**
+	 * Returns whether there is a comment defined
+	 * 
+	 * @return Whether there is a comment defined
+	 */
+	public boolean commentDefined();
+
+	/**
+	 * Returns the code elements comments
+	 * 
+	 * @return The code elements comments
+	 */
+	public String comment();
 
 }

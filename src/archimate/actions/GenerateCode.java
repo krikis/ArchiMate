@@ -30,7 +30,7 @@ import archimate.patterns.primitives.callback.CallbackPrimitive;
 public class GenerateCode extends ArchiMateAction {
 	// Dialog displaying the code generation report
 	private ErrorDialog error = null;
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 

@@ -201,14 +201,15 @@ public class SourceInspector {
 	 * @param tags
 	 *            the tags to create source for
 	 */
-	public void addSourceElements(TypeDeclaration node, ArrayList<TagNode> tags) {
+	public void addSourceElements(TypeDeclaration node, ICodeElement code,
+			ArrayList<TagNode> tags) {
 		JavaHelper helper = new JavaHelper(status, pattern);
 		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
 			if (monitor.isCanceled()) {
 				return;
 			}
 			TagNode tagnode = iter.next();
-			helper.addMethods(node, tagnode);
+			helper.addMethods(node, code, tagnode);
 			monitor.worked(1);
 		}
 	}

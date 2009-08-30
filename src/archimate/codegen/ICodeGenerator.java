@@ -34,9 +34,10 @@ public interface ICodeGenerator {
 	 * @return The <code>TagTree</code> of the current pattern
 	 */
 	public TagTree tree();
-	
+
 	/**
 	 * Returns the {@link UMLAdapter}
+	 * 
 	 * @return the {@link UMLAdapter}
 	 */
 	public UMLAdapter umlReader();

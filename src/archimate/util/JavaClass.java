@@ -15,7 +15,9 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.uml2.uml.NamedElement;
 
+import archimate.codegen.CodeElement;
 import archimate.codegen.ICodeElement;
 
 /**
@@ -23,20 +25,14 @@ import archimate.codegen.ICodeElement;
  * 
  * @author Samuel Esposito
  */
-public class JavaClass implements ICodeElement {
+public class JavaClass extends CodeElement implements ICodeElement {
 	// Constants defining the type of the class
 	public static final String INTERFACE = "interface";
 	public static final String CLASS = "class";
-	// Whether the class has been visited
-	private boolean visited;
-	// Whether the class is an optional code element
-	private boolean optional;
 	// The name of the package
 	private String packageName;
 	// List of the class imports
 	private ArrayList<String> imports = new ArrayList<String>();
-	// Comment going with the class
-	private String comment;
 	// Author of the class
 	private String author;
 	// List of tags going with the class
@@ -67,6 +63,7 @@ public class JavaClass implements ICodeElement {
 	 */
 	public JavaClass(String packageName, String className, String tag,
 			String type) {
+		umlElement = null;
 		visited = false;
 		optional = false;
 		isAbstract = false;
@@ -75,6 +72,8 @@ public class JavaClass implements ICodeElement {
 		this.className = className;
 		archiMateTags.add(tag);
 		this.type = type;
+		children = new ArrayList<ICodeElement>();
+		comment = "";
 	}
 
 	// Returns the classname
@@ -271,26 +270,6 @@ public class JavaClass implements ICodeElement {
 		}
 	}
 
-	// Returns whether the java class has been visited in the source code
-	public boolean visited() {
-		return visited;
-	}
-
-	// Marks the java class as visited
-	public void setVisited() {
-		visited = true;
-	}
-
-	// Returns whether the javaClass is optional
-	public boolean optional() {
-		return optional;
-	}
-
-	// Marks the javaClass as optional
-	public void setOptional(boolean value) {
-		optional = value;
-	}
-
 	/**
 	 * Returns the file in which the class is implemented
 	 * 
@@ -364,34 +343,6 @@ public class JavaClass implements ICodeElement {
 	 */
 	public ArrayList<String> imports() {
 		return imports;
-	}
-
-	/**
-	 * Sets the comment for the class
-	 * 
-	 * @param comment
-	 *            the comment for the class
-	 */
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	/*
-	 * (non-Javadoc) Returns whether a comment has been defined
-	 * 
-	 * @see archimate.codegen.ICodeElement#commentDefined()
-	 */
-	public boolean commentDefined() {
-		return comment.length() > 0;
-	}
-
-	/*
-	 * (non-Javadoc) Returns the comment going with this class
-	 * 
-	 * @see archimate.codegen.ICodeElement#comment()
-	 */
-	public String comment() {
-		return comment;
 	}
 
 	/**
@@ -502,8 +453,8 @@ public class JavaClass implements ICodeElement {
 	/**
 	 * Marks the class as an abstract class
 	 */
-	public void setAbstract() {
-		isAbstract = true;
+	public void setAbstract(boolean value) {
+		isAbstract = value;
 	}
 
 	/**
@@ -599,6 +550,13 @@ public class JavaClass implements ICodeElement {
 	 */
 	public ArrayList<InterfaceType> interfaces() {
 		return interfaces;
+	}
+
+	// Returns the specifications for debug purposes
+	public String toString() {
+		String out = "";
+		out += packageName + "." + className + "\n";
+		return out;
 	}
 
 }

@@ -23,8 +23,7 @@ public class SuperClassType {
 	 * @param optional
 	 *            whether extending the superclass is optional
 	 */
-	public SuperClassType(String className, String packageName,
-			boolean optional) {
+	public SuperClassType(String className, String packageName, boolean optional) {
 		this.className = className;
 		this.packageName = packageName;
 		this.optional = optional;

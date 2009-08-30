@@ -18,7 +18,9 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.uml2.uml.NamedElement;
 
+import archimate.codegen.CodeElement;
 import archimate.codegen.ICodeElement;
 import archimate.codegen.JavaHelper;
 
@@ -27,15 +29,11 @@ import archimate.codegen.JavaHelper;
  * 
  * @author Samuel Esposito
  */
-public class JavaMethod implements ICodeElement {
+public class JavaMethod extends CodeElement implements ICodeElement {
 	// Constants defining the methods type
 	public static final String DECLARATION = "declaration";
 	public static final String IMPLEMENTATION = "implementation";
 	public static final String INVOCATION = "invocation";
-	// Whether the code element has been visited
-	private boolean visited;
-	// Whether the code element is optional
-	private boolean optional;
 	// The method name
 	private String name;
 	// The type of the method, either DECLARATION, IMPLEMENTATION or INVOCATION
@@ -46,8 +44,6 @@ public class JavaMethod implements ICodeElement {
 	private String archiMateTag;
 	// The name of the class in which the method is implemented
 	private String className;
-	// The comment going with the method
-	private String comment;
 
 	/**
 	 * Creates a {@link JavaMethod} object
@@ -74,6 +70,7 @@ public class JavaMethod implements ICodeElement {
 		this.type = type;
 		this.className = className;
 		this.packageName = packageName;
+		comment = "";
 	}
 
 	// Returns the method name
@@ -205,26 +202,6 @@ public class JavaMethod implements ICodeElement {
 		return false;
 	}
 
-	// Returns whether the java method has been visited in the source code
-	public boolean visited() {
-		return visited;
-	}
-
-	// Marks the java method element as visited
-	public void setVisited() {
-		visited = true;
-	}
-
-	// Returns whether the javaClass is optional
-	public boolean optional() {
-		return optional;
-	}
-
-	// Marks the javaClass as optional
-	public void setOptional() {
-		optional = true;
-	}
-
 	/**
 	 * Sets the method name
 	 * 
@@ -338,32 +315,11 @@ public class JavaMethod implements ICodeElement {
 		return JavaHelper.camelize(className);
 	}
 
-	/**
-	 * Sets the comment going with the method
-	 * 
-	 * @param comment
-	 *            the comment going with the method
-	 */
-	public void setComment(String comment) {
-		this.comment = comment;
-	}
-
-	/*
-	 * (non-Javadoc) Whether a comment is defined or not
-	 * 
-	 * @see archimate.codegen.ICodeElement#commentDefined()
-	 */
-	public boolean commentDefined() {
-		return comment.length() > 0;
-	}
-
-	/*
-	 * (non-Javadoc) Returns the comment going with the method
-	 * 
-	 * @see archimate.codegen.ICodeElement#comment()
-	 */
-	public String comment() {
-		return comment;
+	// Returns the specifications for debug purposes
+	public String toString() {
+		String out = "";
+		out += packageName + "." + className + "#" + name + "\n";
+		return out;
 	}
 
 }

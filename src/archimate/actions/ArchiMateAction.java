@@ -224,7 +224,7 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 	protected void setProjectRoot() {
 		Activator.projectRoot = getEditorFile().getProject().getFullPath();
 	}
-	
+
 	// returns the target UML model
 	protected org.eclipse.uml2.uml.Package getSelectedPackage() {
 		if (getEditor() instanceof DiagramDocumentEditor) {

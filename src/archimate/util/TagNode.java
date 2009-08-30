@@ -3,6 +3,8 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.uml2.uml.NamedElement;
+
 import archimate.codegen.ICodeElement;
 
 /**
@@ -279,15 +281,15 @@ public class TagNode {
 	 *            The name identifying the encountered source
 	 * @returns Whether the source has been found
 	 */
-	public boolean tickOffSource(String name) {
+	public ICodeElement tickOffSource(String name) {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
 			if (element.equals(name)) {
 				setVisited(element);
-				return true;
+				return element;
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -308,6 +310,16 @@ public class TagNode {
 	 */
 	public static String inStereo(String archimateTag) {
 		return archimateTag.split("_")[1];
+	}
+
+	// Returns the state of the node for debug purposes
+	public String toString() {
+		String out = "";
+		out += tag + (visited ? " :: visited" : "") + "\n";
+		for (ICodeElement element : source) {
+			out += "---" + element.toString();
+		}
+		return out;
 	}
 
 }
