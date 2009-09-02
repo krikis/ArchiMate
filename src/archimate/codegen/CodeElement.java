@@ -27,7 +27,8 @@ public abstract class CodeElement implements ICodeElement {
 
 	// Adds a collection of UML elements associated with the code element
 	public void addUmlElements(ArrayList<NamedElement> umlElements) {
-		this.umlElements.addAll(umlElements);
+		if (umlElements != null)
+			this.umlElements.addAll(umlElements);
 	}
 
 	// Returns the UML element associated with the code element

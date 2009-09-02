@@ -90,6 +90,16 @@ public class JavaClass extends CodeElement implements ICodeElement {
 				&& this.packageName.equals(packageName);
 	}
 
+	// Method defining whether the java class matches the given code element
+	public boolean equals(ICodeElement element) {
+		if (element instanceof JavaClass) {
+			JavaClass javaClass = (JavaClass) element;
+			return className.equals(javaClass.className)
+					&& this.packageName.equals(javaClass.packageName);
+		}
+		return false;
+	}
+
 	// Compares itself with the given ASTNode for differences
 	public void diff(ASTNode node, MultiStatus status, String pattern) {
 		if (node instanceof TypeDeclaration) {
@@ -331,7 +341,8 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 *            the import to add
 	 */
 	public void addImport(String importName) {
-		imports.add(importName);
+		if (!imports.contains(importName))
+			imports.add(importName);
 	}
 
 	/**
@@ -341,7 +352,9 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 *            the collection of imports to add
 	 */
 	public void addImports(ArrayList<String> imports) {
-		this.imports.addAll(imports);
+		for (String importName : imports) {
+			addImport(importName);
+		}
 	}
 
 	/**

@@ -43,13 +43,25 @@ public interface ICodeElement {
 	public String packageName();
 
 	/**
-	 * Method defining whether a source element matches the identifier
+	 * Method defining whether a source element matches the identifier and
+	 * package name
 	 * 
 	 * @param identifier
 	 *            String to match the source element with
+	 * @param packageName
+	 *            the package name
 	 * @return Whether the source element matches the identifier
 	 */
 	public boolean equals(String identifier, String packageName);
+
+	/**
+	 * Method defining whether a source element matches the given source 
+	 * 
+	 * @param element
+	 *            a source element
+	 * @return Whether the source element matches the given source
+	 */
+	public boolean equals(ICodeElement element);
 
 	/**
 	 * Compares itself to the {@link ASTNode} and writes the eventual

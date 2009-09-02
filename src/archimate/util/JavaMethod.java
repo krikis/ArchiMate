@@ -90,6 +90,17 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 		}
 	}
 
+	// Method defining whether the java method matches the given source element
+	public boolean equals(ICodeElement element) {
+		if (element instanceof JavaMethod) {
+			JavaMethod method = (JavaMethod) element;
+			return name.equals(method.name)
+					&& packageName.equals(method.packageName)
+					&& className.equals(method.className);
+		}
+		return false;
+	}
+
 	// Compares itself with the given ASTNode for differences
 	public void diff(ASTNode node, MultiStatus status, String pattern) {
 		if (node instanceof MethodDeclaration) {
@@ -319,7 +330,8 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + "#" + name + (visited ? " :: visited" : "") + "\n";
+		out += packageName + "." + className + "#" + name
+				+ (visited ? " :: visited" : "") + "\n";
 		return out;
 	}
 

@@ -10,6 +10,7 @@ import org.eclipse.uml2.uml.Namespace;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
+import archimate.patterns.mvc.MVCPattern;
 import archimate.uml.UMLAdapter;
 import archimate.util.JavaClass;
 import archimate.util.FileHandler;
@@ -48,6 +49,25 @@ public abstract class Pattern implements ICodeGenerator {
 	// Returns the package base
 	public String packageBase() {
 		return packageBase;
+	}
+
+	// Returns the type of the method based on the archiMateTag
+	public static String methodType(String archiMateTag) {
+		try {
+			if (archiMateTag.substring(archiMateTag.length() - 7,
+					archiMateTag.length()).equals("Message")) {
+				return JavaMethod.DECLARATION;
+			} else if (archiMateTag.substring(archiMateTag.length() - 6,
+					archiMateTag.length()).equals("Method")) {
+				return JavaMethod.IMPLEMENTATION;
+			} else if (archiMateTag.substring(archiMateTag.length() - 10,
+					archiMateTag.length()).equals("Invocation")) {
+				return JavaMethod.INVOCATION;
+			}
+		} catch (Exception e) {
+			return "";
+		}
+		return "";
 	}
 
 	// Returns the TagTree of the pattern
@@ -129,11 +149,13 @@ public abstract class Pattern implements ICodeGenerator {
 		boolean hasrun = false;
 		int count = 0;
 		for (NamedElement element : umlReader.getElements(stereotype)) {
+			ArrayList<NamedElement> umlElements = new ArrayList<NamedElement>();
+			umlElements.add(element);
 			String name = element.getName();
 			String[] formatParts = format.split("#");
 			String className = (name.equals("") ? defaultName : formatParts[0]
 					+ name + (formatParts.length == 2 ? formatParts[1] : ""));
-			JavaClass javaClass = createClass(node, element, packageName,
+			JavaClass javaClass = createClass(node, umlElements, packageName,
 					imports, type, className, superClass, interfaces, comment,
 					name.equals(""));
 			javaClass.setAbstract(isAbstract);
@@ -148,10 +170,11 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Creates a JavaClass object with the given settings
-	protected JavaClass createClass(TagNode node, NamedElement umlElement,
-			String packageName, ArrayList<String> imports, String type,
-			String className, JavaClass superClass,
-			ArrayList<JavaClass> interfaces, String comment, boolean optional) {
+	protected JavaClass createClass(TagNode node,
+			ArrayList<NamedElement> umlElements, String packageName,
+			ArrayList<String> imports, String type, String className,
+			JavaClass superClass, ArrayList<JavaClass> interfaces,
+			String comment, boolean optional) {
 		JavaClass javaClass = new JavaClass(packageName, className, node.tag(),
 				type);
 		if (imports != null)
@@ -173,7 +196,7 @@ public abstract class Pattern implements ICodeGenerator {
 			tree.addRestrictedInterface(className, className, packageName);
 		}
 		javaClass.setOptional(optional);
-		javaClass.addUmlElement(umlElement);
+		javaClass.addUmlElements(umlElements);
 		node.addSource(javaClass);
 		return javaClass;
 	}
@@ -192,8 +215,8 @@ public abstract class Pattern implements ICodeGenerator {
 						messages.addAll(umlReader.getReceived(umlElement, node
 								.stereotype()));
 					}
-					addMethods(node, element, messages, defaultName, type,
-							comment);
+					addMethods(node, (JavaClass) element, messages,
+							defaultName, type, comment);
 				}
 			}
 		}
@@ -201,7 +224,7 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Creates a list of Methods for the current ICodeElement and adds it to the
 	// TagNode
-	private void addMethods(TagNode node, ICodeElement element,
+	private void addMethods(TagNode node, JavaClass javaClass,
 			ArrayList<NamedElement> messages, String defaultName, String type,
 			String comment) {
 		boolean hasrun = false;
@@ -210,44 +233,85 @@ public abstract class Pattern implements ICodeGenerator {
 			String methodName = (name.equals("") ? defaultName
 					+ (index == 0 ? "" : index) : name);
 			JavaMethod method = new JavaMethod(methodName, node.tag(), type,
-					null, null);
+					javaClass.className(), javaClass.packageName());
 			if (name.equals(""))
 				method.setOptional(true);
 			method.setComment(comment);
-			element.addChild(method);
+			method.addUmlElement(messages.get(index));
+			javaClass.addChild(method);
 			node.addSource(method);
 			hasrun = true;
 		}
-		if (!hasrun && element.optional()) {
+		if (!hasrun && javaClass.optional()) {
 			JavaMethod method = new JavaMethod(defaultName, node.tag(), type,
-					null, null);
+					javaClass.className(), javaClass.packageName());
 			method.setOptional(true);
 			method.setComment(comment);
-			element.addChild(method);
+			javaClass.addChild(method);
 			node.addSource(method);
 		}
 	}
 
 	// Clones the Method objects in the list, adds the given settings and adds
 	// the list to the TagNodes sourcelist
-	protected void addMethods(TagNode node, ICodeElement javaClass,
-			ICodeElement interfaceClass, String type, String className,
-			String packageName, String comment) {
+	protected void addMethods(TagNode node, JavaClass javaClass,
+			ICodeElement interfaceClass, String type, String comment) {
 		for (ICodeElement code : interfaceClass.children()) {
 			if (code instanceof JavaMethod) {
-				JavaMethod method = (JavaMethod) code;
-				if (type.equals(JavaMethod.INVOCATION) && !method.optional()) {
-					tree.addRestrictedMethod(method.name(), className,
-							packageName);
-				}
-				JavaMethod newMethod = new JavaMethod(method.name(),
-						node.tag(), type, className, packageName);
-				newMethod.setOptional(method.optional());
-				newMethod.setComment(comment);
-				javaClass.addChild(newMethod);
-				node.addSource(newMethod);
+				addMethod(node, javaClass, javaClass.className(), javaClass
+						.packageName(), (JavaMethod) code, type, comment);
 			}
 		}
+	}
+
+	// Creates methods that invoke methods from the viewClass and adds them to
+	// the javaclass
+	protected void addMethods(TagNode invoker, String stereotype,
+			JavaClass javaClass, TagNode implementer, String type,
+			String comment) {
+		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
+		for (NamedElement umlElement : javaClass.umlElements()) {
+			messages.addAll(umlReader.getSent(umlElement, stereotype));
+		}
+		for (ICodeElement element : implementer.source()) {
+			if (element instanceof JavaClass) {
+				JavaClass implementerClass = (JavaClass) element;
+				for (ICodeElement code : element.children()) {
+					boolean found = false;
+					for (NamedElement umlElement : code.umlElements()) {
+						if (messages.contains(umlElement)) {
+							found = true;
+							break;
+						}
+					}
+					if (found && code instanceof JavaMethod) {
+						addMethod(invoker, javaClass, implementerClass
+								.className(), implementerClass.packageName(),
+								(JavaMethod) code, type, comment);
+					}
+				}
+			}
+		}
+	}
+
+	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
+	// method invocation, an import is added to the containing class and the
+	// invocation is added to the set of restrictions when needed
+	private void addMethod(TagNode node, JavaClass javaClass, String className,
+			String packageName, JavaMethod method, String type, String comment) {
+		if (type.equals(JavaMethod.INVOCATION)) {
+			javaClass.addImport(packageName + "." + className);
+			if (!method.optional()) {
+				tree.addRestrictedMethod(method.name(), className, packageName);
+			}
+		}
+		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
+				className, packageName);
+		newMethod.setOptional(method.optional());
+		newMethod.setComment(comment);
+		newMethod.addUmlElements(method.umlElements());
+		javaClass.addChild(newMethod);
+		node.addSource(newMethod);
 	}
 
 }

@@ -107,7 +107,7 @@ public class SourceInspector {
 		// Traverse the source and calls back when key source elements are
 		// missing
 		inspect();
-		System.out.println(tree);
+//		System.out.println(tree);
 		// Add the source files that are missing
 		ArrayList<TagNode> tags = tree.getUnvisited();
 		createSourceFiles(tags);
@@ -121,7 +121,7 @@ public class SourceInspector {
 		mode = VALIDATE;
 		// Traverses the
 		inspect();
-		System.out.println(tree);
+//		System.out.println(tree);
 		// Report the source files that are missing
 		ArrayList<TagNode> tags = tree.getAllUnvisited();
 		reportMissing(tags);
@@ -246,7 +246,7 @@ public class SourceInspector {
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
 				+ ": A sourcefile for the \"" + javaClass.className() + "\" "
 				+ (javaClass.isInterface() ? "interface" : "class")
-				+ " is missing. Try to generate code or to update the model."
+				+ " is missing. Try to generate code or update the model."
 				+ "                             ", null));
 	}
 
@@ -264,7 +264,7 @@ public class SourceInspector {
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
 				+ ": Method " + method.type() + " for the \"" + method.name()
 				+ "()\" method is missing" + container
-				+ ". Try to generate code or to update the model."
+				+ ". Try to generate code or update the model."
 				+ "                          ", null));
 	}
 

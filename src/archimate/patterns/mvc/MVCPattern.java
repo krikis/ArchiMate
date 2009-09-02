@@ -110,16 +110,16 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Create Controller instance Class
 		TagNode controllerInstanceClass = controllerInstanceClass(root,
 				commandInterfaceInstance, controllerClass);
-		//
-		// // Add updateInvocationMethods
-		// updateInvocationMethods(modelInstanceClass, viewInstanceClass,
-		// updateInterfaceInstance);
-		// // Add commandInvocationMethods
-		// commandInvocationMethods(viewInstanceClass, controllerInstanceClass,
-		// commandInterfaceInstance);
-		// // Add dataInvocationMethods
-		// dataInvocationMethods(controllerInstanceClass, modelInstanceClass,
-		// dataInterfaceInstance);
+
+		// Add updateInvocationMethods
+		updateInvocationMethods(modelInstanceClass, viewInstanceClass,
+				updateInterfaceInstance);
+		// Add commandInvocationMethods
+		commandInvocationMethods(viewInstanceClass, controllerInstanceClass,
+				commandInterfaceInstance);
+		// Add dataInvocationMethods
+		dataInvocationMethods(controllerInstanceClass, modelInstanceClass,
+				dataInterfaceInstance);
 	}
 
 	// Create DataInterface
@@ -274,10 +274,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass dataInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = null;
 				if (dataInterfaceClass.umlElements().size() > 0) {
-					umlElement = dataInterfaceClass.umlElements().get(0);
-					name = umlElement.getName();
+					name = dataInterfaceClass.umlElements().get(0).getName();
 				}
 				String className = (name.equals("") ? "MyModel"
 						+ (count == 0 ? "" : count) : name);
@@ -288,14 +286,14 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(model, umlElement,
-						modelPackage, null, JavaClass.CLASS, className,
-						superClassType, interfaces,
+				JavaClass javaClass = createClass(model, dataInterfaceClass
+						.umlElements(), modelPackage, null, JavaClass.CLASS,
+						className, superClassType, interfaces,
 						"This class implements a Model of the MVC Pattern",
 						name.equals(""));
 				// Create class methods
 				addMethods(dataMethods, javaClass, dataInterfaceClass,
-						JavaMethod.IMPLEMENTATION, null, null,
+						JavaMethod.IMPLEMENTATION,
 						"This method implements updating the data in the model.");
 				++count;
 			}
@@ -315,10 +313,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass updateInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = null;
 				if (updateInterfaceClass.umlElements().size() > 0) {
-					umlElement = updateInterfaceClass.umlElements().get(0);
-					name = umlElement.getName();
+					name = updateInterfaceClass.umlElements().get(0).getName();
 				}
 				String className = (name.equals("") ? "MyView"
 						+ (count == 0 ? "" : count) : name);
@@ -329,14 +325,14 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(view, umlElement,
-						viewPackage, null, JavaClass.CLASS, className,
-						superClassType, interfaces,
+				JavaClass javaClass = createClass(view, updateInterfaceClass
+						.umlElements(), viewPackage, null, JavaClass.CLASS,
+						className, superClassType, interfaces,
 						"This class implements a View of the MVC Pattern", name
 								.equals(""));
 				// Create class methods
 				addMethods(updateMethod, javaClass, updateInterfaceClass,
-						JavaMethod.IMPLEMENTATION, null, null,
+						JavaMethod.IMPLEMENTATION,
 						"This method implements updating the interface in the view.");
 				++count;
 			}
@@ -356,10 +352,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass commandInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = null;
 				if (commandInterfaceClass.umlElements().size() > 0) {
-					umlElement = commandInterfaceClass.umlElements().get(0);
-					name = umlElement.getName();
+					name = commandInterfaceClass.umlElements().get(0).getName();
 				}
 				String className = (name.equals("") ? "MyController"
 						+ (count == 0 ? "" : count) : name);
@@ -373,7 +367,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				}
 				JavaClass javaClass = createClass(
 						controller,
-						umlElement,
+						commandInterfaceClass.umlElements(),
 						controllerPackage,
 						null,
 						JavaClass.CLASS,
@@ -384,7 +378,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 						name.equals(""));
 				// Create class methods
 				addMethods(commandMethod, javaClass, commandInterfaceClass,
-						JavaMethod.IMPLEMENTATION, null, null,
+						JavaMethod.IMPLEMENTATION,
 						"This method implements execution of a command from the view.");
 				++count;
 			}
@@ -396,65 +390,42 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private void updateInvocationMethods(TagNode model, TagNode view,
 			TagNode updateInterface) {
 		TagNode updateInvocation = new TagNode(UPDATE_INVOCATION);
-		TagNode updateMessage = updateInterface.child(UPDATE_MESSAGE);
-		ICodeElement element = view.getSourceByTag(VIEW_INSTANCE);
-		if (updateMessage != null && element instanceof JavaClass) {
-			JavaClass viewClass = (JavaClass) element;
-			ICodeElement elem = model.getSourceByTag(MODEL_INSTANCE);
-			if (elem instanceof JavaClass) {
-				JavaClass modelClass = (JavaClass) elem;
-				modelClass.addImport(viewClass.packageName() + "."
-						+ viewClass.className());
-			}
-			addMethods(updateInvocation, updateMessage.source(),
-					JavaMethod.INVOCATION, viewClass.className(), viewClass
-							.packageName(),
-					"This method invokes a method that updates the interface in the view.");
-		}
 		model.addChild(updateInvocation);
+		for (ICodeElement element : model.source()) {
+			if (element instanceof JavaClass) {
+				addMethods(updateInvocation, TagNode.inStereo(UPDATE_MESSAGE),
+						(JavaClass) element, view, JavaMethod.INVOCATION,
+						"This method invokes a method that updates the interface in the view.");
+			}
+		}
 	}
 
 	// Create command invocation methods
 	private void commandInvocationMethods(TagNode view, TagNode controller,
 			TagNode commandInterface) {
 		TagNode commandInvocation = new TagNode(COMMAND_INVOCATION);
-		TagNode commandMessage = commandInterface.child(COMMAND_MESSAGE);
-		ICodeElement element = controller.getSourceByTag(CONTROLLER_INSTANCE);
-		if (commandMessage != null && element instanceof JavaClass) {
-			JavaClass controllerClass = (JavaClass) element;
-			ICodeElement elem = view.getSourceByTag(VIEW_INSTANCE);
-			if (elem instanceof JavaClass) {
-				JavaClass viewClass = (JavaClass) elem;
-				viewClass.addImport(controllerClass.packageName() + "."
-						+ controllerClass.className());
-			}
-			addMethods(commandInvocation, commandMessage.source(),
-					JavaMethod.INVOCATION, controllerClass.className(),
-					controllerClass.packageName(),
-					"This method invokes a method that executes a command in the controller.");
-		}
 		view.addChild(commandInvocation);
+		for (ICodeElement element : view.source()) {
+			if (element instanceof JavaClass) {
+				addMethods(commandInvocation,
+						TagNode.inStereo(COMMAND_MESSAGE), (JavaClass) element,
+						controller, JavaMethod.INVOCATION,
+						"This method invokes a method that executes a command in the controller.");
+			}
+		}
 	}
 
 	// Create data invocation methods
 	private void dataInvocationMethods(TagNode controller, TagNode model,
 			TagNode dataInterface) {
-		TagNode dataInvocation = new TagNode(DATA_INVOCATION);
-		TagNode dataMessage = dataInterface.child(DATA_MESSAGE);
-		ICodeElement element = model.getSourceByTag(MODEL_INSTANCE);
-		if (dataMessage != null && element instanceof JavaClass) {
-			JavaClass modelClass = (JavaClass) element;
-			ICodeElement elem = controller.getSourceByTag(CONTROLLER_INSTANCE);
-			if (elem instanceof JavaClass) {
-				JavaClass controllerClass = (JavaClass) elem;
-				controllerClass.addImport(modelClass.packageName() + "."
-						+ modelClass.className());
+		TagNode commandInvocation = new TagNode(DATA_INVOCATION);
+		controller.addChild(commandInvocation);
+		for (ICodeElement element : controller.source()) {
+			if (element instanceof JavaClass) {
+				addMethods(commandInvocation, TagNode.inStereo(DATA_MESSAGE),
+						(JavaClass) element, model, JavaMethod.INVOCATION,
+						"This method invokes a method that modifies the data in the model.");
 			}
-			addMethods(dataInvocation, dataMessage.source(),
-					JavaMethod.INVOCATION, modelClass.className(), modelClass
-							.packageName(),
-					"This method invokes a method that modifies the data in the model.");
 		}
-		controller.addChild(dataInvocation);
 	}
 }

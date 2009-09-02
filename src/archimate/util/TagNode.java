@@ -211,8 +211,8 @@ public class TagNode {
 	 *            elements
 	 */
 	public void addSource(ICodeElement code) {
-		for (ICodeElement element : source){
-			if (element.equals(code.identifier(), code.packageName())) {
+		for (ICodeElement element : source) {
+			if (element.equals(code)) {
 				element.addUmlElements(code.umlElements());
 				return;
 			}
@@ -270,6 +270,23 @@ public class TagNode {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
 			if (element.equals(identifier, packageName)) {
+				return element;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the source element that matches with the JavaMethod
+	 * 
+	 * @param method
+	 *            the JavaMethod to match with
+	 * @return The source element that matches with the JavaMethod
+	 */
+	public ICodeElement getSource(JavaMethod method) {
+		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
+			ICodeElement element = iter.next();
+			if (element.equals(method)) {
 				return element;
 			}
 		}

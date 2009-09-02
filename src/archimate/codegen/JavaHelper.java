@@ -13,6 +13,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
+import archimate.patterns.Pattern;
+import archimate.patterns.mvc.MVCPattern;
 import archimate.uml.UMLAdapter;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
@@ -32,18 +34,6 @@ public class JavaHelper {
 	 * TagName for the archiMateTag
 	 */
 	public static final String ARCHIMATETAG = "@archiMateTag";
-	/**
-	 * Constant defining a method implementation in a class
-	 */
-	public static final String METHOD_IMPLEMENTATION = "method_implementation";
-	/**
-	 * Constant defining a method invocation in a class
-	 */
-	public static final String METHOD_INVOCATION = "method_invocation";
-	/**
-	 * Constant defining a method declaration in an interface
-	 */
-	public static final String METHOD_DECLARATION = "method_declaration";
 	// The current pattern
 	private String pattern;
 	// The status
@@ -92,18 +82,74 @@ public class JavaHelper {
 	}
 
 	/**
-	 * Returns the package of the {@link TypeDeclaration}
+	 * Returns the compilation unit the {@link ASTNode} is defined in
 	 * 
 	 * @param node
-	 *            a {@link TypeDeclaration}
-	 * @return The package of the {@link TypeDeclaration}
+	 *            the {@link ASTNode}
+	 * @return The compilation unit the {@link ASTNode} is defined in
 	 */
-	public String getPackage(TypeDeclaration node) {
-		ASTNode parent = node.getParent();
-		if (parent instanceof CompilationUnit) {
-			CompilationUnit unit = (CompilationUnit) parent;
-			if (unit.getPackage() != null)
-				return unit.getPackage().getName().getFullyQualifiedName();
+	public CompilationUnit compilationUnit(ASTNode node) {
+		if (node instanceof CompilationUnit)
+			return (CompilationUnit) node;
+		while (node.getParent() != null) {
+			node = node.getParent();
+			if (node instanceof CompilationUnit) {
+				return (CompilationUnit) node;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns the package of the class the {@link ASTNode} is defined in
+	 * 
+	 * @param node
+	 *            the {@link ASTNode}
+	 * @return The package of the class the {@link ASTNode} is defined in
+	 */
+	public String getPackage(ASTNode node) {
+		CompilationUnit unit = compilationUnit(node);
+		if (unit != null)
+			return unit.getPackage().getName().getFullyQualifiedName();
+		return "";
+	}
+
+	/**
+	 * Returns the imports of the class the {@link ASTNode} is defined in
+	 * 
+	 * @param node
+	 *            the {@link ASTNode}
+	 * @return The imports of the class the {@link ASTNode} is defined in
+	 */
+	public ArrayList<String> getImports(ASTNode node) {
+		ArrayList<String> imports = new ArrayList<String>();
+		CompilationUnit unit = compilationUnit(node);
+		if (unit != null) {
+			for (Object importDec : unit.imports()) {
+				if (importDec instanceof ImportDeclaration)
+					imports.add(((ImportDeclaration) importDec).getName()
+							.getFullyQualifiedName());
+			}
+		}
+		return imports;
+	}
+
+	/**
+	 * Returns the name of the {@link TypeDeclaration} the node is in
+	 * 
+	 * @param node
+	 *            an ASTNode
+	 * @return The name of the {@link TypeDeclaration} the node is in
+	 */
+	public String getClassName(ASTNode node) {
+		if (node instanceof TypeDeclaration)
+			return ((TypeDeclaration) node).getName().getFullyQualifiedName();
+		while (node.getParent() != null) {
+			node = node.getParent();
+			if (node instanceof TypeDeclaration) {
+				return ((TypeDeclaration) node).getName()
+						.getFullyQualifiedName();
+			}
 		}
 		return "";
 	}
@@ -120,22 +166,21 @@ public class JavaHelper {
 	}
 
 	/**
-	 * Returns the package of the class the {@link MethodDeclaration} is defined in
+	 * Returns a list of all method names in the class
 	 * 
 	 * @param node
-	 *            a {@link MethodDeclaration}
-	 * @return The package of the class the {@link MethodDeclaration} is defined in
+	 *            the class
+	 * @return A list of all method names in the class
 	 */
-	public String getPackage(MethodDeclaration node) {
-		ASTNode temp = node;
-		while (temp.getParent() != null) {
-			temp = temp.getParent();
-			if (temp instanceof CompilationUnit) {
-				CompilationUnit unit = (CompilationUnit) temp;
-				return unit.getPackage().getName().getFullyQualifiedName();
+	public ArrayList<String> methodNames(TypeDeclaration node) {
+		ArrayList<String> names = new ArrayList<String>();
+		for (Object element : node.bodyDeclarations()) {
+			if (element instanceof MethodDeclaration) {
+				MethodDeclaration declaration = (MethodDeclaration) element;
+				names.add(declaration.getName().getFullyQualifiedName());
 			}
 		}
-		return "";
+		return names;
 	}
 
 	/**
@@ -159,21 +204,36 @@ public class JavaHelper {
 	 *            A list of import names to be added
 	 */
 	public void addImports(CompilationUnit unit, ArrayList<String> imports) {
-		AST ast = unit.getAST();
-		for (Iterator<String> iter = imports.iterator(); iter.hasNext();) {
-			String importName = iter.next();
-			if (!hasImport(unit, importName)) {
-				ImportDeclaration importDeclaration = ast
-						.newImportDeclaration();
-				importDeclaration.setName(ast
-						.newName(getSimpleNames(importName)));
-				if (importName.indexOf("*") > 0)
-					importDeclaration.setOnDemand(true);
-				else
-					importDeclaration.setOnDemand(false);
-				unit.imports().add(importDeclaration);
-			}
+		for (String importName : imports) {
+			addImport(unit, importName);
 		}
+	}
+
+	// Adds one import to the compilation unit if it doesn't already contain it
+	private void addImport(CompilationUnit unit, String importName) {
+		AST ast = unit.getAST();
+		if (!samePackage(unit, importName) && !hasImport(unit, importName)) {
+			ImportDeclaration importDeclaration = ast.newImportDeclaration();
+			importDeclaration.setName(ast.newName(getSimpleNames(importName)));
+			if (importName.indexOf("*") > 0)
+				importDeclaration.setOnDemand(true);
+			else
+				importDeclaration.setOnDemand(false);
+			unit.imports().add(importDeclaration);
+		}
+	}
+
+	// Checks whether the unit and the import are in the same package
+	private boolean samePackage(CompilationUnit unit, String importName) {
+		String packageName = getPackage(unit);
+		String[] importParts = importName.split("\\.");
+		String importPackage = "";
+		for (int index = 0; index < importParts.length - 1; ++index) {
+			importPackage += importParts[index];
+			if (index < importParts.length - 2)
+				importPackage += ".";
+		}
+		return packageName.equals(importPackage);
 	}
 
 	// Checks whether the unit has already got an import
@@ -222,8 +282,8 @@ public class JavaHelper {
 		}
 		// add implemented interfaces
 		if (!javaClass.isInterface()) {
-			for (Iterator<JavaClass> iter = javaClass.interfaces()
-					.iterator(); iter.hasNext();) {
+			for (Iterator<JavaClass> iter = javaClass.interfaces().iterator(); iter
+					.hasNext();) {
 				classType.superInterfaceTypes().add(
 						ast.newSimpleType(ast.newSimpleName(iter.next()
 								.intendedName())));
@@ -300,7 +360,14 @@ public class JavaHelper {
 		md.setConstructor(false);
 		setModifier(ast, md, Modifier.PUBLIC);
 		if (method.type().equals(JavaMethod.INVOCATION)) {
-			md.setName(ast.newSimpleName(method.invocationMethod()));
+			// Avoid collision in names of methods invoking other methods
+			String name = method.invocationMethod();
+			int count = 2;
+			while (methodNames(node).contains(name)) {
+				name = method.invocationMethod() + count;
+				++count;
+			}
+			md.setName(ast.newSimpleName(name));
 		} else {
 			md.setName(ast.newSimpleName(method.name()));
 		}
@@ -315,7 +382,7 @@ public class JavaHelper {
 				String objectName = method.invocationObject();
 				addObject(methodBlock, objectClass, objectName,
 						new ArrayList<String>());
-				addMethodInvocation(methodBlock, objectName, method.name(),
+				addMethodInvocation(methodBlock, objectName, method,
 						new ArrayList<String>());
 			}
 		}
@@ -405,11 +472,13 @@ public class JavaHelper {
 	 *            The list of arguments for the method call
 	 */
 	public void addMethodInvocation(Block methodBlock, String objectName,
-			String methodName, ArrayList<String> arglist) {
+			JavaMethod method, ArrayList<String> arglist) {
 		AST ast = methodBlock.getAST();
+		CompilationUnit unit = compilationUnit(methodBlock);
+		addImport(unit, method.packageName() + "." + method.className());
 		MethodInvocation mi = ast.newMethodInvocation();
 		mi.setExpression(ast.newSimpleName(objectName));
-		mi.setName(ast.newSimpleName(methodName));
+		mi.setName(ast.newSimpleName(method.name()));
 		methodBlock.statements().add(ast.newExpressionStatement(mi));
 	}
 
@@ -471,8 +540,9 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            the given {@link TagNode}
 	 */
-	public ICodeElement compare(TypeDeclaration node, TagNode tagnode) {		
-		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
+	public ICodeElement compare(TypeDeclaration node, TagNode tagnode) {
+		ICodeElement element = tagnode.getSource(getName(node),
+				getPackage(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
 			tagnode.setVisited(element);
@@ -497,13 +567,87 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            the given {@link TagNode}
 	 */
-	public void compare(MethodDeclaration node, ICodeElement code, TagNode tagnode) {
-		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
+	public void compare(MethodDeclaration node, ICodeElement code,
+			TagNode tagnode) {
+		JavaMethod method = createMethodStub(node);
+		ICodeElement element = tagnode.getSource(method);
 		// A matching element is found and will be checked for differences
 		if (element != null && code.children().contains(element)) {
 			tagnode.setVisited(element);
 			element.diff(node, status, pattern);
 		}
+	}
+
+	/**
+	 * Creates a stub {@link JavaMethod} object for a {@link MethodDeclaration}
+	 * object
+	 * 
+	 * @param node
+	 *            the {@link MethodDeclaration} object to create a stub for
+	 * @return a stub {@link JavaMethod} object
+	 */
+	private JavaMethod createMethodStub(MethodDeclaration node) {
+		JavaMethod method = null;
+		String tag = getArchiMateTag(node);
+		String type = Pattern.methodType(getArchiMateTag(node));
+		if (type.equals(JavaMethod.INVOCATION)) {
+			ArrayList<JavaMethod> invocations = methodInvocations(node);
+			if (invocations.size() > 0) {
+				JavaMethod invocation = invocations.get(0);
+				method = new JavaMethod(invocation.name(), tag, type,
+						invocation.className(), invocation.packageName());
+				return method;
+			}
+		}
+		method = new JavaMethod(getName(node), tag, type, getClassName(node),
+				getPackage(node));
+		return method;
+	}
+
+	// Creates a JavaMethod for every method invocation in the method
+	private ArrayList<JavaMethod> methodInvocations(MethodDeclaration node) {
+		ArrayList<JavaMethod> invocations = new ArrayList<JavaMethod>();
+		Block methodBlock = node.getBody();
+		if (methodBlock != null) {
+			for (Object element : methodBlock.statements()) {
+				if (element instanceof ExpressionStatement
+						&& ((ExpressionStatement) element).getExpression() instanceof MethodInvocation) {
+					MethodInvocation invocation = (MethodInvocation) ((ExpressionStatement) element)
+							.getExpression();
+					invocations.add(methodInvocations(invocation));
+				}
+			}
+		}
+		return invocations;
+	}
+
+	// Creates a JavaMethod for the method invocation
+	private JavaMethod methodInvocations(MethodInvocation node) {
+		ITypeBinding type = null;
+		// the method is invoked on a variable
+		if (node.getExpression() instanceof SimpleName) {
+			SimpleName simpleName = (SimpleName) node.getExpression();
+			IBinding binding = simpleName.resolveBinding();
+			if (binding instanceof IVariableBinding) {
+				IVariableBinding variable = (IVariableBinding) binding;
+				type = variable.getType();
+			}
+		}
+		// the method is invoked on an instancecreation
+		if (node.getExpression() instanceof ClassInstanceCreation) {
+			ClassInstanceCreation instance = (ClassInstanceCreation) node
+					.getExpression();
+			IBinding binding = instance.getType().resolveBinding();
+			if (binding instanceof ITypeBinding) {
+				type = (ITypeBinding) binding;
+			}
+		}
+		if (type != null) {
+			IPackageBinding packageBinding = type.getPackage();
+			return new JavaMethod(node.getName().getFullyQualifiedName(), "",
+					"", type.getName(), packageBinding.getName());
+		}
+		return null;
 	}
 
 	/**
@@ -674,6 +818,8 @@ public class JavaHelper {
 				+ "()\" is not allowed" + container + "."
 				+ "                             ", null));
 	}
+
+	// ----------- From here on the implementation is incomplete ------------//
 
 	/**
 	 * Searches for methods which are not yet represented in the UML model
