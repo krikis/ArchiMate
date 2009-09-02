@@ -59,7 +59,11 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
-			ICodeElement element = self.tickOffSource(name);
+			String packageName = helper.getPackage(node);
+			// Record the identifier for the encountered archiMateTag
+			self.recordIdentifier(name, packageName, tag);
+			// Mark found source as visited
+			ICodeElement element = self.tickOffSource(name, packageName);
 			boolean toggle = self.setVisited();
 			if (toggle)
 				monitor.worked(1);
@@ -89,8 +93,9 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
 			String name = helper.getName(node);
+			String packageName = helper.getPackage(node);
 			if (current.hasChildren()) {
-				ICodeElement code = current.getSource(name);
+				ICodeElement code = current.getSource(name, packageName);
 				if (code != null) {
 					ArrayList<TagNode> tags = tree.getUnvisited();
 					inspector.addSourceElements(node, code, tags);
@@ -115,7 +120,8 @@ public class JavaInspector extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
-			self.tickOffSource(name);
+			String packageName = helper.getPackage(node);
+			self.tickOffSource(name, packageName);
 			boolean toggle = self.setVisited();
 			if (toggle)
 				monitor.worked(1);

@@ -39,14 +39,16 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	private ArrayList<String> archiMateTags = new ArrayList<String>();
 	// Name of the class
 	private String className;
+	// Name candidate for the class
+	private ArrayList<String> recordeds;
 	// Type of the class, either CLASS or INTERFACE
 	private String type;
 	// Whether the class is abstract
 	private boolean isAbstract;
 	// The superclass that is extended
-	private SuperClassType superClass;
+	private JavaClass superClass;
 	// List of implemented interfaces
-	private ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
+	private ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 
 	/**
 	 * Creates a new {@link JavaClass} object
@@ -70,6 +72,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 		superClass = null;
 		this.packageName = packageName;
 		this.className = className;
+		recordeds = new ArrayList<String>();
 		archiMateTags.add(tag);
 		this.type = type;
 		children = new ArrayList<ICodeElement>();
@@ -82,8 +85,8 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	}
 
 	// Method defining whether the java class matches the identifier
-	public boolean equals(String identifier) {
-		return className.equals(identifier);
+	public boolean equals(String identifier, String packageName) {
+		return className.equals(identifier) && this.packageName.equals(packageName);
 	}
 
 	// Compares itself with the given ASTNode for differences
@@ -193,9 +196,9 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Checks the implemented interfaces
 	private void checkImplementedInterfaces(TypeDeclaration javaClass,
 			MultiStatus status, String pattern) {
-		for (Iterator<InterfaceType> iter = interfaces.iterator(); iter
+		for (Iterator<JavaClass> iter = interfaces.iterator(); iter
 				.hasNext();) {
-			InterfaceType interfaceType = iter.next();
+			JavaClass interfaceType = iter.next();
 			if (!interfaceType.optional()) {
 				boolean found = false;
 				for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
@@ -207,7 +210,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 						if (binding instanceof ITypeBinding) {
 							ITypeBinding type = (ITypeBinding) binding;
 							IPackageBinding packageBinding = type.getPackage();
-							if (interfaceType.interfaceName().equals(
+							if (interfaceType.intendedName().equals(
 									type.getName())
 									&& interfaceType.packageName().equals(
 											packageBinding.getName())) {
@@ -221,7 +224,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 					status.add(new Status(IStatus.WARNING, status.getPlugin(),
 							1, pattern + ": The \"" + className
 									+ "\" class doesn't implement the \""
-									+ interfaceType.interfaceName()
+									+ interfaceType.intendedName()
 									+ "\" interface."
 									+ "                             ", null));
 				}
@@ -267,6 +270,20 @@ public class JavaClass extends CodeElement implements ICodeElement {
 								+ (isInterface() ? "interface" : "class")
 								+ ".                             ", null));
 			}
+		}
+	}
+
+	/**
+	 * Records the identfier for the archiMateTag
+	 * 
+	 * @param name
+	 *            the identfier for the archiMateTag
+	 */
+	public void recordIdentifier(String identifier, String packageName,
+			String tag) {
+		if (this.archiMateTag().equals(tag)
+				&& this.packageName.equals(packageName)) {
+			recordeds.add(identifier);
 		}
 	}
 
@@ -451,6 +468,21 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	}
 
 	/**
+	 * Returns the intended name of the class. When the class is optional and
+	 * only one name was recorded, this is returned. Else the className derived
+	 * from the UML diagram is returned.
+	 * 
+	 * @return the intended name
+	 */
+	public String intendedName() {
+		System.out.println("" + optional + recordeds.size() + recordeds);
+		if (optional && recordeds.size() == 1) {
+			return recordeds.get(0);
+		}
+		return className;
+	}
+
+	/**
 	 * Marks the class as an abstract class
 	 */
 	public void setAbstract(boolean value) {
@@ -472,7 +504,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * @param className
 	 *            the name of the superclass
 	 */
-	public void setSuperClass(SuperClassType superClass) {
+	public void setSuperClass(JavaClass superClass) {
 		this.superClass = superClass;
 	}
 
@@ -490,7 +522,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * 
 	 * @return The superclass
 	 */
-	public SuperClassType superClass() {
+	public JavaClass superClass() {
 		return superClass;
 	}
 
@@ -520,7 +552,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * @param interfaceName
 	 *            the interface to add
 	 */
-	public void addInterface(InterfaceType interfaceName) {
+	public void addInterface(JavaClass interfaceName) {
 		interfaces.add(interfaceName);
 	}
 
@@ -530,7 +562,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * @param interfaces
 	 *            the collection of interfaces to add
 	 */
-	public void addInterfaces(ArrayList<InterfaceType> interfaces) {
+	public void addInterfaces(ArrayList<JavaClass> interfaces) {
 		this.interfaces.addAll(interfaces);
 	}
 
@@ -548,14 +580,14 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * 
 	 * @return the implemented interfaces
 	 */
-	public ArrayList<InterfaceType> interfaces() {
+	public ArrayList<JavaClass> interfaces() {
 		return interfaces;
 	}
 
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + "\n";
+		out += packageName + "." + className + (optional ? " | optional -> " + intendedName() : "") + "\n";
 		return out;
 	}
 

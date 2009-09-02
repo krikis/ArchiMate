@@ -81,7 +81,7 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	}
 
 	// Method defining whether the java method matches the identifier
-	public boolean equals(String identifier) {
+	public boolean equals(String identifier, String packageName) {
 		if (name.equals(identifier)) {
 			return true;
 		} else {

@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.uml2.uml.*;
 import org.eclipse.uml2.uml.internal.impl.*;
 
+import archimate.Activator;
 import archimate.patterns.mvc.MVCPattern;
 
 /**
@@ -17,6 +21,8 @@ import archimate.patterns.mvc.MVCPattern;
 public class UMLAdapter {
 	// package subject to reading
 	private org.eclipse.uml2.uml.Package umlPackage;
+	// the name of the profile currently processed
+	private String profileName;
 
 	/**
 	 * Creates new UMLAdapter for the given package
@@ -24,8 +30,10 @@ public class UMLAdapter {
 	 * @param umlPackage
 	 *            The package to read
 	 */
-	public UMLAdapter(org.eclipse.uml2.uml.Package umlPackage) {
+	public UMLAdapter(org.eclipse.uml2.uml.Package umlPackage,
+			String profileName) {
 		this.umlPackage = umlPackage;
+		this.profileName = profileName;
 	}
 
 	/**

@@ -11,12 +11,10 @@ import org.eclipse.uml2.uml.Namespace;
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
 import archimate.uml.UMLAdapter;
-import archimate.util.InterfaceType;
 import archimate.util.JavaClass;
 import archimate.util.FileHandler;
 import archimate.util.JavaMethod;
 import archimate.util.SourceInspector;
-import archimate.util.SuperClassType;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
@@ -124,7 +122,7 @@ public abstract class Pattern implements ICodeGenerator {
 	protected void createClasses(TagNode node, String stereotype,
 			String packageName, ArrayList<String> imports, boolean isAbstract,
 			String type, String defaultName, String format,
-			SuperClassType superClass, ArrayList<InterfaceType> interfaces,
+			JavaClass superClass, ArrayList<JavaClass> interfaces,
 			String comment) {
 		if (stereotype == null || stereotype.equals(""))
 			stereotype = node.stereotype();
@@ -152,9 +150,8 @@ public abstract class Pattern implements ICodeGenerator {
 	// Creates a JavaClass object with the given settings
 	protected JavaClass createClass(TagNode node, NamedElement umlElement,
 			String packageName, ArrayList<String> imports, String type,
-			String className, SuperClassType superClass,
-			ArrayList<InterfaceType> interfaces, String comment,
-			boolean optional) {
+			String className, JavaClass superClass,
+			ArrayList<JavaClass> interfaces, String comment, boolean optional) {
 		JavaClass javaClass = new JavaClass(packageName, className, node.tag(),
 				type);
 		if (imports != null)
@@ -172,7 +169,9 @@ public abstract class Pattern implements ICodeGenerator {
 		if (superClass != null)
 			javaClass.setSuperClass(superClass);
 		// add restricted interface
-		if (type.equals(JavaClass.INTERFACE) && !javaClass.optional()) {
+		if (type.equals(JavaClass.INTERFACE)
+				&& (!javaClass.optional() || javaClass.className() != javaClass
+						.intendedName())) {
 			tree.addRestrictedInterface(className, className, packageName);
 		}
 		javaClass.setOptional(optional);

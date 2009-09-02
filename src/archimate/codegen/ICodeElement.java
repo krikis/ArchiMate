@@ -42,7 +42,7 @@ public interface ICodeElement {
 	 *            String to match the source element with
 	 * @return Whether the source element matches the identifier
 	 */
-	public boolean equals(String identifier);
+	public boolean equals(String identifier, String packageName);
 
 	/**
 	 * Compares itself to the {@link ASTNode} and writes the eventual

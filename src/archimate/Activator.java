@@ -1,5 +1,6 @@
 package archimate;
 
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -26,6 +27,8 @@ public class Activator extends AbstractUIPlugin {
 
 	// The project root accessible to all plugin classes
 	public static IPath projectRoot;
+	// The folder containing the UML files, accessible to all plugin classes
+	public static IContainer umlRoot;
 
 	/**
 	 * The constructor

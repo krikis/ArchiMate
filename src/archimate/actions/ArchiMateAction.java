@@ -222,7 +222,9 @@ public abstract class ArchiMateAction extends ActionDelegate implements
 
 	// sets the project root
 	protected void setProjectRoot() {
-		Activator.projectRoot = getEditorFile().getProject().getFullPath();
+		IFile file = getEditorFile();
+		Activator.projectRoot = file.getProject().getFullPath();
+		Activator.umlRoot = file.getParent();
 	}
 
 	// returns the target UML model

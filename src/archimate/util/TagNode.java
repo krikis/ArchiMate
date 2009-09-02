@@ -264,10 +264,10 @@ public class TagNode {
 	 *            the identifier to match with
 	 * @return The source element that matches with the identifier
 	 */
-	public ICodeElement getSource(String identifier) {
+	public ICodeElement getSource(String identifier, String packageName) {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element.equals(identifier)) {
+			if (element.equals(identifier, packageName)) {
 				return element;
 			}
 		}
@@ -275,16 +275,16 @@ public class TagNode {
 	}
 
 	/**
-	 * Marks the encountered source as visited
+	 * Marks the encountered source as visited and records its name
 	 * 
 	 * @param name
 	 *            The name identifying the encountered source
 	 * @returns Whether the source has been found
 	 */
-	public ICodeElement tickOffSource(String name) {
+	public ICodeElement tickOffSource(String name, String packageName) {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element.equals(name)) {
+			if (element.equals(name, packageName)) {
 				setVisited(element);
 				return element;
 			}
@@ -320,6 +320,21 @@ public class TagNode {
 			out += "---" + element.toString();
 		}
 		return out;
+	}
+
+	/**
+	 * Records the identifier for the archiMateTag
+	 * 
+	 * @param name
+	 *            the identifier for the archiMateTag
+	 */
+	public void recordIdentifier(String identifier, String packageName,
+			String tag) {
+		for (ICodeElement element : source) {
+			if (element instanceof JavaClass)
+				((JavaClass) element).recordIdentifier(identifier, packageName,
+						tag);
+		}
 	}
 
 }

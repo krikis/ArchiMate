@@ -53,7 +53,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
-		umlReader = new UMLAdapter(umlPackage);
+		umlReader = new UMLAdapter(umlPackage, "MVC");
 		// Set the pattern name
 		name = "MVC Pattern";
 		// Setup the tag tree
@@ -154,14 +154,11 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Create Model class implementing DataInterface
 	private TagNode modelClass(TagNode root, TagNode dataInterface) {
-		ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 		TagNode model = new TagNode(MODEL);
 		ICodeElement element = dataInterface.getSourceByTag(DATA_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass dataInterfaceClass = (JavaClass) element;
-			interfaces.add(new InterfaceType(dataInterfaceClass.className(),
-					dataInterfaceClass.packageName(), dataInterfaceClass
-							.optional()));
+			interfaces.add((JavaClass) element);
 		}
 		createClasses(model, "", modelPackage, null, true, JavaClass.CLASS,
 				"Model", "", null, interfaces,
@@ -173,13 +170,10 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	// Create View class implementing UpdateInterface
 	private TagNode viewClass(TagNode root, TagNode updateInterface) {
 		TagNode view = new TagNode(VIEW);
-		ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 		ICodeElement element = updateInterface.getSourceByTag(UPDATE_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass updateInterfaceClass = (JavaClass) element;
-			interfaces.add(new InterfaceType(updateInterfaceClass.className(),
-					updateInterfaceClass.packageName(), updateInterfaceClass
-							.optional()));
+			interfaces.add((JavaClass) element);
 		}
 		createClasses(view, "", viewPackage, null, true, JavaClass.CLASS,
 				"View", "", null, interfaces,
@@ -191,14 +185,11 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	// Create Controller class implementing CommandInterface
 	private TagNode controllerClass(TagNode root, TagNode commandInterface) {
 		TagNode controller = new TagNode(CONTROLLER);
-		ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 		ICodeElement element = commandInterface
 				.getSourceByTag(COMMAND_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass commandInterfaceClass = (JavaClass) element;
-			interfaces.add(new InterfaceType(commandInterfaceClass.className(),
-					commandInterfaceClass.packageName(), commandInterfaceClass
-							.optional()));
+			interfaces.add((JavaClass) element);
 		}
 		createClasses(controller, "", controllerPackage, null, true,
 				JavaClass.CLASS, "Controller", "", null, interfaces,
@@ -211,12 +202,10 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private TagNode dataInterfaceInstance(TagNode root, TagNode superInterface) {
 		TagNode dataInterface = new TagNode(DATA_INTERFACE_INSTANCE);
 		root.addChild(dataInterface);
-		SuperClassType superClass = null;
+		JavaClass superClass = null;
 		ICodeElement element = superInterface.getSourceByTag(DATA_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass javaClass = (JavaClass) element;
-			superClass = new SuperClassType(javaClass.className(), javaClass
-					.packageName(), javaClass.optional());
+			superClass = (JavaClass) element;
 		}
 		createClasses(dataInterface, TagNode.inStereo(MODEL_INSTANCE),
 				modelPackage, null, false, JavaClass.INTERFACE, "IMyData",
@@ -234,12 +223,10 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private TagNode updateInterfaceInstance(TagNode root, TagNode superInterface) {
 		TagNode updateInterface = new TagNode(UPDATE_INTERFACE_INSTANCE);
 		root.addChild(updateInterface);
-		SuperClassType superClass = null;
+		JavaClass superClass = null;
 		ICodeElement element = superInterface.getSourceByTag(UPDATE_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass javaClass = (JavaClass) element;
-			superClass = new SuperClassType(javaClass.className(), javaClass
-					.packageName(), javaClass.optional());
+			superClass = (JavaClass) element;
 		}
 		createClasses(updateInterface, TagNode.inStereo(VIEW_INSTANCE),
 				viewPackage, null, false, JavaClass.INTERFACE, "IMyUpdate",
@@ -258,12 +245,10 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			TagNode superInterface) {
 		TagNode commandInterface = new TagNode(COMMAND_INTERFACE_INSTANCE);
 		root.addChild(commandInterface);
-		SuperClassType superClass = null;
+		JavaClass superClass = null;
 		ICodeElement element = superInterface.getSourceByTag(COMMAND_INTERFACE);
 		if (element instanceof JavaClass) {
-			JavaClass javaClass = (JavaClass) element;
-			superClass = new SuperClassType(javaClass.className(), javaClass
-					.packageName(), javaClass.optional());
+			superClass = (JavaClass) element;
 		}
 		createClasses(commandInterface, TagNode.inStereo(CONTROLLER_INSTANCE),
 				controllerPackage, null, false, JavaClass.INTERFACE,
@@ -295,16 +280,12 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				}
 				String className = (name.equals("") ? "MyModel"
 						+ (count == 0 ? "" : count) : name);
-				ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
-				interfaces.add(new InterfaceType(
-						dataInterfaceClass.className(), dataInterfaceClass
-								.packageName(), dataInterfaceClass.optional()));
-				SuperClassType superClassType = null;
+				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+				interfaces.add(dataInterfaceClass);
+				JavaClass superClassType = null;
 				ICodeElement codeElement = superClass.getSourceByTag(MODEL);
 				if (codeElement instanceof JavaClass) {
-					JavaClass javaClass = (JavaClass) codeElement;
-					superClassType = new SuperClassType(javaClass.className(),
-							javaClass.packageName(), javaClass.optional());
+					superClassType = (JavaClass) codeElement;
 				}
 				JavaClass javaClass = createClass(model, umlElement,
 						modelPackage, null, JavaClass.CLASS, className,
@@ -339,16 +320,12 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				}
 				String className = (name.equals("") ? "MyView"
 						+ (count == 0 ? "" : count) : name);
-				ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
-				interfaces.add(new InterfaceType(updateInterfaceClass
-						.className(), updateInterfaceClass.packageName(),
-						updateInterfaceClass.optional()));
-				SuperClassType superClassType = null;
+				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+				interfaces.add(updateInterfaceClass);
+				JavaClass superClassType = null;
 				ICodeElement codeElement = superClass.getSourceByTag(VIEW);
 				if (codeElement instanceof JavaClass) {
-					JavaClass javaClass = (JavaClass) codeElement;
-					superClassType = new SuperClassType(javaClass.className(),
-							javaClass.packageName(), javaClass.optional());
+					superClassType = (JavaClass) codeElement;
 				}
 				JavaClass javaClass = createClass(view, umlElement,
 						viewPackage, null, JavaClass.CLASS, className,
@@ -383,17 +360,13 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 				}
 				String className = (name.equals("") ? "MyController"
 						+ (count == 0 ? "" : count) : name);
-				ArrayList<InterfaceType> interfaces = new ArrayList<InterfaceType>();
-				interfaces.add(new InterfaceType(commandInterfaceClass
-						.className(), commandInterfaceClass.packageName(),
-						commandInterfaceClass.optional()));
-				SuperClassType superClassType = null;
+				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+				interfaces.add(commandInterfaceClass);
+				JavaClass superClassType = null;
 				ICodeElement codeElement = superClass
 						.getSourceByTag(CONTROLLER);
 				if (codeElement instanceof JavaClass) {
-					JavaClass javaClass = (JavaClass) codeElement;
-					superClassType = new SuperClassType(javaClass.className(),
-							javaClass.packageName(), javaClass.optional());
+					superClassType = (JavaClass) codeElement;
 				}
 				JavaClass javaClass = createClass(
 						controller,

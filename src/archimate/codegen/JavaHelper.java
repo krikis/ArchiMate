@@ -8,11 +8,12 @@ import java.util.StringTokenizer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.swt.widgets.DateTime;
 
 import archimate.uml.UMLAdapter;
-import archimate.util.InterfaceType;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
 import archimate.util.Restriction;
@@ -91,6 +92,23 @@ public class JavaHelper {
 	}
 
 	/**
+	 * Returns the package of the {@link TypeDeclaration}
+	 * 
+	 * @param node
+	 *            a {@link TypeDeclaration}
+	 * @return The package of the {@link TypeDeclaration}
+	 */
+	public String getPackage(TypeDeclaration node) {
+		ASTNode parent = node.getParent();
+		if (parent instanceof CompilationUnit) {
+			CompilationUnit unit = (CompilationUnit) parent;
+			if (unit.getPackage() != null)
+				return unit.getPackage().getName().getFullyQualifiedName();
+		}
+		return "";
+	}
+
+	/**
 	 * Returns the name of the {@link TypeDeclaration}
 	 * 
 	 * @param node
@@ -99,6 +117,25 @@ public class JavaHelper {
 	 */
 	public String getName(TypeDeclaration node) {
 		return node.getName().getIdentifier();
+	}
+
+	/**
+	 * Returns the package of the class the {@link MethodDeclaration} is defined in
+	 * 
+	 * @param node
+	 *            a {@link MethodDeclaration}
+	 * @return The package of the class the {@link MethodDeclaration} is defined in
+	 */
+	public String getPackage(MethodDeclaration node) {
+		ASTNode temp = node;
+		while (temp.getParent() != null) {
+			temp = temp.getParent();
+			if (temp instanceof CompilationUnit) {
+				CompilationUnit unit = (CompilationUnit) temp;
+				return unit.getPackage().getName().getFullyQualifiedName();
+			}
+		}
+		return "";
 	}
 
 	/**
@@ -185,11 +222,11 @@ public class JavaHelper {
 		}
 		// add implemented interfaces
 		if (!javaClass.isInterface()) {
-			for (Iterator<InterfaceType> iter = javaClass.interfaces()
+			for (Iterator<JavaClass> iter = javaClass.interfaces()
 					.iterator(); iter.hasNext();) {
 				classType.superInterfaceTypes().add(
 						ast.newSimpleType(ast.newSimpleName(iter.next()
-								.interfaceName())));
+								.intendedName())));
 			}
 		}
 		unit.types().add(classType);
@@ -435,7 +472,7 @@ public class JavaHelper {
 	 *            the given {@link TagNode}
 	 */
 	public void compare(TypeDeclaration node, TagNode tagnode) {
-		ICodeElement element = tagnode.getSource(getName(node));
+		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
 			tagnode.setVisited(element);
@@ -454,7 +491,7 @@ public class JavaHelper {
 	 *            the given {@link TagNode}
 	 */
 	public void compare(MethodDeclaration node, TagNode tagnode) {
-		ICodeElement element = tagnode.getSource(getName(node));
+		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
 			tagnode.setVisited(element);
@@ -516,10 +553,10 @@ public class JavaHelper {
 			ICodeElement element = iter.next();
 			if (element instanceof JavaClass) {
 				JavaClass javaClass = (JavaClass) element;
-				for (Iterator<InterfaceType> ite2 = javaClass.interfaces()
+				for (Iterator<JavaClass> ite2 = javaClass.interfaces()
 						.iterator(); ite2.hasNext();) {
-					InterfaceType interfaceImpl = ite2.next();
-					if (interfaceImpl.interfaceName().equals(interfaceName)
+					JavaClass interfaceImpl = ite2.next();
+					if (interfaceImpl.intendedName().equals(interfaceName)
 							&& interfaceImpl.packageName().equals(packageName)) {
 						found = true;
 					}
