@@ -36,6 +36,13 @@ public interface ICodeElement {
 	public String identifier();
 
 	/**
+	 * Returns the package the source code element is in
+	 * 
+	 * @return the package the source code element is in
+	 */
+	public String packageName();
+
+	/**
 	 * Method defining whether a source element matches the identifier
 	 * 
 	 * @param identifier
@@ -80,16 +87,27 @@ public interface ICodeElement {
 	public void setOptional(boolean value);
 
 	/**
-	 * Sets the UML element associated with the code element
+	 * Adds a UML element to the code element
+	 * 
+	 * @param umlElement
+	 *            the UML element to be added
 	 */
-	public void setUmlElement(NamedElement umlElement);
+	public void addUmlElement(NamedElement umlElement);
+
+	/**
+	 * Adds a collection of UML elements to the code element
+	 * 
+	 * @param umlElements
+	 *            the UML elements to be added
+	 */
+	public void addUmlElements(ArrayList<NamedElement> umlElements);
 
 	/**
 	 * Returns the UML element associated with the code element
 	 * 
 	 * @return the UML element associated with the code element
 	 */
-	public NamedElement umlElement();
+	public ArrayList<NamedElement> umlElements();
 
 	/**
 	 * Returns the parent of the code element

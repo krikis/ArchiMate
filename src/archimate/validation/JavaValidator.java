@@ -1,9 +1,12 @@
 package archimate.validation;
 
+import java.util.ArrayList;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.*;
 
+import archimate.codegen.ICodeElement;
 import archimate.codegen.JavaHelper;
 import archimate.util.*;
 
@@ -56,11 +59,14 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			helper.compare(node, self);
+			ICodeElement element = helper.compare(node, self);
 			boolean toggle = self.setVisited();
 			if (toggle)
 				monitor.worked(1);
 			tree.setCurrent(self);
+			if (self.hasChildren() && element != null) {
+				tree.setCurrentCode(element);
+			}
 		}
 		helper.checkRestricted(node, tree.current(), tree
 				.restrictedInterfaces());
@@ -83,6 +89,14 @@ public class JavaValidator extends ASTVisitor {
 		if ((!tag.equals("")) && current.hasParent()
 				&& current.parent().hasChild(tag)) {
 			tree.setCurrent(current.parent());
+			if (current.hasChildren()) {
+				String name = helper.getName(node);
+				String packageName = helper.getPackage(node);
+				ICodeElement code = current.getSource(name, packageName);
+				if (code != null) {
+					tree.setCurrentCode(tree.currentCode().parent());
+				}
+			}
 		}
 	}
 
@@ -99,7 +113,8 @@ public class JavaValidator extends ASTVisitor {
 		TagNode current = tree.current();
 		if ((!tag.equals("")) && current.hasChild(tag)) {
 			TagNode self = tree.getNode(current, tag);
-			helper.compare(node, self);
+			if (tree.currentCode() != null)
+				helper.compare(node, tree.currentCode(), self);
 			boolean toggle = self.setVisited();
 			if (toggle)
 				monitor.worked(1);

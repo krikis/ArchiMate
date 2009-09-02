@@ -63,6 +63,7 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 */
 	public JavaMethod(String name, String tag, String type, String className,
 			String packageName) {
+		umlElements = new ArrayList<NamedElement>();
 		visited = false;
 		optional = false;
 		this.name = name;
@@ -318,7 +319,7 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + "#" + name + "\n";
+		out += packageName + "." + className + "#" + name + (visited ? " :: visited" : "") + "\n";
 		return out;
 	}
 

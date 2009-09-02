@@ -7,7 +7,7 @@ import org.eclipse.uml2.uml.NamedElement;
 public abstract class CodeElement implements ICodeElement {
 
 	// The associated UML element
-	protected NamedElement umlElement;
+	protected ArrayList<NamedElement> umlElements;
 	// The parent of the java class
 	protected ICodeElement parent;
 	// The children of the java class
@@ -19,14 +19,20 @@ public abstract class CodeElement implements ICodeElement {
 	// The comment going with the method
 	protected String comment;
 
-	// Sets the UML element associated with the code element
-	public void setUmlElement(NamedElement umlElement) {
-		this.umlElement = umlElement;
+	// Adds the UML element associated with the code element
+	public void addUmlElement(NamedElement umlElement) {
+		if (umlElement != null)
+			this.umlElements.add(umlElement);
+	}
+
+	// Adds a collection of UML elements associated with the code element
+	public void addUmlElements(ArrayList<NamedElement> umlElements) {
+		this.umlElements.addAll(umlElements);
 	}
 
 	// Returns the UML element associated with the code element
-	public NamedElement umlElement() {
-		return umlElement;
+	public ArrayList<NamedElement> umlElements() {
+		return umlElements;
 	}
 
 	// Returns the parent of the code element

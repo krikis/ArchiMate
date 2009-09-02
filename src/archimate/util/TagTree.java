@@ -236,10 +236,22 @@ public class TagTree {
 
 	// Returns a list of all tree nodes and their state for debug purposes
 	public String toString() {
-		return printNodes(root.children(), "");
+		return printRestrictions() + printNodes(root.children(), "");
 	}
 
-	// Recursively returns the state of all nodes in the tree
+	// Returns a list of all restrictions for debug purposes
+	private String printRestrictions() {
+		String out = "";
+		for (Restriction interfaceRestriction : interfaces) {
+			out += interfaceRestriction.toString();
+		}
+		for (Restriction methodRestriction : methods) {
+			out += methodRestriction.toString();
+		}
+		return out;
+	}
+
+	// Recursively returns the state of all nodes in the tree for debug purposes
 	private String printNodes(ArrayList<TagNode> children, String prefix) {
 		String out = "";
 		for (Iterator<TagNode> iter = children.iterator(); iter.hasNext();) {

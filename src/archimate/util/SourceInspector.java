@@ -107,6 +107,7 @@ public class SourceInspector {
 		// Traverse the source and calls back when key source elements are
 		// missing
 		inspect();
+		System.out.println(tree);
 		// Add the source files that are missing
 		ArrayList<TagNode> tags = tree.getUnvisited();
 		createSourceFiles(tags);
@@ -120,6 +121,7 @@ public class SourceInspector {
 		mode = VALIDATE;
 		// Traverses the
 		inspect();
+		System.out.println(tree);
 		// Report the source files that are missing
 		ArrayList<TagNode> tags = tree.getAllUnvisited();
 		reportMissing(tags);

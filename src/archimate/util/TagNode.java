@@ -211,9 +211,11 @@ public class TagNode {
 	 *            elements
 	 */
 	public void addSource(ICodeElement code) {
-		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
-			if (iter.next().equals(code.identifier()))
+		for (ICodeElement element : source){
+			if (element.equals(code.identifier(), code.packageName())) {
+				element.addUmlElements(code.umlElements());
 				return;
+			}
 		}
 		source.add(code);
 		if (!code.optional()) {

@@ -169,13 +169,11 @@ public abstract class Pattern implements ICodeGenerator {
 		if (superClass != null)
 			javaClass.setSuperClass(superClass);
 		// add restricted interface
-		if (type.equals(JavaClass.INTERFACE)
-				&& (!javaClass.optional() || javaClass.className() != javaClass
-						.intendedName())) {
+		if (type.equals(JavaClass.INTERFACE) && !optional) {
 			tree.addRestrictedInterface(className, className, packageName);
 		}
 		javaClass.setOptional(optional);
-		javaClass.setUmlElement(umlElement);
+		javaClass.addUmlElement(umlElement);
 		node.addSource(javaClass);
 		return javaClass;
 	}
@@ -190,9 +188,9 @@ public abstract class Pattern implements ICodeGenerator {
 			for (ICodeElement element : source) {
 				if (element instanceof JavaClass) {
 					ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
-					if (element.umlElement() instanceof NamedElement) {
-						messages = umlReader.getReceived(element.umlElement(),
-								node.stereotype());
+					for (NamedElement umlElement : element.umlElements()) {
+						messages.addAll(umlReader.getReceived(umlElement, node
+								.stereotype()));
 					}
 					addMethods(node, element, messages, defaultName, type,
 							comment);

@@ -59,11 +59,8 @@ public class Restriction {
 		return packageName;
 	}
 
-	/*
-	 * (non-Javadoc) prints the restricted elements type and name for debugging
-	 * purposes
-	 */
+	// prints the restricted elements type and name for debugging purposes
 	public String toString() {
-		return packageName + "." + type + " | " + name;
+		return packageName + "." + type + " | " + name + "\n";
 	}
 }

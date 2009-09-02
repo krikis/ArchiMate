@@ -142,7 +142,7 @@ public class ASTEngine {
 		for (Iterator<ICodeElement> iter = node.source().iterator(); iter
 				.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element instanceof JavaClass) {
+			if (!element.visited() && element instanceof JavaClass) {
 				JavaClass javaClass = (JavaClass) element;
 				FileHandler handler = new FileHandler();
 				ASTParser parser = ASTParser.newParser(AST.JLS3);

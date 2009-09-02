@@ -471,12 +471,19 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            the given {@link TagNode}
 	 */
-	public void compare(TypeDeclaration node, TagNode tagnode) {
+	public ICodeElement compare(TypeDeclaration node, TagNode tagnode) {		
 		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
 		// A matching element is found and will be checked for differences
 		if (element != null) {
 			tagnode.setVisited(element);
 			element.diff(node, status, pattern);
+			return element;
+		} else {
+			// Record the identifier for the encountered archiMateTag
+			String name = getName(node);
+			String packageName = getPackage(node);
+			tagnode.recordIdentifier(name, packageName, getArchiMateTag(node));
+			return null;
 		}
 	}
 
@@ -490,10 +497,10 @@ public class JavaHelper {
 	 * @param tagnode
 	 *            the given {@link TagNode}
 	 */
-	public void compare(MethodDeclaration node, TagNode tagnode) {
+	public void compare(MethodDeclaration node, ICodeElement code, TagNode tagnode) {
 		ICodeElement element = tagnode.getSource(getName(node), getPackage(node));
 		// A matching element is found and will be checked for differences
-		if (element != null) {
+		if (element != null && code.children().contains(element)) {
 			tagnode.setVisited(element);
 			element.diff(node, status, pattern);
 		}

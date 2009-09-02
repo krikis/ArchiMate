@@ -65,7 +65,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 */
 	public JavaClass(String packageName, String className, String tag,
 			String type) {
-		umlElement = null;
+		umlElements = new ArrayList<NamedElement>();
 		visited = false;
 		optional = false;
 		isAbstract = false;
@@ -86,7 +86,8 @@ public class JavaClass extends CodeElement implements ICodeElement {
 
 	// Method defining whether the java class matches the identifier
 	public boolean equals(String identifier, String packageName) {
-		return className.equals(identifier) && this.packageName.equals(packageName);
+		return className.equals(identifier)
+				&& this.packageName.equals(packageName);
 	}
 
 	// Compares itself with the given ASTNode for differences
@@ -196,8 +197,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Checks the implemented interfaces
 	private void checkImplementedInterfaces(TypeDeclaration javaClass,
 			MultiStatus status, String pattern) {
-		for (Iterator<JavaClass> iter = interfaces.iterator(); iter
-				.hasNext();) {
+		for (Iterator<JavaClass> iter = interfaces.iterator(); iter.hasNext();) {
 			JavaClass interfaceType = iter.next();
 			if (!interfaceType.optional()) {
 				boolean found = false;
@@ -475,7 +475,6 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 * @return the intended name
 	 */
 	public String intendedName() {
-		System.out.println("" + optional + recordeds.size() + recordeds);
 		if (optional && recordeds.size() == 1) {
 			return recordeds.get(0);
 		}
@@ -587,7 +586,8 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + (optional ? " | optional -> " + intendedName() : "") + "\n";
+		out += packageName + "." + className + (visited ? " :: visited" : "")
+				+ (optional ? " | optional -> " + intendedName() : "") + "\n";
 		return out;
 	}
 

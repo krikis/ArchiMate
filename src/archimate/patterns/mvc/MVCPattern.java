@@ -274,8 +274,9 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass dataInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = dataInterfaceClass.umlElement();
-				if (umlElement != null) {
+				NamedElement umlElement = null;
+				if (dataInterfaceClass.umlElements().size() > 0) {
+					umlElement = dataInterfaceClass.umlElements().get(0);
 					name = umlElement.getName();
 				}
 				String className = (name.equals("") ? "MyModel"
@@ -314,8 +315,9 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass updateInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = updateInterfaceClass.umlElement();
-				if (umlElement != null) {
+				NamedElement umlElement = null;
+				if (updateInterfaceClass.umlElements().size() > 0) {
+					umlElement = updateInterfaceClass.umlElements().get(0);
 					name = umlElement.getName();
 				}
 				String className = (name.equals("") ? "MyView"
@@ -354,8 +356,9 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 			if (element instanceof JavaClass) {
 				JavaClass commandInterfaceClass = (JavaClass) element;
 				String name = "";
-				NamedElement umlElement = commandInterfaceClass.umlElement();
-				if (umlElement != null) {
+				NamedElement umlElement = null;
+				if (commandInterfaceClass.umlElements().size() > 0) {
+					umlElement = commandInterfaceClass.umlElements().get(0);
 					name = umlElement.getName();
 				}
 				String className = (name.equals("") ? "MyController"
