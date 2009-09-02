@@ -218,7 +218,7 @@ public class JavaHelper {
 		// add superclass
 		if (javaClass.hasSuperClass()) {
 			classType.setSuperclassType(ast.newSimpleType(ast
-					.newSimpleName(javaClass.superClass().className())));
+					.newSimpleName(javaClass.superClass().intendedName())));
 		}
 		// add implemented interfaces
 		if (!javaClass.isInterface()) {
