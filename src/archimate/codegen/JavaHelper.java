@@ -548,13 +548,8 @@ public class JavaHelper {
 			tagnode.setVisited(element);
 			element.diff(node, status, pattern);
 			return element;
-		} else {
-			// Record the identifier for the encountered archiMateTag
-			String name = getName(node);
-			String packageName = getPackage(node);
-			tagnode.recordIdentifier(name, packageName, getArchiMateTag(node));
-			return null;
 		}
+		return null;
 	}
 
 	/**
@@ -723,9 +718,9 @@ public class JavaHelper {
 	// Reports the violation of an interface implementation
 	private void reportError(TypeDeclaration node, String interfaceName) {
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
-				+ ": The implementation of the \"" + interfaceName
-				+ "\" interface is not allowed in the class \"" + getName(node)
-				+ "\"." + "                             ", null));
+				+ ": The class \"" + getName(node)
+				+ " is not allowed in to implement the \"" + interfaceName
+				+ "\" interface." + "                             ", null));
 	}
 
 	/**
@@ -801,22 +796,22 @@ public class JavaHelper {
 
 	// Reports the violation of a method invocation
 	private void reportError(MethodInvocation node, Restriction method) {
-		String container = "";
+		String container = "One of the classes ";
 		ASTNode parent = node;
 		// Get the containing class
 		while (parent.getParent() != null) {
 			parent = parent.getParent();
 			if (parent instanceof TypeDeclaration) {
-				container = " in the class \""
-						+ getName((TypeDeclaration) parent) + "\"";
+				container = "The class \"" + getName((TypeDeclaration) parent)
+						+ "\" ";
 				break;
 			}
 		}
 		// Report the violation
 		status.add(new Status(IStatus.ERROR, status.getPlugin(), 1, pattern
-				+ ": The invocation of the method \"" + method.name()
-				+ "()\" is not allowed" + container + "."
-				+ "                             ", null));
+				+ ": " + container + "is not allowed to invoke the method \""
+				+ method.name() + "()\"." + "                             ",
+				null));
 	}
 
 	// ----------- From here on the implementation is incomplete ------------//

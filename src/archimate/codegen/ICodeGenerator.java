@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 
 import archimate.uml.UMLAdapter;
+import archimate.util.SourceInspector;
 import archimate.util.TagTree;
 
 /**
@@ -59,9 +60,14 @@ public interface ICodeGenerator {
 	/**
 	 * Estimates the number of tasks to execute for generating code
 	 * 
+	 * @param mode
+	 *            the mode in which the plugin will run, either
+	 *            {@link SourceInspector#GENERATE},
+	 *            {@link SourceInspector#VALIDATE} or
+	 *            {@link SourceInspector#UPDATE}
 	 * @return The number of estimated tasks for generating code
 	 */
-	public int estimateTasks();
+	public int estimateTasks(String mode);
 
 	/**
 	 * Generates source code for the pattern

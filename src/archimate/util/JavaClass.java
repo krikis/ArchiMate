@@ -135,7 +135,10 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Checks the superclass
 	private void checkSuperClassType(TypeDeclaration javaClass,
 			MultiStatus status, String pattern) {
-		if (!isInterface() && hasSuperClass() && !superClass.optional()) {
+		if (!isInterface()
+				&& hasSuperClass()
+				&& (!superClass.optional() || !superClass.className().equals(
+						superClass.intendedName()))) {
 			boolean found = false;
 			if (javaClass.getSuperclassType() instanceof SimpleType) {
 				SimpleType simpleType = (SimpleType) javaClass
@@ -144,7 +147,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 				if (binding instanceof ITypeBinding) {
 					ITypeBinding type = (ITypeBinding) binding;
 					IPackageBinding packageBinding = type.getPackage();
-					if (superClass.className().equals(type.getName())
+					if (superClass.intendedName().equals(type.getName())
 							&& superClass.packageName().equals(
 									packageBinding.getName())) {
 						found = true;
@@ -155,7 +158,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
 						pattern + ": The \"" + className
 								+ "\" class doesn't extend the \""
-								+ superClass.className() + "\" class."
+								+ superClass.intendedName() + "\" class."
 								+ "                             ", null));
 			}
 		}
@@ -174,7 +177,9 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Checks the extended interfaces
 	private void checkExtendedInterfaces(TypeDeclaration javaClass,
 			MultiStatus status, String pattern) {
-		if (hasSuperClass() && !superClass.optional()) {
+		if (hasSuperClass()
+				&& (!superClass.optional() || !superClass.className().equals(
+						superClass.intendedName()))) {
 			boolean found = false;
 			for (Iterator ite2 = javaClass.superInterfaceTypes().iterator(); ite2
 					.hasNext();) {
@@ -185,7 +190,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 					if (binding instanceof ITypeBinding) {
 						ITypeBinding type = (ITypeBinding) binding;
 						IPackageBinding packageBinding = type.getPackage();
-						if (superClass.className().equals(type.getName())
+						if (superClass.intendedName().equals(type.getName())
 								&& superClass.packageName().equals(
 										packageBinding.getName())) {
 							found = true;
@@ -198,7 +203,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 				status.add(new Status(IStatus.WARNING, status.getPlugin(), 1,
 						pattern + ": The \"" + className
 								+ "\" interface doesn't extend the \""
-								+ superClass.className() + "\" interface."
+								+ superClass.intendedName() + "\" interface."
 								+ "                             ", null));
 			}
 		}

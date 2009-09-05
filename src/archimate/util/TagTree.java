@@ -135,16 +135,16 @@ public class TagTree {
 	 * 
 	 * @return The number of nodes in the tree
 	 */
-	public int nodes() {
-		return nodes(root);
+	public int nodeCount() {
+		return nodeCount(root);
 	}
 
 	// Recursively counts the number of nodes in the tree
-	private int nodes(TagNode node) {
+	private int nodeCount(TagNode node) {
 		int nodes = node.nrOfChildren();
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {
-			nodes += nodes(iter.next());
+			nodes += nodeCount(iter.next());
 		}
 		return nodes;
 	}

@@ -55,7 +55,7 @@ public interface ICodeElement {
 	public boolean equals(String identifier, String packageName);
 
 	/**
-	 * Method defining whether a source element matches the given source 
+	 * Method defining whether a source element matches the given source
 	 * 
 	 * @param element
 	 *            a source element

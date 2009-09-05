@@ -91,11 +91,14 @@ public abstract class Pattern implements ICodeGenerator {
 	}
 
 	// Estimates the number of tasks to execute
-	public int estimateTasks() {
+	public int estimateTasks(String mode) {
 		if (tasks == 0) {
 			FileHandler handler = new FileHandler();
 			int count = handler.countFiles(packageBase);
-			count += tree.nodes();
+			if (mode.equals(SourceInspector.GENERATE)
+					|| mode.equals(SourceInspector.VALIDATE))
+				count *= 2;
+			count += tree.nodeCount();
 			return count;
 		} else {
 			return tasks;

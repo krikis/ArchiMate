@@ -26,6 +26,7 @@ import archimate.uml.UMLAdapter;
 public class SourceInspector {
 
 	// Constants defining the current action of the plugin,
+	public static final String RECORD = "record";
 	public static final String GENERATE = "generate";
 	public static final String VALIDATE = "validate";
 	public static final String UPDATE = "update";
@@ -102,12 +103,16 @@ public class SourceInspector {
 	 * Traverses the source and adds missing source elements and files
 	 */
 	public void updateSource() {
+		// Set the mode to recording
+		mode = RECORD;
+		// Traverse the source and record the architectures structure
+		inspect();
 		// Set the mode to code generation
 		mode = GENERATE;
 		// Traverse the source and calls back when key source elements are
 		// missing
 		inspect();
-//		System.out.println(tree);
+		// System.out.println(tree);
 		// Add the source files that are missing
 		ArrayList<TagNode> tags = tree.getUnvisited();
 		createSourceFiles(tags);
@@ -117,11 +122,15 @@ public class SourceInspector {
 	 * Traverses the source and validates the source elements
 	 */
 	public void validateSource() {
+		// Set the mode to recording
+		mode = RECORD;
+		// Traverse the source and record the architectures structure
+		inspect();
 		// Set the mode to validation
 		mode = VALIDATE;
 		// Traverses the
 		inspect();
-//		System.out.println(tree);
+		// System.out.println(tree);
 		// Report the source files that are missing
 		ArrayList<TagNode> tags = tree.getAllUnvisited();
 		reportMissing(tags);

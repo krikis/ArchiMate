@@ -93,14 +93,16 @@ public class ASTEngine {
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(compilationUnit);
 		// Enable binding resolution when code validation is intended
-		if (mode.equals(SourceInspector.VALIDATE)) {
+		if (mode.equals(SourceInspector.VALIDATE))
 			parser.setResolveBindings(true);
-		}
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
-		unit.recordModifications();
+		if (mode.equals(SourceInspector.GENERATE))
+			unit.recordModifications();
 		ASTVisitor visitor = null;
 		// Select the right ASTVisitor
-		if (mode.equals(SourceInspector.GENERATE)) {
+		if (mode.equals(SourceInspector.RECORD)) {
+			visitor = new Recorder(inspector, pattern);
+		} else if (mode.equals(SourceInspector.GENERATE)) {
 			visitor = new JavaInspector(inspector, pattern);
 		} else if (mode.equals(SourceInspector.VALIDATE)) {
 			visitor = new JavaValidator(inspector, pattern);
@@ -109,23 +111,25 @@ public class ASTEngine {
 		}
 		if (visitor != null) {
 			unit.accept(visitor);
-			String sourceCode = "";
-			Document doc = null;
-			try {
-				doc = new Document(compilationUnit.getSource());
-				TextEdit edits = unit.rewrite(doc, null);
-				if (edits.hasChildren()) {
-					edits.apply(doc);
-					sourceCode += doc.get();
-					handler.save(sourceCode, targetFile);
-					handler.selectAndReveal(targetFile);
+			if (mode.equals(SourceInspector.GENERATE)) {
+				String sourceCode = "";
+				Document doc = null;
+				try {
+					doc = new Document(compilationUnit.getSource());
+					TextEdit edits = unit.rewrite(doc, null);
+					if (edits.hasChildren()) {
+						edits.apply(doc);
+						sourceCode += doc.get();
+						handler.save(sourceCode, targetFile);
+						handler.selectAndReveal(targetFile);
+					}
+				} catch (BadLocationException e) {
+					System.out.println("Unable to apply changes to source.");
+					e.printStackTrace();
+				} catch (JavaModelException e1) {
+					System.out.println("Unable to apply changes to source.");
+					e1.printStackTrace();
 				}
-			} catch (BadLocationException e) {
-				System.out.println("Unable to apply changes to source.");
-				e.printStackTrace();
-			} catch (JavaModelException e1) {
-				System.out.println("Unable to apply changes to source.");
-				e1.printStackTrace();
 			}
 		}
 	}

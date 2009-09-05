@@ -20,6 +20,7 @@ import archimate.Activator;
 import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
 import archimate.patterns.primitives.callback.CallbackPrimitive;
+import archimate.util.SourceInspector;
 
 /**
  * This class implements the Generate Code action. Code is generated for the
@@ -80,7 +81,7 @@ public class GenerateCode extends ArchiMateAction {
 				pattern = new CallbackPrimitive(umlPackage);
 			}
 			if (pattern != null) {
-				tasks += pattern.estimateTasks();
+				tasks += pattern.estimateTasks(SourceInspector.GENERATE);
 				patterns.add(pattern);
 			}
 		}

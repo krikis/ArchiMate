@@ -60,8 +60,6 @@ public class JavaInspector extends ASTVisitor {
 			TagNode self = tree.getNode(current, tag);
 			String name = helper.getName(node);
 			String packageName = helper.getPackage(node);
-			// Record the identifier for the encountered archiMateTag
-			self.recordIdentifier(name, packageName, tag);
 			// Mark found source as visited
 			ICodeElement element = self.tickOffSource(name, packageName);
 			boolean toggle = self.setVisited();

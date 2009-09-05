@@ -20,6 +20,7 @@ import archimate.Activator;
 import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
 import archimate.patterns.primitives.callback.CallbackPrimitive;
+import archimate.util.SourceInspector;
 
 /**
  * This class implements the Update UML Model action. The elements in the UML
@@ -81,7 +82,7 @@ public class UpdateModel extends ArchiMateAction {
 			} else {
 				break;
 			}
-			tasks += pattern.estimateTasks();
+			tasks += pattern.estimateTasks(SourceInspector.UPDATE);
 			patterns.add(pattern);
 		}
 		// Initializing the status

@@ -20,6 +20,7 @@ import archimate.Activator;
 import archimate.patterns.Pattern;
 import archimate.patterns.mvc.MVCPattern;
 import archimate.patterns.primitives.callback.CallbackPrimitive;
+import archimate.util.SourceInspector;
 
 /**
  * This class implements the Validate Code action. The code in the source folder
@@ -81,7 +82,7 @@ public class ValidateCode extends ArchiMateAction {
 			} else {
 				break;
 			}
-			tasks += pattern.estimateTasks();
+			tasks += pattern.estimateTasks(SourceInspector.VALIDATE);
 			patterns.add(pattern);
 		}
 		// Initializing the status
