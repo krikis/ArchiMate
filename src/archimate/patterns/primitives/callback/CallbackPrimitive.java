@@ -2,6 +2,11 @@ package archimate.patterns.primitives.callback;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.uml2.uml.NamedElement;
+
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
 import archimate.patterns.Pattern;
@@ -38,6 +43,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	// Names of the packages in the primitive
 	private String callerPackage;
 	private String calleePackage;
+	// The status
+	private MultiStatus status;
 
 	/**
 	 * Constructor for the Callback primitive. Initializes a <TagTree> object
@@ -47,7 +54,10 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	 * @param umlPackage
 	 *            The UML package in the open UML or GMF editor
 	 */
-	public CallbackPrimitive(org.eclipse.uml2.uml.Package umlPackage) {
+	public CallbackPrimitive(org.eclipse.uml2.uml.Package umlPackage,
+			MultiStatus status) {
+		// Set the status
+		this.status = status;
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
@@ -89,13 +99,13 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		// Create EventInterface instance
 		TagNode eventInterfaceInstance = eventInterfaceInstance(root,
 				eventInterface);
-		// Create SubscriptionInterface instance
-		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
-				root, subscriptionInterface);
-
 		// Create Caller instance Class
 		TagNode callerInstanceClass = callerInstanceClass(root,
 				eventInterfaceInstance, callerClass);
+
+		// Create SubscriptionInterface instance
+		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
+				root, subscriptionInterface, callerInstanceClass);
 		// Create Callee instance Class
 		TagNode calleeInstanceClass = calleeInstanceClass(root,
 				subscriptionInterfaceInstance, calleeClass);
@@ -180,7 +190,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 
 	// Create SubscriptionInterface instance
 	private TagNode subscriptionInterfaceInstance(TagNode root,
-			TagNode superInterface) {
+			TagNode superInterface, TagNode callerInstanceClass) {
 		TagNode subscriptionInterface = new TagNode(
 				SUBSCRIPTION_INTERFACE_INSTANCE);
 		root.addChild(subscriptionInterface);
@@ -197,8 +207,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		// Create interface method declarations
 		TagNode subscriptionMessage = new TagNode(SUBSCRIPTION_MESSAGE);
 		subscriptionInterface.addChild(subscriptionMessage);
-		addMethods(subscriptionMessage, "subscribeToEvent",
-				JavaMethod.DECLARATION,
+		addSubscriptionMethods(subscriptionMessage, callerInstanceClass,
+				"subscribeToEvent", JavaMethod.DECLARATION,
 				"This method subscribes the caller to an event.");
 		return subscriptionInterface;
 	}
@@ -320,6 +330,47 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
 						(JavaClass) element, caller, JavaMethod.INVOCATION,
 						"This method invokes a method that handles an event a the caller.");
+			}
+		}
+	}
+
+	// Creates a list of subscription methods with the given settings and adds
+	// it to
+	// the TagNodes source list
+	protected void addSubscriptionMethods(TagNode node, TagNode invoker,
+			String defaultName, String type, String comment) {
+		if (node.parent() != null) {
+			for (ICodeElement element : node.parent().source()) {
+				if (element instanceof JavaClass) {
+					JavaClass javaClass = (JavaClass) element;
+					ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
+					for (NamedElement umlElement : javaClass.umlElements()) {
+						messages.addAll(umlReader.getReceived(umlElement, node
+								.stereotype()));
+					}
+					boolean hasrun = false;
+					ArrayList<NamedElement> usedMessages = new ArrayList<NamedElement>();
+					ArrayList<JavaClass> args = new ArrayList<JavaClass>();
+					for (NamedElement message : messages) {
+						for (ICodeElement sourceElement : invoker.source()) {
+							if (sourceElement instanceof JavaClass) {
+								JavaClass invokerClass = (JavaClass) sourceElement;
+								for (ICodeElement code : sourceElement
+										.children()) {
+									if (code.umlElements().contains(message)) {
+										args.add(invokerClass);
+										usedMessages.add(message);
+									}
+								}
+							}
+						}
+					}
+					if (invoker.sourceDefined() && invoker.source().get(0) instanceof JavaClass) {
+						addMethods(node, javaClass, usedMessages, args,
+								defaultName, (JavaClass) invoker.source().get(0), type,
+								comment);
+					}
+				}
 			}
 		}
 	}

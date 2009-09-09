@@ -2,6 +2,8 @@ package archimate.patterns.mvc;
 
 import java.util.ArrayList;
 
+import org.eclipse.core.runtime.MultiStatus;
+
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
 import archimate.patterns.Pattern;
@@ -47,6 +49,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private String modelPackage;
 	private String viewPackage;
 	private String controllerPackage;
+	// The status
+	private MultiStatus status;
 
 	/**
 	 * Constructor for the MVC pattern. Initializes a <TagTree> object and a
@@ -56,7 +60,9 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	 * @param umlPackage
 	 *            The UML package in the open UML or GMF editor
 	 */
-	public MVCPattern(org.eclipse.uml2.uml.Package umlPackage) {
+	public MVCPattern(org.eclipse.uml2.uml.Package umlPackage, MultiStatus status) {
+		// Set the status
+		this.status = status;
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader

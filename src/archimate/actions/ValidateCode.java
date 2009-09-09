@@ -67,22 +67,22 @@ public class ValidateCode extends ArchiMateAction {
 		EList<Profile> profiles = umlPackage.getAppliedProfiles();
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
+		// Initializing the status
+		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
+				"Temporary Status", null);
 		int tasks = 0;
-		int newtasks = collectPatterns(umlPackage, monitor, profiles, patterns);
+		int newtasks = collectPatterns(umlPackage, monitor, status, profiles, patterns);
 		if (monitor.isCanceled()) { // return if cancel is requested
 			return null;
 		}
 		tasks += newtasks;
 		// If no pattern has been found, the primitives are processed separately
 		if (newtasks == 0) {
-			tasks += collectPrimitives(umlPackage, monitor, profiles, patterns);
+			tasks += collectPrimitives(umlPackage, monitor, status, profiles, patterns);
 		}
 		if (monitor.isCanceled()) { // return if cancel is requested
 			return null;
 		}
-		// Initializing the status
-		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
-				"Temporary Status", null);
 		// Setting up progressmonitor
 		monitor.beginTask("Initializing...", tasks);
 		// Processing patterns
@@ -98,7 +98,7 @@ public class ValidateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design patterns
 	private int collectPatterns(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, EList<Profile> profiles,
+			final IProgressMonitor monitor, MultiStatus status, EList<Profile> profiles,
 			ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
@@ -108,7 +108,7 @@ public class ValidateCode extends ArchiMateAction {
 			Pattern pattern = null;
 			String name = profile.getName();
 			if (name.equals("MVC")) {
-				pattern = new MVCPattern(umlPackage);
+				pattern = new MVCPattern(umlPackage, status);
 			}
 			if (pattern != null) {
 				tasks += pattern.estimateTasks(SourceInspector.VALIDATE);
@@ -120,7 +120,7 @@ public class ValidateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design primtives
 	private int collectPrimitives(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, EList<Profile> profiles,
+			final IProgressMonitor monitor, MultiStatus status, EList<Profile> profiles,
 			ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
@@ -130,7 +130,7 @@ public class ValidateCode extends ArchiMateAction {
 			Pattern primitive = null;
 			String name = profile.getName();
 			if (name.equals("Callback")) {
-				primitive = new CallbackPrimitive(umlPackage);
+				primitive = new CallbackPrimitive(umlPackage, status);
 			}
 			if (primitive != null) {
 				tasks += primitive.estimateTasks(SourceInspector.VALIDATE);

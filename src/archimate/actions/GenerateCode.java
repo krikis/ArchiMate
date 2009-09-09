@@ -67,22 +67,26 @@ public class GenerateCode extends ArchiMateAction {
 		EList<Profile> profiles = umlPackage.getAppliedProfiles();
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
+		// Initializing the status
+		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
+				"Temporary Status", null);
 		int tasks = 0;
-		int newtasks = collectPatterns(umlPackage, monitor, profiles, patterns);
-		if (monitor.isCanceled()) { // return if cancel is requested
+		int newtasks = collectPatterns(umlPackage, monitor, status, profiles,
+				patterns);
+		// return if cancel is requested or an error occurred
+		if (monitor.isCanceled() || status.getSeverity() == IStatus.ERROR) { 
 			return null;
 		}
 		tasks += newtasks;
 		// If no pattern has been found, the primitives are processed separately
 		if (newtasks == 0) {
-			tasks += collectPrimitives(umlPackage, monitor, profiles, patterns);
+			tasks += collectPrimitives(umlPackage, monitor, status, profiles,
+					patterns);
 		}
-		if (monitor.isCanceled()) { // return if cancel is requested
+		// return if cancel is requested or an error occurred
+		if (monitor.isCanceled() || status.getSeverity() == IStatus.ERROR) {
 			return null;
 		}
-		// Initializing the status
-		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
-				"Temporary Status", null);
 		// Setting up progressmonitor
 		monitor.beginTask("Initializing...", tasks);
 		// Processing patterns
@@ -101,8 +105,8 @@ public class GenerateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design patterns
 	private int collectPatterns(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, EList<Profile> profiles,
-			ArrayList<Pattern> patterns) {
+			final IProgressMonitor monitor, MultiStatus status,
+			EList<Profile> profiles, ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
 			if (monitor.isCanceled()) { // return if cancel is requested
@@ -111,7 +115,7 @@ public class GenerateCode extends ArchiMateAction {
 			Pattern pattern = null;
 			String name = profile.getName();
 			if (name.equals("MVC")) {
-				pattern = new MVCPattern(umlPackage);
+				pattern = new MVCPattern(umlPackage, status);
 			}
 			if (pattern != null) {
 				tasks += pattern.estimateTasks(SourceInspector.GENERATE);
@@ -123,8 +127,8 @@ public class GenerateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design primtives
 	private int collectPrimitives(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, EList<Profile> profiles,
-			ArrayList<Pattern> patterns) {
+			final IProgressMonitor monitor, MultiStatus status,
+			EList<Profile> profiles, ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
 			if (monitor.isCanceled()) { // return if cancel is requested
@@ -133,7 +137,7 @@ public class GenerateCode extends ArchiMateAction {
 			Pattern primitive = null;
 			String name = profile.getName();
 			if (name.equals("Callback")) {
-				primitive = new CallbackPrimitive(umlPackage);
+				primitive = new CallbackPrimitive(umlPackage, status);
 			}
 			if (primitive != null) {
 				tasks += primitive.estimateTasks(SourceInspector.GENERATE);
@@ -166,6 +170,17 @@ public class GenerateCode extends ArchiMateAction {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
 					+ (count == 1 ? " irregularity" : " irregularities")
 					+ " encountered during source code generation.", null);
+		} else if (status.getSeverity() == IStatus.ERROR) {
+			IStatus[] children = status.getChildren();
+			int count = 0;
+			for (int index = 0; index < children.length; ++index) {
+				if (children[index].getSeverity() == IStatus.ERROR)
+					++count;
+			}
+			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1, count
+					+ (count == 1 ? " error" : " errors")
+					+ " encountered during source code generation. "
+					+ "The code generation could not complete.", null);
 		} else {
 			newStatus = new MultiStatus(Activator.PLUGIN_ID, 1,
 					"The source code is already up to date.", null);

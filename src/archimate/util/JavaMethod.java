@@ -44,6 +44,8 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	private String archiMateTag;
 	// The name of the class in which the method is implemented
 	private String className;
+	// List of arguments
+	private ArrayList<JavaClass> args = new ArrayList<JavaClass>();
 
 	/**
 	 * Creates a {@link JavaMethod} object
@@ -225,6 +227,16 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	}
 
 	/**
+	 * Adds a {@link JavaClass} to the list of arguments
+	 * 
+	 * @param javaClass
+	 *            the {@link JavaClass} to be added to the list of arguments
+	 */
+	public void addArgument(JavaClass javaClass) {
+		args.add(javaClass);
+	}
+
+	/**
 	 * Sets the method type
 	 * 
 	 * @param type
@@ -262,6 +274,15 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 */
 	public String name() {
 		return name;
+	}
+
+	/**
+	 * Returns the list of arguments for the method
+	 * 
+	 * @return the list of arguments for the method
+	 */
+	public ArrayList<JavaClass> arguments() {
+		return args;
 	}
 
 	/**

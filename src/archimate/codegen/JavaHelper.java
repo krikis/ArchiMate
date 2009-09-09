@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -391,7 +392,30 @@ public class JavaHelper {
 			md.setName(ast.newSimpleName(method.name()));
 		}
 		node.bodyDeclarations().add(md);
+		// Add the method arguments
+		addMethodArguments(md, method);
 		// Add method block
+		addMethodBlock(md, method);
+		// Add the JavaDoc
+		addJavaDoc(md, method);
+	}
+
+	private void addMethodArguments(MethodDeclaration md, JavaMethod method) {
+		AST ast = md.getAST();
+		for (JavaClass argument : method.arguments()) {
+			SingleVariableDeclaration variableDeclaration = ast
+					.newSingleVariableDeclaration();
+			variableDeclaration.setType(ast.newSimpleType(ast
+					.newSimpleName(argument.className())));
+			variableDeclaration.setName(ast.newSimpleName(camelize(argument
+					.className())));
+			md.parameters().add(variableDeclaration);
+		}
+	}
+
+	// Adds the method block to the method
+	private void addMethodBlock(MethodDeclaration md, JavaMethod method) {
+		AST ast = md.getAST();
 		if (!method.type().equals(JavaMethod.DECLARATION)) {
 			Block methodBlock = ast.newBlock();
 			md.setBody(methodBlock);
@@ -405,8 +429,6 @@ public class JavaHelper {
 						new ArrayList<String>());
 			}
 		}
-		// Add the JavaDoc
-		addJavaDoc(md, method);
 	}
 
 	/**

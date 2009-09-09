@@ -253,6 +253,40 @@ public abstract class Pattern implements ICodeGenerator {
 		}
 	}
 
+	// Creates a list of Methods for the current ICodeElement and adds it to the
+	// TagNode
+	public void addMethods(TagNode node, JavaClass javaClass,
+			ArrayList<NamedElement> messages, ArrayList<JavaClass> args,
+			String defaultName, JavaClass defaultArg, String type, String comment) {
+		boolean hasrun = false;
+		for (int index = 0; index < messages.size(); ++index) {
+			String name = messages.get(index).getName();
+			JavaClass argument = args.get(index);
+			String methodName = (name.equals("") ? defaultName
+					+ (index == 0 ? "" : index) : name);
+			JavaMethod method = new JavaMethod(methodName, node.tag(), type,
+					javaClass.className(), javaClass.packageName());
+			method.addArgument(argument);
+			if (name.equals(""))
+				method.setOptional(true);
+			method.setComment(comment);
+			method.addUmlElement(messages.get(index));
+			javaClass.addChild(method);
+			node.addSource(method);
+			hasrun = true;
+		}
+		// if no method has been declared, the default method is declared
+		if (!hasrun && javaClass.optional()) {
+			JavaMethod method = new JavaMethod(defaultName, node.tag(), type,
+					javaClass.className(), javaClass.packageName());
+			method.addArgument(defaultArg);
+			method.setOptional(true);
+			method.setComment(comment);
+			javaClass.addChild(method);
+			node.addSource(method);
+		}
+	}
+
 	// Clones the Method objects in the list, adds the given settings and adds
 	// the list to the TagNodes sourcelist
 	protected void addMethods(TagNode node, JavaClass javaClass,
