@@ -18,7 +18,7 @@ import archimate.util.TagTree;
  */
 public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 
-	// Constants for the key source elements of the MVC pattern
+	// Constants for the key source elements of the Callback primitive
 	// Caller Package
 	public static final String EVENT_INTERFACE = "Callback_EventInterface";
 	public static final String EVENT_INTERFACE_INSTANCE = "Callback_EventInterfaceInstance";
@@ -26,22 +26,21 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	public static final String CALLER = "Callback_Caller";
 	public static final String CALLER_INSTANCE = "Callback_CallerInstance";
 	public static final String EVENT_METHOD = "Callback_EventMethod";
-	public static final String UPDATE_INVOCATION = "Callback_UpdateInvocation";
+	public static final String SUBSCRIPTION_INVOCATION = "Callback_SubscriptionInvocation";
 	// Callee Package
-	public static final String UPDATE_INTERFACE = "Callback_UpdateInterface";
-	public static final String UPDATE_INTERFACE_INSTANCE = "Callback_UpdateInterfaceInstance";
-	public static final String UPDATE_MESSAGE = "Callback_UpdateMessage";
+	public static final String SUBSCRIPTION_INTERFACE = "Callback_SubscriptionInterface";
+	public static final String SUBSCRIPTION_INTERFACE_INSTANCE = "Callback_SubscriptionInterfaceInstance";
+	public static final String SUBSCRIPTION_MESSAGE = "Callback_SubscriptionMessage";
 	public static final String CALLEE = "Callback_Callee";
 	public static final String CALLEE_INSTANCE = "Callback_CalleeInstance";
-	public static final String UPDATE_METHOD = "Callback_UpdateMethod";
+	public static final String SUBSCRIPTION_METHOD = "Callback_SubscriptionMethod";
 	public static final String EVENT_INVOCATION = "Callback_EventInvocation";
-	// Names of the packages in the pattern
+	// Names of the packages in the primitive
 	private String callerPackage;
-	private String viewPackage;
-	private String controllerPackage;
+	private String calleePackage;
 
 	/**
-	 * Constructor for the MVC pattern. Initializes a <TagTree> object and a
+	 * Constructor for the Callback primitive. Initializes a <TagTree> object and a
 	 * <code>IGenModel</code> object with all settings for the current Java
 	 * Project.
 	 * 
@@ -54,376 +53,250 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		// Set the UML reader
 		umlReader = new UMLAdapter(umlPackage, "MVC");
 		// Set the pattern name
-		name = "MVC Pattern";
+		name = "Callback primitive";
 		// Setup the tag tree
 		constructTree();
 	}
 
 	// Sets the package names
 	private void setVariables() {
-		packageBase = "app";
-		callerPackage = packageBase + ".model";
-		viewPackage = packageBase + ".view";
-		controllerPackage = packageBase + ".controller";
+		packageBase = "callback";
+		callerPackage = packageBase + ".caller";
+		calleePackage = packageBase + ".callee";
 	}
 
 	/**
-	 * Constructs a tree defining the structure of the MVC pattern key elements
+	 * Constructs a tree defining the structure of the Callback primitive key elements
 	 * 
-	 * @return Tree defining the structure of the MVC pattern key elements
+	 * @return Tree defining the structure of the Callback primitive key elements
 	 */
 	private void constructTree() {
 		tree = new TagTree();
 		TagNode root = tree.root();
 
-		// Create DataInterface
-		TagNode dataInterface = dataInterface(root);
-		// Create UpdateInterface
-		TagNode updateInterface = updateInterface(root);
-		// Create CommandInterface
-		TagNode commandInterface = commandInterface(root);
+		// Create EventInterface
+		TagNode eventInterface = eventInterface(root);
+		// Create SubscriptionInterface
+		TagNode subscriptionInterface = subscriptionInterface(root);
 
-		// Create Model Class
-		TagNode modelClass = modelClass(root, dataInterface);
-		// Create View Class
-		TagNode viewClass = viewClass(root, updateInterface);
-		// Create Controller Class
-		TagNode controllerClass = controllerClass(root, commandInterface);
+		// Create Caller Class
+		TagNode callerClass = callerClass(root, eventInterface);
+		// Create Callee Class
+		TagNode calleeClass = calleeClass(root, subscriptionInterface);
 
-		// Create DataInterface instance
-		TagNode dataInterfaceInstance = dataInterfaceInstance(root,
-				dataInterface);
-		// Create UpdateInterface instance
-		TagNode updateInterfaceInstance = updateInterfaceInstance(root,
-				updateInterface);
-		// Create CommandInterface instance
-		TagNode commandInterfaceInstance = commandInterfaceInstance(root,
-				commandInterface);
+		// Create EventInterface instance
+		TagNode eventInterfaceInstance = eventInterfaceInstance(root,
+				eventInterface);
+		// Create SubscriptionInterface instance
+		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(root,
+				subscriptionInterface);
 
-		// Create Model instance Class
-		TagNode modelInstanceClass = modelInstanceClass(root,
-				dataInterfaceInstance, modelClass);
-		// Create View instance Class
-		TagNode viewInstanceClass = viewInstanceClass(root,
-				updateInterfaceInstance, viewClass);
-		// Create Controller instance Class
-		TagNode controllerInstanceClass = controllerInstanceClass(root,
-				commandInterfaceInstance, controllerClass);
+		// Create Caller instance Class
+		TagNode callerInstanceClass = callerInstanceClass(root,
+				eventInterfaceInstance, callerClass);
+		// Create Callee instance Class
+		TagNode calleeInstanceClass = calleeInstanceClass(root,
+				subscriptionInterfaceInstance, calleeClass);
 
-		// Add updateInvocationMethods
-		updateInvocationMethods(modelInstanceClass, viewInstanceClass,
-				updateInterfaceInstance);
-		// Add commandInvocationMethods
-		commandInvocationMethods(viewInstanceClass, controllerInstanceClass,
-				commandInterfaceInstance);
-		// Add dataInvocationMethods
-		dataInvocationMethods(controllerInstanceClass, modelInstanceClass,
-				dataInterfaceInstance);
+		// Add subscriptionInvocationMethods
+		subscriptionInvocationMethods(callerInstanceClass, calleeInstanceClass);
+		// Add eventInvocationMethods
+		eventInvocationMethods(calleeInstanceClass, callerInstanceClass);
 	}
 
-	// Create DataInterface
-	private TagNode dataInterface(TagNode root) {
-		TagNode dataInterface = new TagNode(DATA_INTERFACE);
-		createClasses(dataInterface, "", callerPackage, null, false,
-				JavaClass.INTERFACE, "IData", "", null, null,
-				"This interface specifies the Data interface of the MVC Pattern");
-		root.addChild(dataInterface);
-		return dataInterface;
+	// Create EventInterface
+	private TagNode eventInterface(TagNode root) {
+		TagNode eventInterface = new TagNode(EVENT_INTERFACE);
+		createClasses(eventInterface, "", callerPackage, null, false,
+				JavaClass.INTERFACE, "IEvent", "", null, null,
+				"This interface specifies the Event interface of the Callback primitive");
+		root.addChild(eventInterface);
+		return eventInterface;
 	}
 
-	// Create UpdateInterface
-	private TagNode updateInterface(TagNode root) {
-		TagNode updateInterface = new TagNode(UPDATE_INTERFACE);
-		createClasses(updateInterface, "", viewPackage, null, false,
-				JavaClass.INTERFACE, "IUpdate", "", null, null,
-				"This interface specifies the Update interface of the MVC Pattern");
-		root.addChild(updateInterface);
-		return updateInterface;
+	// Create SubscriptionInterface
+	private TagNode subscriptionInterface(TagNode root) {
+		TagNode subscriptionInterface = new TagNode(SUBSCRIPTION_INTERFACE);
+		createClasses(subscriptionInterface, "", calleePackage, null, false,
+				JavaClass.INTERFACE, "ISubscription", "", null, null,
+				"This interface specifies the Subscription interface of the Callback primitive");
+		root.addChild(subscriptionInterface);
+		return subscriptionInterface;
 	}
 
-	// Create CommandInterface
-	private TagNode commandInterface(TagNode root) {
-		TagNode commandInterface = new TagNode(COMMAND_INTERFACE);
-		createClasses(commandInterface, "", controllerPackage, null, false,
-				JavaClass.INTERFACE, "ICommand", "", null, null,
-				"This interface specifies the Command interface of the MVC Pattern");
-		root.addChild(commandInterface);
-		return commandInterface;
-	}
-
-	// Create Model class implementing DataInterface
-	private TagNode modelClass(TagNode root, TagNode dataInterface) {
+	// Create Caller class implementing EventInterface
+	private TagNode callerClass(TagNode root, TagNode eventInterface) {
 		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-		TagNode model = new TagNode(MODEL);
-		ICodeElement element = dataInterface.getSourceByTag(DATA_INTERFACE);
+		TagNode caller = new TagNode(CALLER);
+		ICodeElement element = eventInterface.getSourceByTag(EVENT_INTERFACE);
 		if (element instanceof JavaClass) {
 			interfaces.add((JavaClass) element);
 		}
-		createClasses(model, "", callerPackage, null, true, JavaClass.CLASS,
-				"Model", "", null, interfaces,
-				"This class implements the Model of the MVC Pattern");
-		root.addChild(model);
-		return model;
+		createClasses(caller, "", callerPackage, null, true, JavaClass.CLASS,
+				"Caller", "", null, interfaces,
+				"This class implements the Caller of the Callback primitive");
+		root.addChild(caller);
+		return caller;
 	}
 
-	// Create View class implementing UpdateInterface
-	private TagNode viewClass(TagNode root, TagNode updateInterface) {
-		TagNode view = new TagNode(VIEW);
+	// Create Callee class implementing SubscriptionInterface
+	private TagNode calleeClass(TagNode root, TagNode subscriptionInterface) {
+		TagNode Callee = new TagNode(CALLEE);
 		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-		ICodeElement element = updateInterface.getSourceByTag(UPDATE_INTERFACE);
+		ICodeElement element = subscriptionInterface.getSourceByTag(SUBSCRIPTION_INTERFACE);
 		if (element instanceof JavaClass) {
 			interfaces.add((JavaClass) element);
 		}
-		createClasses(view, "", viewPackage, null, true, JavaClass.CLASS,
-				"View", "", null, interfaces,
-				"This class implements the View of the MVC Pattern");
-		root.addChild(view);
-		return view;
+		createClasses(Callee, "", calleePackage, null, true, JavaClass.CLASS,
+				"Callee", "", null, interfaces,
+				"This class implements the Callee of the Callback primitive");
+		root.addChild(Callee);
+		return Callee;
 	}
 
-	// Create Controller class implementing CommandInterface
-	private TagNode controllerClass(TagNode root, TagNode commandInterface) {
-		TagNode controller = new TagNode(CONTROLLER);
-		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-		ICodeElement element = commandInterface
-				.getSourceByTag(COMMAND_INTERFACE);
-		if (element instanceof JavaClass) {
-			interfaces.add((JavaClass) element);
-		}
-		createClasses(controller, "", controllerPackage, null, true,
-				JavaClass.CLASS, "Controller", "", null, interfaces,
-				"This class implements the Controller of the MVC Pattern");
-		root.addChild(controller);
-		return controller;
-	}
-
-	// Create DataInterface instance
-	private TagNode dataInterfaceInstance(TagNode root, TagNode superInterface) {
-		TagNode dataInterface = new TagNode(DATA_INTERFACE_INSTANCE);
-		root.addChild(dataInterface);
+	// Create EventInterface instance
+	private TagNode eventInterfaceInstance(TagNode root, TagNode superInterface) {
+		TagNode eventInterface = new TagNode(EVENT_INTERFACE_INSTANCE);
+		root.addChild(eventInterface);
 		JavaClass superClass = null;
-		ICodeElement element = superInterface.getSourceByTag(DATA_INTERFACE);
+		ICodeElement element = superInterface.getSourceByTag(EVENT_INTERFACE);
 		if (element instanceof JavaClass) {
 			superClass = (JavaClass) element;
 		}
-		createClasses(dataInterface, TagNode.inStereo(MODEL_INSTANCE),
-				callerPackage, null, false, JavaClass.INTERFACE, "IMyData",
-				"I#Data", superClass, null,
-				"This interface specifies the #name#interface of the MVC Pattern");
+		createClasses(eventInterface, TagNode.inStereo(CALLER_INSTANCE),
+				callerPackage, null, false, JavaClass.INTERFACE, "IMyEvent",
+				"I#Event", superClass, null,
+				"This interface specifies the #name#interface of the Callback primitive");
 		// Create interface method declarations
-		TagNode dataMessage = new TagNode(DATA_MESSAGE);
-		dataInterface.addChild(dataMessage);
-		addMethods(dataMessage, "modifyData", JavaMethod.DECLARATION,
-				"This method updates the data in the model.");
-		return dataInterface;
+		TagNode eventMessage = new TagNode(EVENT_MESSAGE);
+		eventInterface.addChild(eventMessage);
+		addMethods(eventMessage, "handleEvent", JavaMethod.DECLARATION,
+				"This method handles the event passed from the Callee.");
+		return eventInterface;
 	}
 
-	// Create UpdateInterface instance
-	private TagNode updateInterfaceInstance(TagNode root, TagNode superInterface) {
-		TagNode updateInterface = new TagNode(UPDATE_INTERFACE_INSTANCE);
-		root.addChild(updateInterface);
+	// Create SubscriptionInterface instance
+	private TagNode subscriptionInterfaceInstance(TagNode root, TagNode superInterface) {
+		TagNode subscriptionInterface = new TagNode(SUBSCRIPTION_INTERFACE_INSTANCE);
+		root.addChild(subscriptionInterface);
 		JavaClass superClass = null;
-		ICodeElement element = superInterface.getSourceByTag(UPDATE_INTERFACE);
+		ICodeElement element = superInterface.getSourceByTag(SUBSCRIPTION_INTERFACE);
 		if (element instanceof JavaClass) {
 			superClass = (JavaClass) element;
 		}
-		createClasses(updateInterface, TagNode.inStereo(VIEW_INSTANCE),
-				viewPackage, null, false, JavaClass.INTERFACE, "IMyUpdate",
-				"IUpdate#", superClass, null,
-				"This interface specifies the #name#interface of the MVC Pattern");
+		createClasses(subscriptionInterface, TagNode.inStereo(CALLEE_INSTANCE),
+				calleePackage, null, false, JavaClass.INTERFACE, "IMySubscription",
+				"ISubscription#", superClass, null,
+				"This interface specifies the #name#interface of the Callback primitive");
 		// Create interface method declarations
-		TagNode updateMessage = new TagNode(UPDATE_MESSAGE);
-		updateInterface.addChild(updateMessage);
-		addMethods(updateMessage, "updateView", JavaMethod.DECLARATION,
-				"This method updates the interface in the view.");
-		return updateInterface;
+		TagNode subscriptionMessage = new TagNode(SUBSCRIPTION_MESSAGE);
+		subscriptionInterface.addChild(subscriptionMessage);
+		addMethods(subscriptionMessage, "subscribe", JavaMethod.DECLARATION,
+				"This method subscribes the caller to an event.");
+		return subscriptionInterface;
 	}
 
-	// Create CommandInterface instance
-	private TagNode commandInterfaceInstance(TagNode root,
-			TagNode superInterface) {
-		TagNode commandInterface = new TagNode(COMMAND_INTERFACE_INSTANCE);
-		root.addChild(commandInterface);
-		JavaClass superClass = null;
-		ICodeElement element = superInterface.getSourceByTag(COMMAND_INTERFACE);
-		if (element instanceof JavaClass) {
-			superClass = (JavaClass) element;
-		}
-		createClasses(commandInterface, TagNode.inStereo(CONTROLLER_INSTANCE),
-				controllerPackage, null, false, JavaClass.INTERFACE,
-				"IMyCommand", "I#Command", superClass, null,
-				"This interface specifies the #name#interface of the MVC Pattern");
-		// Create interface method declarations
-		TagNode commandMessage = new TagNode(COMMAND_MESSAGE);
-		commandInterface.addChild(commandMessage);
-		addMethods(commandMessage, "executeCommand", JavaMethod.DECLARATION,
-				"This method executes the commands in the controller.");
-		return commandInterface;
-	}
-
-	// Create Model instance class implementing DataInterface instance
-	private TagNode modelInstanceClass(TagNode root, TagNode dataInterface,
+	// Create Caller instance class implementing EventInterface instance
+	private TagNode callerInstanceClass(TagNode root, TagNode eventInterface,
 			TagNode superClass) {
-		TagNode model = new TagNode(MODEL_INSTANCE);
-		TagNode dataMethods = new TagNode(DATA_METHOD);
-		model.addChild(dataMethods);
-		root.addChild(model);
+		TagNode caller = new TagNode(CALLER_INSTANCE);
+		TagNode eventMethods = new TagNode(EVENT_METHOD);
+		caller.addChild(eventMethods);
+		root.addChild(caller);
 		int count = 0;
-		for (ICodeElement element : dataInterface.source()) {
+		for (ICodeElement element : eventInterface.source()) {
 			if (element instanceof JavaClass) {
-				JavaClass dataInterfaceClass = (JavaClass) element;
+				JavaClass eventInterfaceClass = (JavaClass) element;
 				String name = "";
-				if (dataInterfaceClass.umlElements().size() > 0) {
-					name = dataInterfaceClass.umlElements().get(0).getName();
+				if (eventInterfaceClass.umlElements().size() > 0) {
+					name = eventInterfaceClass.umlElements().get(0).getName();
 				}
-				String className = (name.equals("") ? "MyModel"
+				String className = (name.equals("") ? "MyCaller"
 						+ (count == 0 ? "" : count) : name);
 				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-				interfaces.add(dataInterfaceClass);
+				interfaces.add(eventInterfaceClass);
 				JavaClass superClassType = null;
-				ICodeElement codeElement = superClass.getSourceByTag(MODEL);
+				ICodeElement codeElement = superClass.getSourceByTag(CALLER);
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(model, dataInterfaceClass
+				JavaClass javaClass = createClass(caller, eventInterfaceClass
 						.umlElements(), callerPackage, null, JavaClass.CLASS,
 						className, superClassType, interfaces,
-						"This class implements a Model of the MVC Pattern",
+						"This class implements a Caller of the Callback primitive",
 						name.equals(""));
 				// Create class methods
-				addMethods(dataMethods, javaClass, dataInterfaceClass,
+				addMethods(eventMethods, javaClass, eventInterfaceClass,
 						JavaMethod.IMPLEMENTATION,
-						"This method implements updating the data in the model.");
+						"This method implements handling an event.");
 				++count;
 			}
 		}
-		return model;
+		return caller;
 	}
 
-	// Create View instance class implementing UpdateInterface instance
-	private TagNode viewInstanceClass(TagNode root, TagNode updateInterface,
+	// Create Callee instance class implementing SubscriptionInterface instance
+	private TagNode calleeInstanceClass(TagNode root, TagNode subscriptionInterface,
 			TagNode superClass) {
-		TagNode view = new TagNode(VIEW_INSTANCE);
-		TagNode updateMethod = new TagNode(UPDATE_METHOD);
-		view.addChild(updateMethod);
-		root.addChild(view);
+		TagNode callee = new TagNode(CALLEE_INSTANCE);
+		TagNode subscriptionMethod = new TagNode(SUBSCRIPTION_METHOD);
+		callee.addChild(subscriptionMethod);
+		root.addChild(callee);
 		int count = 0;
-		for (ICodeElement element : updateInterface.source()) {
+		for (ICodeElement element : subscriptionInterface.source()) {
 			if (element instanceof JavaClass) {
-				JavaClass updateInterfaceClass = (JavaClass) element;
+				JavaClass subscriptionInterfaceClass = (JavaClass) element;
 				String name = "";
-				if (updateInterfaceClass.umlElements().size() > 0) {
-					name = updateInterfaceClass.umlElements().get(0).getName();
+				if (subscriptionInterfaceClass.umlElements().size() > 0) {
+					name = subscriptionInterfaceClass.umlElements().get(0).getName();
 				}
-				String className = (name.equals("") ? "MyView"
+				String className = (name.equals("") ? "MyCallee"
 						+ (count == 0 ? "" : count) : name);
 				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-				interfaces.add(updateInterfaceClass);
+				interfaces.add(subscriptionInterfaceClass);
 				JavaClass superClassType = null;
-				ICodeElement codeElement = superClass.getSourceByTag(VIEW);
+				ICodeElement codeElement = superClass.getSourceByTag(CALLEE);
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(view, updateInterfaceClass
-						.umlElements(), viewPackage, null, JavaClass.CLASS,
+				JavaClass javaClass = createClass(callee, subscriptionInterfaceClass
+						.umlElements(), calleePackage, null, JavaClass.CLASS,
 						className, superClassType, interfaces,
-						"This class implements a View of the MVC Pattern", name
+						"This class implements a Callee of the Callback primitive", name
 								.equals(""));
 				// Create class methods
-				addMethods(updateMethod, javaClass, updateInterfaceClass,
+				addMethods(subscriptionMethod, javaClass, subscriptionInterfaceClass,
 						JavaMethod.IMPLEMENTATION,
-						"This method implements updating the interface in the view.");
+						"This method implements subscribing a caller to an event.");
 				++count;
 			}
 		}
-		return view;
+		return callee;
 	}
 
-	// Create Controller class implementing CommandInterface instance
-	private TagNode controllerInstanceClass(TagNode root,
-			TagNode commandInterface, TagNode superClass) {
-		TagNode controller = new TagNode(CONTROLLER_INSTANCE);
-		TagNode commandMethod = new TagNode(COMMAND_METHOD);
-		controller.addChild(commandMethod);
-		root.addChild(controller);
-		int count = 0;
-		for (ICodeElement element : commandInterface.source()) {
+	// Create subscription invocation methods
+	private void subscriptionInvocationMethods(TagNode caller, TagNode callee) {
+		TagNode subscriptionInvocation = new TagNode(SUBSCRIPTION_INVOCATION);
+		caller.addChild(subscriptionInvocation);
+		for (ICodeElement element : caller.source()) {
 			if (element instanceof JavaClass) {
-				JavaClass commandInterfaceClass = (JavaClass) element;
-				String name = "";
-				if (commandInterfaceClass.umlElements().size() > 0) {
-					name = commandInterfaceClass.umlElements().get(0).getName();
-				}
-				String className = (name.equals("") ? "MyController"
-						+ (count == 0 ? "" : count) : name);
-				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-				interfaces.add(commandInterfaceClass);
-				JavaClass superClassType = null;
-				ICodeElement codeElement = superClass
-						.getSourceByTag(CONTROLLER);
-				if (codeElement instanceof JavaClass) {
-					superClassType = (JavaClass) codeElement;
-				}
-				JavaClass javaClass = createClass(
-						controller,
-						commandInterfaceClass.umlElements(),
-						controllerPackage,
-						null,
-						JavaClass.CLASS,
-						className,
-						superClassType,
-						interfaces,
-						"This class implements a Controller of the MVC Pattern",
-						name.equals(""));
-				// Create class methods
-				addMethods(commandMethod, javaClass, commandInterfaceClass,
-						JavaMethod.IMPLEMENTATION,
-						"This method implements execution of a command from the view.");
-				++count;
-			}
-		}
-		return controller;
-	}
-
-	// Create update invocation methods
-	private void updateInvocationMethods(TagNode model, TagNode view,
-			TagNode updateInterface) {
-		TagNode updateInvocation = new TagNode(UPDATE_INVOCATION);
-		model.addChild(updateInvocation);
-		for (ICodeElement element : model.source()) {
-			if (element instanceof JavaClass) {
-				addMethods(updateInvocation, TagNode.inStereo(UPDATE_MESSAGE),
-						(JavaClass) element, view, JavaMethod.INVOCATION,
-						"This method invokes a method that updates the interface in the view.");
+				addMethods(subscriptionInvocation, TagNode.inStereo(SUBSCRIPTION_MESSAGE),
+						(JavaClass) element, callee, JavaMethod.INVOCATION,
+						"This method invokes a method that subscribes the caller to an event at the callee.");
 			}
 		}
 	}
 
-	// Create command invocation methods
-	private void commandInvocationMethods(TagNode view, TagNode controller,
-			TagNode commandInterface) {
-		TagNode commandInvocation = new TagNode(COMMAND_INVOCATION);
-		view.addChild(commandInvocation);
-		for (ICodeElement element : view.source()) {
+	// Create event invocation methods
+	private void eventInvocationMethods(TagNode callee, TagNode caller) {
+		TagNode eventInvocation = new TagNode(EVENT_INVOCATION);
+		callee.addChild(eventInvocation);
+		for (ICodeElement element : callee.source()) {
 			if (element instanceof JavaClass) {
-				addMethods(commandInvocation,
-						TagNode.inStereo(COMMAND_MESSAGE), (JavaClass) element,
-						controller, JavaMethod.INVOCATION,
-						"This method invokes a method that executes a command in the controller.");
-			}
-		}
-	}
-
-	// Create data invocation methods
-	private void dataInvocationMethods(TagNode controller, TagNode model,
-			TagNode dataInterface) {
-		TagNode commandInvocation = new TagNode(DATA_INVOCATION);
-		controller.addChild(commandInvocation);
-		for (ICodeElement element : controller.source()) {
-			if (element instanceof JavaClass) {
-				addMethods(commandInvocation, TagNode.inStereo(DATA_MESSAGE),
-						(JavaClass) element, model, JavaMethod.INVOCATION,
-						"This method invokes a method that modifies the data in the model.");
+				addMethods(eventInvocation,
+						TagNode.inStereo(EVENT_MESSAGE), (JavaClass) element,
+						caller, JavaMethod.INVOCATION,
+						"This method invokes a method that handles an event a the caller.");
 			}
 		}
 	}
