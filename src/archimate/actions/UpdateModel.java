@@ -95,7 +95,7 @@ public class UpdateModel extends ArchiMateAction {
 		}
 		return processStatus(monitor, status);
 	}
-	
+
 	// Goes through all applied profiles and collects the design patterns
 	private int collectPatterns(org.eclipse.uml2.uml.Package umlPackage,
 			final IProgressMonitor monitor, EList<Profile> profiles,

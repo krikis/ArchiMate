@@ -40,9 +40,9 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	private String calleePackage;
 
 	/**
-	 * Constructor for the Callback primitive. Initializes a <TagTree> object and a
-	 * <code>IGenModel</code> object with all settings for the current Java
-	 * Project.
+	 * Constructor for the Callback primitive. Initializes a <TagTree> object
+	 * and a <code>IGenModel</code> object with all settings for the current
+	 * Java Project.
 	 * 
 	 * @param umlPackage
 	 *            The UML package in the open UML or GMF editor
@@ -51,7 +51,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		// Set some configuration variables
 		setVariables();
 		// Set the UML reader
-		umlReader = new UMLAdapter(umlPackage, "MVC");
+		umlReader = new UMLAdapter(umlPackage, "CallBack");
 		// Set the pattern name
 		name = "Callback primitive";
 		// Setup the tag tree
@@ -66,9 +66,11 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	}
 
 	/**
-	 * Constructs a tree defining the structure of the Callback primitive key elements
+	 * Constructs a tree defining the structure of the Callback primitive key
+	 * elements
 	 * 
-	 * @return Tree defining the structure of the Callback primitive key elements
+	 * @return Tree defining the structure of the Callback primitive key
+	 *         elements
 	 */
 	private void constructTree() {
 		tree = new TagTree();
@@ -88,8 +90,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		TagNode eventInterfaceInstance = eventInterfaceInstance(root,
 				eventInterface);
 		// Create SubscriptionInterface instance
-		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(root,
-				subscriptionInterface);
+		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
+				root, subscriptionInterface);
 
 		// Create Caller instance Class
 		TagNode callerInstanceClass = callerInstanceClass(root,
@@ -143,7 +145,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	private TagNode calleeClass(TagNode root, TagNode subscriptionInterface) {
 		TagNode Callee = new TagNode(CALLEE);
 		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-		ICodeElement element = subscriptionInterface.getSourceByTag(SUBSCRIPTION_INTERFACE);
+		ICodeElement element = subscriptionInterface
+				.getSourceByTag(SUBSCRIPTION_INTERFACE);
 		if (element instanceof JavaClass) {
 			interfaces.add((JavaClass) element);
 		}
@@ -176,22 +179,26 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	}
 
 	// Create SubscriptionInterface instance
-	private TagNode subscriptionInterfaceInstance(TagNode root, TagNode superInterface) {
-		TagNode subscriptionInterface = new TagNode(SUBSCRIPTION_INTERFACE_INSTANCE);
+	private TagNode subscriptionInterfaceInstance(TagNode root,
+			TagNode superInterface) {
+		TagNode subscriptionInterface = new TagNode(
+				SUBSCRIPTION_INTERFACE_INSTANCE);
 		root.addChild(subscriptionInterface);
 		JavaClass superClass = null;
-		ICodeElement element = superInterface.getSourceByTag(SUBSCRIPTION_INTERFACE);
+		ICodeElement element = superInterface
+				.getSourceByTag(SUBSCRIPTION_INTERFACE);
 		if (element instanceof JavaClass) {
 			superClass = (JavaClass) element;
 		}
 		createClasses(subscriptionInterface, TagNode.inStereo(CALLEE_INSTANCE),
-				calleePackage, null, false, JavaClass.INTERFACE, "IMySubscription",
-				"ISubscription#", superClass, null,
+				calleePackage, null, false, JavaClass.INTERFACE,
+				"IMySubscription", "ISubscription#", superClass, null,
 				"This interface specifies the #name#interface of the Callback primitive");
 		// Create interface method declarations
 		TagNode subscriptionMessage = new TagNode(SUBSCRIPTION_MESSAGE);
 		subscriptionInterface.addChild(subscriptionMessage);
-		addMethods(subscriptionMessage, "subscribe", JavaMethod.DECLARATION,
+		addMethods(subscriptionMessage, "subscribeToEvent",
+				JavaMethod.DECLARATION,
 				"This method subscribes the caller to an event.");
 		return subscriptionInterface;
 	}
@@ -220,9 +227,15 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(caller, eventInterfaceClass
-						.umlElements(), callerPackage, null, JavaClass.CLASS,
-						className, superClassType, interfaces,
+				JavaClass javaClass = createClass(
+						caller,
+						eventInterfaceClass.umlElements(),
+						callerPackage,
+						null,
+						JavaClass.CLASS,
+						className,
+						superClassType,
+						interfaces,
 						"This class implements a Caller of the Callback primitive",
 						name.equals(""));
 				// Create class methods
@@ -236,8 +249,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	}
 
 	// Create Callee instance class implementing SubscriptionInterface instance
-	private TagNode calleeInstanceClass(TagNode root, TagNode subscriptionInterface,
-			TagNode superClass) {
+	private TagNode calleeInstanceClass(TagNode root,
+			TagNode subscriptionInterface, TagNode superClass) {
 		TagNode callee = new TagNode(CALLEE_INSTANCE);
 		TagNode subscriptionMethod = new TagNode(SUBSCRIPTION_METHOD);
 		callee.addChild(subscriptionMethod);
@@ -248,7 +261,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				JavaClass subscriptionInterfaceClass = (JavaClass) element;
 				String name = "";
 				if (subscriptionInterfaceClass.umlElements().size() > 0) {
-					name = subscriptionInterfaceClass.umlElements().get(0).getName();
+					name = subscriptionInterfaceClass.umlElements().get(0)
+							.getName();
 				}
 				String className = (name.equals("") ? "MyCallee"
 						+ (count == 0 ? "" : count) : name);
@@ -259,14 +273,20 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				if (codeElement instanceof JavaClass) {
 					superClassType = (JavaClass) codeElement;
 				}
-				JavaClass javaClass = createClass(callee, subscriptionInterfaceClass
-						.umlElements(), calleePackage, null, JavaClass.CLASS,
-						className, superClassType, interfaces,
-						"This class implements a Callee of the Callback primitive", name
-								.equals(""));
+				JavaClass javaClass = createClass(
+						callee,
+						subscriptionInterfaceClass.umlElements(),
+						calleePackage,
+						null,
+						JavaClass.CLASS,
+						className,
+						superClassType,
+						interfaces,
+						"This class implements a Callee of the Callback primitive",
+						name.equals(""));
 				// Create class methods
-				addMethods(subscriptionMethod, javaClass, subscriptionInterfaceClass,
-						JavaMethod.IMPLEMENTATION,
+				addMethods(subscriptionMethod, javaClass,
+						subscriptionInterfaceClass, JavaMethod.IMPLEMENTATION,
 						"This method implements subscribing a caller to an event.");
 				++count;
 			}
@@ -280,8 +300,12 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		caller.addChild(subscriptionInvocation);
 		for (ICodeElement element : caller.source()) {
 			if (element instanceof JavaClass) {
-				addMethods(subscriptionInvocation, TagNode.inStereo(SUBSCRIPTION_MESSAGE),
-						(JavaClass) element, callee, JavaMethod.INVOCATION,
+				addMethods(
+						subscriptionInvocation,
+						TagNode.inStereo(SUBSCRIPTION_MESSAGE),
+						(JavaClass) element,
+						callee,
+						JavaMethod.INVOCATION,
 						"This method invokes a method that subscribes the caller to an event at the callee.");
 			}
 		}
@@ -293,9 +317,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		callee.addChild(eventInvocation);
 		for (ICodeElement element : callee.source()) {
 			if (element instanceof JavaClass) {
-				addMethods(eventInvocation,
-						TagNode.inStereo(EVENT_MESSAGE), (JavaClass) element,
-						caller, JavaMethod.INVOCATION,
+				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
+						(JavaClass) element, caller, JavaMethod.INVOCATION,
 						"This method invokes a method that handles an event a the caller.");
 			}
 		}
