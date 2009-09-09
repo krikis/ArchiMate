@@ -68,22 +68,17 @@ public class ValidateCode extends ArchiMateAction {
 		// Calculating number of tasks
 		ArrayList<Pattern> patterns = new ArrayList<Pattern>();
 		int tasks = 0;
-		for (int i = 0; i < profiles.size(); ++i) {
-			if (monitor.isCanceled()) {
-				return null;
-			}
-			Profile profile = profiles.get(i);
-			Pattern pattern = null;
-			String name = profile.getName();
-			if (name.equals("MVC")) {
-				pattern = new MVCPattern(umlPackage);
-			} else if (name.equals("Callback")) {
-				pattern = new CallbackPrimitive(umlPackage);
-			} else {
-				break;
-			}
-			tasks += pattern.estimateTasks(SourceInspector.VALIDATE);
-			patterns.add(pattern);
+		int newtasks = collectPatterns(umlPackage, monitor, profiles, patterns);
+		if (monitor.isCanceled()) { // return if cancel is requested
+			return null;
+		}
+		tasks += newtasks;
+		// If no pattern has been found, the primitives are processed separately
+		if (newtasks == 0) {
+			tasks += collectPrimitives(umlPackage, monitor, profiles, patterns);
+		}
+		if (monitor.isCanceled()) { // return if cancel is requested
+			return null;
 		}
 		// Initializing the status
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
@@ -99,6 +94,50 @@ public class ValidateCode extends ArchiMateAction {
 			pattern.validate_code(monitor, status);
 		}
 		return processStatus(monitor, status);
+	}
+	
+	// Goes through all applied profiles and collects the design patterns
+	private int collectPatterns(org.eclipse.uml2.uml.Package umlPackage,
+			final IProgressMonitor monitor, EList<Profile> profiles,
+			ArrayList<Pattern> patterns) {
+		int tasks = 0;
+		for (Profile profile : profiles) {
+			if (monitor.isCanceled()) { // return if cancel is requested
+				return tasks;
+			}
+			Pattern pattern = null;
+			String name = profile.getName();
+			if (name.equals("MVC")) {
+				pattern = new MVCPattern(umlPackage);
+			}
+			if (pattern != null) {
+				tasks += pattern.estimateTasks(SourceInspector.VALIDATE);
+				patterns.add(pattern);
+			}
+		}
+		return tasks;
+	}
+
+	// Goes through all applied profiles and collects the design primtives
+	private int collectPrimitives(org.eclipse.uml2.uml.Package umlPackage,
+			final IProgressMonitor monitor, EList<Profile> profiles,
+			ArrayList<Pattern> patterns) {
+		int tasks = 0;
+		for (Profile profile : profiles) {
+			if (monitor.isCanceled()) { // return if cancel is requested
+				return tasks;
+			}
+			Pattern primitive = null;
+			String name = profile.getName();
+			if (name.equals("Callback")) {
+				primitive = new CallbackPrimitive(umlPackage);
+			}
+			if (primitive != null) {
+				tasks += primitive.estimateTasks(SourceInspector.VALIDATE);
+				patterns.add(primitive);
+			}
+		}
+		return tasks;
 	}
 
 	// Generates the error dialog
@@ -142,7 +181,7 @@ public class ValidateCode extends ArchiMateAction {
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
-		if (!monitor.isCanceled()) {
+		if (!monitor.isCanceled()) { // return if cancel is requested
 			dialog = new ErrorDialog(window.getShell(),
 					"Archimate Source Code Validation", null, newStatus, status
 							.getSeverity());

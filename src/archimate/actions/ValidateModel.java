@@ -111,7 +111,7 @@ public class ValidateModel extends ArchiMateAction {
 		}
 		newStatus.addAll(status);
 		ErrorDialog dialog = null;
-		if (!monitor.isCanceled()) {
+		if (!monitor.isCanceled()) { // return if cancel is requested
 			dialog = new ErrorDialog(window.getShell(),
 					"Archimate UML Model Validation", null, newStatus, status
 							.getSeverity());
@@ -142,7 +142,7 @@ public class ValidateModel extends ArchiMateAction {
 			MultiStatus status, final IProgressMonitor monitor) {
 		EList<Profile> profiles = myPack.getAppliedProfiles();
 		for (Iterator<Profile> iter = profiles.iterator(); iter.hasNext();) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			Profile profile = iter.next();
@@ -160,14 +160,14 @@ public class ValidateModel extends ArchiMateAction {
 			MultiStatus status, final IProgressMonitor monitor) {
 		EList<Element> elements = myPack.allOwnedElements();
 		for (Iterator<Element> iter = elements.iterator(); iter.hasNext();) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			Element element = iter.next();
 			EList<Stereotype> stereotypes = element.getAppliedStereotypes();
 			for (Iterator<Stereotype> iter2 = stereotypes.iterator(); iter2
 					.hasNext();) {
-				if (monitor.isCanceled()) {
+				if (monitor.isCanceled()) { // return if cancel is requested
 					return;
 				}
 				Stereotype stereotype = iter2.next();
@@ -186,7 +186,7 @@ public class ValidateModel extends ArchiMateAction {
 	private void handleRules(Element element, EList<Constraint> rules,
 			MultiStatus status, final IProgressMonitor monitor) {
 		for (int k = 0; k < rules.size(); ++k) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			Constraint rule = rules.get(k);

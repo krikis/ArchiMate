@@ -169,7 +169,7 @@ public class SourceInspector {
 	// adds source elements when they are missing
 	private void traverseSourceFiles(IResource[] members) {
 		for (int index = 0; index < members.length; index++) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			IResource resource = members[index];
@@ -197,7 +197,7 @@ public class SourceInspector {
 	// Adds the source files that are missing
 	private void createSourceFiles(ArrayList<TagNode> tags) {
 		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			ASTEngine engine = new ASTEngine(this, mode, pattern);
@@ -218,7 +218,7 @@ public class SourceInspector {
 			ArrayList<TagNode> tags) {
 		JavaHelper helper = new JavaHelper(status, pattern);
 		for (Iterator<TagNode> iter = tags.iterator(); iter.hasNext();) {
-			if (monitor.isCanceled()) {
+			if (monitor.isCanceled()) { // return if cancel is requested
 				return;
 			}
 			TagNode tagnode = iter.next();
@@ -238,6 +238,9 @@ public class SourceInspector {
 			TagNode node = iter.next();
 			for (Iterator<ICodeElement> ite2 = node.source().iterator(); ite2
 					.hasNext();) {
+				if (monitor.isCanceled()) { // return if cancel is requested
+					return;
+				}
 				ICodeElement elem = ite2.next();
 				if ((!elem.optional() || node.onlyOptional())
 						&& !elem.visited()) {
