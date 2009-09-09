@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.uml2.uml.NamedElement;
 
 import archimate.codegen.CodeElement;

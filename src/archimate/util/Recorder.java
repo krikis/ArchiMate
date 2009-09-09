@@ -1,6 +1,7 @@
 package archimate.util;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.codegen.JavaHelper;
 

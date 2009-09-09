@@ -2,12 +2,14 @@ package archimate.patterns.mvc;
 
 import java.util.ArrayList;
 
-import org.eclipse.uml2.uml.NamedElement;
-
-import archimate.codegen.*;
+import archimate.codegen.ICodeElement;
+import archimate.codegen.ICodeGenerator;
 import archimate.patterns.Pattern;
 import archimate.uml.UMLAdapter;
-import archimate.util.*;
+import archimate.util.JavaClass;
+import archimate.util.JavaMethod;
+import archimate.util.TagNode;
+import archimate.util.TagTree;
 
 public class MVCPattern extends Pattern implements ICodeGenerator {
 

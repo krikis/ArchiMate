@@ -3,7 +3,9 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;

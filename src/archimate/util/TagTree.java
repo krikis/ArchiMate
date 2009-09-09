@@ -3,8 +3,6 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.core.commands.operations.ICompositeOperation;
-
 import archimate.codegen.ICodeElement;
 
 /**

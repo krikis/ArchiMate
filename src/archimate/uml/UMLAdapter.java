@@ -4,13 +4,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.emf.common.util.EList;
-import org.eclipse.emf.common.util.URI;
-import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.uml2.uml.*;
-import org.eclipse.uml2.uml.internal.impl.*;
+import org.eclipse.uml2.uml.BehaviorExecutionSpecification;
+import org.eclipse.uml2.uml.Interaction;
+import org.eclipse.uml2.uml.Lifeline;
+import org.eclipse.uml2.uml.Message;
+import org.eclipse.uml2.uml.MessageEnd;
+import org.eclipse.uml2.uml.MessageOccurrenceSpecification;
+import org.eclipse.uml2.uml.NamedElement;
+import org.eclipse.uml2.uml.Namespace;
+import org.eclipse.uml2.uml.Profile;
+import org.eclipse.uml2.uml.Stereotype;
+import org.eclipse.uml2.uml.Type;
+import org.eclipse.uml2.uml.TypedElement;
+import org.eclipse.uml2.uml.UMLFactory;
 
-import archimate.Activator;
 import archimate.patterns.mvc.MVCPattern;
 
 /**

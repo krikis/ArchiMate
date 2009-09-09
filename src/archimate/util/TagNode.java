@@ -3,8 +3,6 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.eclipse.uml2.uml.NamedElement;
-
 import archimate.codegen.ICodeElement;
 
 /**

@@ -1,19 +1,16 @@
 package archimate.patterns;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.uml2.uml.NamedElement;
-import org.eclipse.uml2.uml.Namespace;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
-import archimate.patterns.mvc.MVCPattern;
 import archimate.uml.UMLAdapter;
-import archimate.util.JavaClass;
 import archimate.util.FileHandler;
+import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
 import archimate.util.SourceInspector;
 import archimate.util.TagNode;

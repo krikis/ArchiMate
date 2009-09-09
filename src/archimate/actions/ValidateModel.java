@@ -3,15 +3,26 @@ package archimate.actions;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 
-import org.eclipse.core.runtime.*;
-import org.eclipse.jface.action.*;
-import org.eclipse.jface.dialogs.*;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.emf.common.command.UnexecutableCommand;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.dialogs.ErrorDialog;
+import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.ocl.uml.*;
-import org.eclipse.ocl.uml.OCL.*;
-import org.eclipse.emf.common.command.*;
-import org.eclipse.emf.common.util.*;
-import org.eclipse.uml2.uml.*;
+import org.eclipse.ocl.uml.OCL;
+import org.eclipse.ocl.uml.OCLExpression;
+import org.eclipse.ocl.uml.OCL.Helper;
+import org.eclipse.uml2.uml.Comment;
+import org.eclipse.uml2.uml.Constraint;
+import org.eclipse.uml2.uml.Element;
+import org.eclipse.uml2.uml.Profile;
+import org.eclipse.uml2.uml.Stereotype;
+import org.eclipse.uml2.uml.ValueSpecification;
+
 import archimate.Activator;
 
 /**

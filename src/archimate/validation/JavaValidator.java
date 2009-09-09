@@ -1,14 +1,17 @@
 package archimate.validation;
 
-import java.util.ArrayList;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.JavaHelper;
-import archimate.util.*;
+import archimate.util.SourceInspector;
+import archimate.util.TagNode;
+import archimate.util.TagTree;
 
 /**
  * This class implements an ASTVisitor which traverses the parsed source code

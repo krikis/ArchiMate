@@ -2,7 +2,6 @@ package archimate.codegen;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.commands.operations.ICompositeOperation;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.uml2.uml.NamedElement;

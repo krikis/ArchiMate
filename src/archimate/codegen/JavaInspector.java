@@ -3,9 +3,13 @@ package archimate.codegen;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-import archimate.util.*;
+import archimate.util.SourceInspector;
+import archimate.util.TagNode;
+import archimate.util.TagTree;
 
 /**
  * This class implements an ASTVisitor which traverses the parsed source code
