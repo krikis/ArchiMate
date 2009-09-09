@@ -11,35 +11,32 @@ import archimate.util.JavaMethod;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
+/**
+ * This class models the Callback design primitives.
+ * 
+ * @author Samuel Esposito
+ */
 public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the MVC pattern
-	// Model Package
-	public static final String DATA_INTERFACE = "MVC_DataInterface";
-	public static final String DATA_INTERFACE_INSTANCE = "MVC_DataInterfaceInstance";
-	public static final String DATA_MESSAGE = "MVC_DataMessage";
-	public static final String MODEL = "MVC_Model";
-	public static final String MODEL_INSTANCE = "MVC_ModelInstance";
-	public static final String DATA_METHOD = "MVC_DataMethod";
-	public static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
-	// View Package
-	public static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
-	public static final String UPDATE_INTERFACE_INSTANCE = "MVC_UpdateInterfaceInstance";
-	public static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
-	public static final String VIEW = "MVC_View";
-	public static final String VIEW_INSTANCE = "MVC_ViewInstance";
-	public static final String UPDATE_METHOD = "MVC_UpdateMethod";
-	public static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
-	// Controller Package
-	public static final String COMMAND_INTERFACE = "MVC_CommandInterface";
-	public static final String COMMAND_INTERFACE_INSTANCE = "MVC_CommandInterfaceInstance";
-	public static final String COMMAND_MESSAGE = "MVC_CommandMessage";
-	public static final String CONTROLLER = "MVC_Controller";
-	public static final String CONTROLLER_INSTANCE = "MVC_ControllerInstance";
-	public static final String COMMAND_METHOD = "MVC_CommandMethod";
-	public static final String DATA_INVOCATION = "MVC_DataInvocation";
+	// Caller Package
+	public static final String EVENT_INTERFACE = "Callback_EventInterface";
+	public static final String EVENT_INTERFACE_INSTANCE = "Callback_EventInterfaceInstance";
+	public static final String EVENT_MESSAGE = "Callback_EventMessage";
+	public static final String CALLER = "Callback_Caller";
+	public static final String CALLER_INSTANCE = "Callback_CallerInstance";
+	public static final String EVENT_METHOD = "Callback_EventMethod";
+	public static final String UPDATE_INVOCATION = "Callback_UpdateInvocation";
+	// Callee Package
+	public static final String UPDATE_INTERFACE = "Callback_UpdateInterface";
+	public static final String UPDATE_INTERFACE_INSTANCE = "Callback_UpdateInterfaceInstance";
+	public static final String UPDATE_MESSAGE = "Callback_UpdateMessage";
+	public static final String CALLEE = "Callback_Callee";
+	public static final String CALLEE_INSTANCE = "Callback_CalleeInstance";
+	public static final String UPDATE_METHOD = "Callback_UpdateMethod";
+	public static final String EVENT_INVOCATION = "Callback_EventInvocation";
 	// Names of the packages in the pattern
-	private String modelPackage;
+	private String callerPackage;
 	private String viewPackage;
 	private String controllerPackage;
 
@@ -65,7 +62,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	// Sets the package names
 	private void setVariables() {
 		packageBase = "app";
-		modelPackage = packageBase + ".model";
+		callerPackage = packageBase + ".model";
 		viewPackage = packageBase + ".view";
 		controllerPackage = packageBase + ".controller";
 	}
@@ -127,7 +124,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	// Create DataInterface
 	private TagNode dataInterface(TagNode root) {
 		TagNode dataInterface = new TagNode(DATA_INTERFACE);
-		createClasses(dataInterface, "", modelPackage, null, false,
+		createClasses(dataInterface, "", callerPackage, null, false,
 				JavaClass.INTERFACE, "IData", "", null, null,
 				"This interface specifies the Data interface of the MVC Pattern");
 		root.addChild(dataInterface);
@@ -162,7 +159,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		if (element instanceof JavaClass) {
 			interfaces.add((JavaClass) element);
 		}
-		createClasses(model, "", modelPackage, null, true, JavaClass.CLASS,
+		createClasses(model, "", callerPackage, null, true, JavaClass.CLASS,
 				"Model", "", null, interfaces,
 				"This class implements the Model of the MVC Pattern");
 		root.addChild(model);
@@ -210,7 +207,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 			superClass = (JavaClass) element;
 		}
 		createClasses(dataInterface, TagNode.inStereo(MODEL_INSTANCE),
-				modelPackage, null, false, JavaClass.INTERFACE, "IMyData",
+				callerPackage, null, false, JavaClass.INTERFACE, "IMyData",
 				"I#Data", superClass, null,
 				"This interface specifies the #name#interface of the MVC Pattern");
 		// Create interface method declarations
@@ -289,7 +286,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 					superClassType = (JavaClass) codeElement;
 				}
 				JavaClass javaClass = createClass(model, dataInterfaceClass
-						.umlElements(), modelPackage, null, JavaClass.CLASS,
+						.umlElements(), callerPackage, null, JavaClass.CLASS,
 						className, superClassType, interfaces,
 						"This class implements a Model of the MVC Pattern",
 						name.equals(""));

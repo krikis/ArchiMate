@@ -11,6 +11,11 @@ import archimate.util.JavaMethod;
 import archimate.util.TagNode;
 import archimate.util.TagTree;
 
+/**
+ * This class models the MVC design pattern.
+ * 
+ * @author Samuel Esposito
+ */
 public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the MVC pattern
