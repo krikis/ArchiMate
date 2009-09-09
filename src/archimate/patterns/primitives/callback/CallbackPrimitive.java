@@ -334,43 +334,57 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		}
 	}
 
-	// Creates a list of subscription methods with the given settings and adds
-	// it to
-	// the TagNodes source list
+	// Creates a list of subscription methods with the given settings for every
+	// source element of the nodes parent and adds it to the TagNodes source
+	// list
 	protected void addSubscriptionMethods(TagNode node, TagNode invoker,
 			String defaultName, String type, String comment) {
 		if (node.parent() != null) {
 			for (ICodeElement element : node.parent().source()) {
 				if (element instanceof JavaClass) {
-					JavaClass javaClass = (JavaClass) element;
-					ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
-					for (NamedElement umlElement : javaClass.umlElements()) {
-						messages.addAll(umlReader.getReceived(umlElement, node
-								.stereotype()));
-					}
-					boolean hasrun = false;
-					ArrayList<NamedElement> usedMessages = new ArrayList<NamedElement>();
-					ArrayList<JavaClass> args = new ArrayList<JavaClass>();
-					for (NamedElement message : messages) {
-						for (ICodeElement sourceElement : invoker.source()) {
-							if (sourceElement instanceof JavaClass) {
-								JavaClass invokerClass = (JavaClass) sourceElement;
-								for (ICodeElement code : sourceElement
-										.children()) {
-									if (code.umlElements().contains(message)) {
-										args.add(invokerClass);
-										usedMessages.add(message);
-									}
-								}
+					addSubscriptionMethods(node, invoker, (JavaClass) element,
+							defaultName, type, comment);
+				}
+			}
+		}
+	}
+
+	// Creates a list of subscription methods with the given settings and adds
+	// it to the TagNodes source list
+	private void addSubscriptionMethods(TagNode node, TagNode invoker,
+			JavaClass javaClass, String defaultName, String type, String comment) {
+		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
+		for (NamedElement umlElement : javaClass.umlElements()) {
+			messages.addAll(umlReader
+					.getReceived(umlElement, node.stereotype()));
+		}
+		ArrayList<NamedElement> usedMessages = new ArrayList<NamedElement>();
+		ArrayList<JavaClass> args = new ArrayList<JavaClass>();
+		for (NamedElement message : messages) {
+			for (ICodeElement sourceElement : invoker.source()) {
+				if (sourceElement instanceof JavaClass) {
+					JavaClass invokerClass = (JavaClass) sourceElement;
+					if (invokerClass.interfacesDefined()) {
+						JavaClass invokerInterface = invokerClass.interfaces()
+								.get(0);
+						for (ICodeElement code : sourceElement.children()) {
+							if (code.umlElements().contains(message)) {
+								args.add(invokerInterface);
+								usedMessages.add(message);
 							}
 						}
 					}
-					if (invoker.sourceDefined() && invoker.source().get(0) instanceof JavaClass) {
-						addMethods(node, javaClass, usedMessages, args,
-								defaultName, (JavaClass) invoker.source().get(0), type,
-								comment);
-					}
 				}
+			}
+		}
+		// Add the methods which have a valid argument list
+		if (invoker.sourceDefined()
+				&& invoker.source().get(0) instanceof JavaClass) {
+			JavaClass defaultClass = (JavaClass) invoker.source().get(0);
+			if (defaultClass.interfacesDefined()) {
+				addMethods(node, javaClass, usedMessages, args, defaultName,
+						(JavaClass) defaultClass.interfaces().get(0), type,
+						comment);
 			}
 		}
 	}

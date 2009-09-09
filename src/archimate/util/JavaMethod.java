@@ -237,6 +237,18 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	}
 
 	/**
+	 * Adds a list of {@link JavaClass}es to the list of arguments
+	 * 
+	 * @param arguments
+	 *            the list of {@link JavaClass}es to be added to the list of
+	 *            arguments
+	 */
+	public void addArguments(ArrayList<JavaClass> arguments) {
+		args.addAll(arguments);
+
+	}
+
+	/**
 	 * Sets the method type
 	 * 
 	 * @param type
@@ -274,6 +286,15 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 */
 	public String name() {
 		return name;
+	}
+
+	/**
+	 * Returns whether the method has arguments defined
+	 * 
+	 * @return whether the method has arguments defined
+	 */
+	public boolean argumentsDefined() {
+		return args.size() > 0;
 	}
 
 	/**

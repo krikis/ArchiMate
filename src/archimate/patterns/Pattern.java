@@ -257,7 +257,8 @@ public abstract class Pattern implements ICodeGenerator {
 	// TagNode
 	public void addMethods(TagNode node, JavaClass javaClass,
 			ArrayList<NamedElement> messages, ArrayList<JavaClass> args,
-			String defaultName, JavaClass defaultArg, String type, String comment) {
+			String defaultName, JavaClass defaultArg, String type,
+			String comment) {
 		boolean hasrun = false;
 		for (int index = 0; index < messages.size(); ++index) {
 			String name = messages.get(index).getName();
@@ -272,6 +273,8 @@ public abstract class Pattern implements ICodeGenerator {
 			method.setComment(comment);
 			method.addUmlElement(messages.get(index));
 			javaClass.addChild(method);
+			javaClass.addImport(argument.packageName() + "."
+					+ argument.className());
 			node.addSource(method);
 			hasrun = true;
 		}
@@ -283,6 +286,8 @@ public abstract class Pattern implements ICodeGenerator {
 			method.setOptional(true);
 			method.setComment(comment);
 			javaClass.addChild(method);
+			javaClass.addImport(defaultArg.packageName() + "."
+					+ defaultArg.className());
 			node.addSource(method);
 		}
 	}
@@ -299,8 +304,8 @@ public abstract class Pattern implements ICodeGenerator {
 		}
 	}
 
-	// Creates methods that invoke methods from the viewClass and adds them to
-	// the javaclass
+	// Creates methods that invoke methods from the implementer class and adds
+	// them to the javaclass
 	protected void addMethods(TagNode invoker, String stereotype,
 			JavaClass javaClass, TagNode implementer, String type,
 			String comment) {
@@ -362,10 +367,15 @@ public abstract class Pattern implements ICodeGenerator {
 		}
 		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
 				className, packageName);
+		newMethod.addArguments(method.arguments());
 		newMethod.setOptional(method.optional());
 		newMethod.setComment(comment);
 		newMethod.addUmlElements(method.umlElements());
 		javaClass.addChild(newMethod);
+		for (JavaClass argument : method.arguments()) {
+			javaClass.addImport(argument.packageName() + "."
+					+ argument.className());
+		}
 		node.addSource(newMethod);
 	}
 

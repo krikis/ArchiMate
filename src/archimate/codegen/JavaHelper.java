@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -121,6 +123,25 @@ public class JavaHelper {
 	}
 
 	/**
+	 * Returns the {@link TypeDeclaration} the {@link ASTNode} is defined in
+	 * 
+	 * @param node
+	 *            the {@link ASTNode}
+	 * @return The {@link TypeDeclaration} the {@link ASTNode} is defined in
+	 */
+	public TypeDeclaration typeDeclaration(ASTNode node) {
+		if (node instanceof TypeDeclaration)
+			return (TypeDeclaration) node;
+		while (node.getParent() != null) {
+			node = node.getParent();
+			if (node instanceof TypeDeclaration) {
+				return (TypeDeclaration) node;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Returns the package of the class the {@link ASTNode} is defined in
 	 * 
 	 * @param node
@@ -152,6 +173,28 @@ public class JavaHelper {
 			}
 		}
 		return imports;
+	}
+
+	/**
+	 * Returns the interfaces the class the {@link ASTNode} is defined in
+	 * implements
+	 * 
+	 * @param node
+	 *            the {@link ASTNode}
+	 * @return The interfaces of the class the {@link ASTNode} is defined in
+	 *         implements
+	 */
+	public ArrayList<String> getInterfaces(ASTNode node) {
+		ArrayList<String> interfaces = new ArrayList<String>();
+		TypeDeclaration declaration = typeDeclaration(node);
+		if (declaration != null) {
+			for (Object interfaceType : declaration.superInterfaceTypes()) {
+				if (interfaceType instanceof SimpleType)
+					interfaces.add(((SimpleType) interfaceType).getName()
+							.getFullyQualifiedName());
+			}
+		}
+		return interfaces;
 	}
 
 	/**
@@ -425,8 +468,7 @@ public class JavaHelper {
 				String objectName = method.invocationObject();
 				addObject(methodBlock, objectClass, objectName,
 						new ArrayList<String>());
-				addMethodInvocation(methodBlock, objectName, method,
-						new ArrayList<String>());
+				addMethodInvocation(methodBlock, objectName, method);
 			}
 		}
 	}
@@ -513,7 +555,7 @@ public class JavaHelper {
 	 *            The list of arguments for the method call
 	 */
 	public void addMethodInvocation(Block methodBlock, String objectName,
-			JavaMethod method, ArrayList<String> arglist) {
+			JavaMethod method) {
 		AST ast = methodBlock.getAST();
 		CompilationUnit unit = compilationUnit(methodBlock);
 		addImport(unit, method.packageName() + "." + method.className());
@@ -521,6 +563,14 @@ public class JavaHelper {
 		mi.setExpression(ast.newSimpleName(objectName));
 		mi.setName(ast.newSimpleName(method.name()));
 		methodBlock.statements().add(ast.newExpressionStatement(mi));
+		if (method.argumentsDefined()) {
+			JavaClass argument = method.arguments().get(0);
+			if (argument.packageName().equals(getPackage(methodBlock))
+					&& getInterfaces(methodBlock)
+							.contains(argument.className())) {
+				mi.arguments().add(ast.newThisExpression());
+			}
+		}
 	}
 
 	// helper method for setting a BodyDeclaration modifier
