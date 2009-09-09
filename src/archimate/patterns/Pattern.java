@@ -245,6 +245,7 @@ public abstract class Pattern implements ICodeGenerator {
 			node.addSource(method);
 			hasrun = true;
 		}
+		// if no method has been declared, the default method is declared
 		if (!hasrun && javaClass.optional()) {
 			JavaMethod method = new JavaMethod(defaultName, node.tag(), type,
 					javaClass.className(), javaClass.packageName());
@@ -276,6 +277,7 @@ public abstract class Pattern implements ICodeGenerator {
 		for (NamedElement umlElement : javaClass.umlElements()) {
 			messages.addAll(umlReader.getSent(umlElement, stereotype));
 		}
+		boolean hasrun = false;
 		for (ICodeElement element : implementer.source()) {
 			if (element instanceof JavaClass) {
 				JavaClass implementerClass = (JavaClass) element;
@@ -288,10 +290,29 @@ public abstract class Pattern implements ICodeGenerator {
 						}
 					}
 					if (found && code instanceof JavaMethod) {
+						hasrun = true;
 						addMethod(invoker, javaClass, implementerClass
 								.className(), implementerClass.packageName(),
 								(JavaMethod) code, type, comment);
 					}
+				}
+			}
+		}
+		// if no method has been invoked, the default method invocation is added
+		if (!hasrun) {
+			for (ICodeElement element : implementer.source()) {
+				if (element instanceof JavaClass) {
+					JavaClass implementerClass = (JavaClass) element;
+					for (ICodeElement code : element.children()) {
+						if (code instanceof JavaMethod && code.optional()) {
+							addMethod(invoker, javaClass, implementerClass
+									.className(), implementerClass
+									.packageName(), (JavaMethod) code, type,
+									comment);
+						}
+						return;
+					}
+
 				}
 			}
 		}
