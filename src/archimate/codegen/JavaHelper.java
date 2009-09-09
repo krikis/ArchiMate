@@ -18,7 +18,6 @@ import archimate.patterns.mvc.MVCPattern;
 import archimate.uml.UMLAdapter;
 import archimate.util.JavaClass;
 import archimate.util.JavaMethod;
-import archimate.util.Restriction;
 import archimate.util.TagNode;
 
 /**
@@ -657,7 +656,7 @@ public class JavaHelper {
 	 *            the restricted interfaces to trace
 	 */
 	public void checkRestricted(TypeDeclaration node, TagNode tagnode,
-			ArrayList<Restriction> interfaces) {
+			ArrayList<JavaClass> interfaces) {
 		if (!node.isInterface()) {
 			for (Iterator iter = node.superInterfaceTypes().iterator(); iter
 					.hasNext();) {
@@ -676,14 +675,16 @@ public class JavaHelper {
 		}
 	}
 
-	// Checks whether the interface implementation was intended
+	// Checks whether the interface implementation was restricted
 	private void checkRestricted(TypeDeclaration node, TagNode tagnode,
-			ArrayList<Restriction> interfaces, String interfaceName,
+			ArrayList<JavaClass> interfaces, String interfaceName,
 			String packageName) {
-		for (Iterator<Restriction> iter = interfaces.iterator(); iter.hasNext();) {
-			Restriction interfaceRest = iter.next();
-			if (interfaceRest.name().equals(interfaceName)
-					&& interfaceRest.packageName().equals(packageName)) {
+		for (Iterator<JavaClass> iter = interfaces.iterator(); iter.hasNext();) {
+			JavaClass interfaceRest = iter.next();
+			if (interfaceRest.intendedName().equals(interfaceName)
+					&& interfaceRest.packageName().equals(packageName)
+					&& (!interfaceRest.optional || !interfaceRest
+							.intendedName().equals(interfaceRest.className()))) {
 				checkRestricted(node, tagnode, interfaceName, packageName);
 			}
 		}
@@ -735,9 +736,9 @@ public class JavaHelper {
 	 *            the restricted methods to trace
 	 */
 	public void checkRestricted(MethodInvocation node, TagNode tagnode,
-			ArrayList<Restriction> methods) {
-		for (Iterator<Restriction> iter = methods.iterator(); iter.hasNext();) {
-			Restriction method = iter.next();
+			ArrayList<JavaMethod> methods) {
+		for (Iterator<JavaMethod> iter = methods.iterator(); iter.hasNext();) {
+			JavaMethod method = iter.next();
 			if (node.getName().getFullyQualifiedName().equals(method.name())) {
 				ITypeBinding type = null;
 				// the method is invoked on a variable
@@ -773,7 +774,7 @@ public class JavaHelper {
 
 	// Checks whether the method invocation was intended by the pattern
 	private void checkRestricted(MethodInvocation node, TagNode tagnode,
-			Restriction method) {
+			JavaMethod method) {
 		boolean found = false;
 		// Check whether the invocation was intended
 		for (Iterator<ICodeElement> iter = tagnode.source().iterator(); iter
@@ -795,7 +796,7 @@ public class JavaHelper {
 	}
 
 	// Reports the violation of a method invocation
-	private void reportError(MethodInvocation node, Restriction method) {
+	private void reportError(MethodInvocation node, JavaMethod method) {
 		String container = "One of the classes ";
 		ASTNode parent = node;
 		// Get the containing class

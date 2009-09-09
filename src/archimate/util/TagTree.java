@@ -26,9 +26,9 @@ public class TagTree {
 	// currently selected code
 	private ICodeElement currentCode;
 	// restricted interfaces
-	ArrayList<Restriction> interfaces = new ArrayList<Restriction>();
+	ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 	// restricted methods
-	ArrayList<Restriction> methods = new ArrayList<Restriction>();
+	ArrayList<JavaMethod> methods = new ArrayList<JavaMethod>();
 
 	/**
 	 * Creates a new tree, sets the tree root and marks it as selected
@@ -48,9 +48,8 @@ public class TagTree {
 	 * @param packageName
 	 *            the name of the package
 	 */
-	public void addRestrictedInterface(String interfaceName, String type,
-			String packageName) {
-		interfaces.add(new Restriction(interfaceName, type, packageName));
+	public void addRestrictedInterface(JavaClass restrictedInterface) {
+		interfaces.add(restrictedInterface);
 	}
 
 	/**
@@ -63,9 +62,8 @@ public class TagTree {
 	 * @param packageName
 	 *            the package of the class the method is defined in
 	 */
-	public void addRestrictedMethod(String method, String type,
-			String packageName) {
-		methods.add(new Restriction(method, type, packageName));
+	public void addRestrictedMethod(JavaMethod restrictedMethod) {
+		methods.add(restrictedMethod);
 	}
 
 	/**
@@ -73,7 +71,7 @@ public class TagTree {
 	 * 
 	 * @return The list of restricted interfaces
 	 */
-	public ArrayList<Restriction> restrictedInterfaces() {
+	public ArrayList<JavaClass> restrictedInterfaces() {
 		return interfaces;
 	}
 
@@ -82,7 +80,7 @@ public class TagTree {
 	 * 
 	 * @return The list of restricted methods
 	 */
-	public ArrayList<Restriction> restrictedMethods() {
+	public ArrayList<JavaMethod> restrictedMethods() {
 		return methods;
 	}
 
@@ -242,10 +240,10 @@ public class TagTree {
 	// Returns a list of all restrictions for debug purposes
 	private String printRestrictions() {
 		String out = "";
-		for (Restriction interfaceRestriction : interfaces) {
+		for (JavaClass interfaceRestriction : interfaces) {
 			out += interfaceRestriction.toString();
 		}
-		for (Restriction methodRestriction : methods) {
+		for (JavaMethod methodRestriction : methods) {
 			out += methodRestriction.toString();
 		}
 		return out;

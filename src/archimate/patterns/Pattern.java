@@ -195,8 +195,8 @@ public abstract class Pattern implements ICodeGenerator {
 		if (superClass != null)
 			javaClass.setSuperClass(superClass);
 		// add restricted interface
-		if (type.equals(JavaClass.INTERFACE) && !optional) {
-			tree.addRestrictedInterface(className, className, packageName);
+		if (type.equals(JavaClass.INTERFACE)) {
+			tree.addRestrictedInterface(javaClass);
 		}
 		javaClass.setOptional(optional);
 		javaClass.addUmlElements(umlElements);
@@ -326,7 +326,7 @@ public abstract class Pattern implements ICodeGenerator {
 		if (type.equals(JavaMethod.INVOCATION)) {
 			javaClass.addImport(packageName + "." + className);
 			if (!method.optional()) {
-				tree.addRestrictedMethod(method.name(), className, packageName);
+				tree.addRestrictedMethod(method);
 			}
 		}
 		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
