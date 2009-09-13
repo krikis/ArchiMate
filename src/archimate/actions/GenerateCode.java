@@ -74,7 +74,7 @@ public class GenerateCode extends ArchiMateAction {
 		int newtasks = collectPatterns(umlPackage, monitor, status, profiles,
 				patterns);
 		// return if cancel is requested or an error occurred
-		if (monitor.isCanceled() || status.getSeverity() == IStatus.ERROR) { 
+		if (monitor.isCanceled() || status.getSeverity() == IStatus.ERROR) {
 			return null;
 		}
 		tasks += newtasks;

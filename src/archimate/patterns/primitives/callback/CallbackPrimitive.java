@@ -296,7 +296,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 						name.equals(""));
 				// Create class methods
 				addMethods(subscriptionMethod, javaClass,
-						subscriptionInterfaceClass, JavaMethod.IMPLEMENTATION,
+						subscriptionInterfaceClass, JavaMethod.CALLBACK_IMPL,
 						"This method implements subscribing a caller to an event.");
 				++count;
 			}
@@ -328,8 +328,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		for (ICodeElement element : callee.source()) {
 			if (element instanceof JavaClass) {
 				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
-						(JavaClass) element, caller, JavaMethod.INVOCATION,
-						"This method invokes a method that handles an event a the caller.");
+						(JavaClass) element, caller, JavaMethod.CALLBACK_INV,
+						"This method calls back to all objects that handle an event from the callee.");
 			}
 		}
 	}
@@ -362,16 +362,14 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		ArrayList<JavaClass> args = new ArrayList<JavaClass>();
 		for (NamedElement message : messages) {
 			for (ICodeElement sourceElement : invoker.source()) {
-				if (sourceElement instanceof JavaClass) {
-					JavaClass invokerClass = (JavaClass) sourceElement;
-					if (invokerClass.interfacesDefined()) {
-						JavaClass invokerInterface = invokerClass.interfaces()
-								.get(0);
-						for (ICodeElement code : sourceElement.children()) {
-							if (code.umlElements().contains(message)) {
-								args.add(invokerInterface);
-								usedMessages.add(message);
-							}
+				if (sourceElement instanceof JavaClass
+						&& ((JavaClass) sourceElement).interfacesDefined()) {
+					JavaClass interfaceClass = ((JavaClass) sourceElement)
+							.interfaces().get(0);
+					for (ICodeElement code : sourceElement.children()) {
+						if (code.umlElements().contains(message)) {
+							args.add(interfaceClass);
+							usedMessages.add(message);
 						}
 					}
 				}
@@ -382,9 +380,9 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				&& invoker.source().get(0) instanceof JavaClass) {
 			JavaClass defaultClass = (JavaClass) invoker.source().get(0);
 			if (defaultClass.interfacesDefined()) {
+				JavaClass interfaceClass = defaultClass.interfaces().get(0);
 				addMethods(node, javaClass, usedMessages, args, defaultName,
-						(JavaClass) defaultClass.interfaces().get(0), type,
-						comment);
+						interfaceClass, type, comment);
 			}
 		}
 	}

@@ -60,7 +60,8 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	 * @param umlPackage
 	 *            The UML package in the open UML or GMF editor
 	 */
-	public MVCPattern(org.eclipse.uml2.uml.Package umlPackage, MultiStatus status) {
+	public MVCPattern(org.eclipse.uml2.uml.Package umlPackage,
+			MultiStatus status) {
 		// Set the status
 		this.status = status;
 		// Set some configuration variables

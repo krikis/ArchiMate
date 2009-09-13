@@ -600,6 +600,19 @@ public class JavaClass extends CodeElement implements ICodeElement {
 		return interfaces;
 	}
 
+	/**
+	 * Returns the names of the implemented interfaces
+	 * 
+	 * @return the names of the implemented interfaces
+	 */
+	public ArrayList<String> interfaceNames() {
+		ArrayList<String> names = new ArrayList<String>();
+		for (JavaClass interfaceClass : interfaces) {
+			names.add(interfaceClass.className());
+		}
+		return names;
+	}
+
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";

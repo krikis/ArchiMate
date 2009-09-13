@@ -15,8 +15,11 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -27,6 +30,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -334,9 +338,9 @@ public class JavaHelper {
 		// add class declaration
 		TypeDeclaration classType = ast.newTypeDeclaration();
 		classType.setInterface(javaClass.isInterface());
-		setModifier(ast, classType, Modifier.PUBLIC);
+		setModifier(classType, Modifier.PUBLIC);
 		if (javaClass.isAbstract())
-			setModifier(ast, classType, Modifier.ABSTRACT);
+			setModifier(classType, Modifier.ABSTRACT);
 		classType.setName(ast.newSimpleName(javaClass.className()));
 		// add superclass
 		if (javaClass.hasSuperClass()) {
@@ -421,8 +425,9 @@ public class JavaHelper {
 		MethodDeclaration md;
 		md = ast.newMethodDeclaration();
 		md.setConstructor(false);
-		setModifier(ast, md, Modifier.PUBLIC);
-		if (method.type().equals(JavaMethod.INVOCATION)) {
+		setModifier(md, Modifier.PUBLIC);
+		if (method.type().equals(JavaMethod.INVOCATION)
+				|| method.type().equals(JavaMethod.CALLBACK_INV)) {
 			// Avoid collision in names of methods invoking other methods
 			String name = method.invocationMethod();
 			int count = 2;
@@ -435,25 +440,10 @@ public class JavaHelper {
 			md.setName(ast.newSimpleName(method.name()));
 		}
 		node.bodyDeclarations().add(md);
-		// Add the method arguments
-		addMethodArguments(md, method);
 		// Add method block
 		addMethodBlock(md, method);
 		// Add the JavaDoc
 		addJavaDoc(md, method);
-	}
-
-	private void addMethodArguments(MethodDeclaration md, JavaMethod method) {
-		AST ast = md.getAST();
-		for (JavaClass argument : method.arguments()) {
-			SingleVariableDeclaration variableDeclaration = ast
-					.newSingleVariableDeclaration();
-			variableDeclaration.setType(ast.newSimpleType(ast
-					.newSimpleName(argument.className())));
-			variableDeclaration.setName(ast.newSimpleName(camelize(argument
-					.className())));
-			md.parameters().add(variableDeclaration);
-		}
 	}
 
 	// Adds the method block to the method
@@ -464,12 +454,71 @@ public class JavaHelper {
 			md.setBody(methodBlock);
 			// Add method invocation
 			if (method.type().equals(JavaMethod.INVOCATION)) {
-				String objectClass = method.className();
-				String objectName = method.invocationObject();
-				addObject(methodBlock, objectClass, objectName,
-						new ArrayList<String>());
-				addMethodInvocation(methodBlock, objectName, method);
+				addInvocation(methodBlock, method);
 			}
+			// Add callback invocation
+			if (method.type().equals(JavaMethod.CALLBACK_INV)) {
+				addCallback(methodBlock, method);
+			}
+			// Add callback implementation
+			if (method.type().equals(JavaMethod.CALLBACK_IMPL)) {
+				if (method.argumentsDefined()) {
+					// Add the method arguments
+					ArrayList<String> argNames = addMethodArguments(md, method);
+					addObjectListImpl(methodBlock, method, argNames);
+				}
+			}
+		} else if (method.argumentsDefined()) {
+			addMethodArguments(md, method);
+		}
+	}
+
+	// Adds the list of arguments to the method
+	private ArrayList<String> addMethodArguments(MethodDeclaration md,
+			JavaMethod method) {
+		AST ast = md.getAST();
+		ArrayList<String> names = new ArrayList<String>();
+		for (JavaClass argument : method.arguments()) {
+			String name = camelize(argument.className());
+			SingleVariableDeclaration variableDeclaration = ast
+					.newSingleVariableDeclaration();
+			variableDeclaration.setType(ast.newSimpleType(ast
+					.newSimpleName(argument.className())));
+			variableDeclaration.setName(ast.newSimpleName(name));
+			md.parameters().add(variableDeclaration);
+			names.add(name);
+		}
+		return names;
+	}
+
+	// Adds a method invocation on an object
+	private void addInvocation(Block methodBlock, JavaMethod method) {
+		String objectClass = method.className();
+		String objectName = camelize(method.objectType().className());
+		addObject(methodBlock, objectClass, objectName, new ArrayList<String>());
+		addMethodInvocation(methodBlock, objectName, method);
+	}
+
+	// Adds an object list to the containing typedeclaration
+	private void addObjectListImpl(Block methodBlock, JavaMethod method,
+			ArrayList<String> argNames) {
+		JavaClass argument = method.arguments().get(0);
+		CompilationUnit unit = compilationUnit(methodBlock);
+		addImport(unit, "java.util.ArrayList");
+		String listName = addObjectList(methodBlock, argument.className(),
+				camelize(argument.className()));
+		addObjectToList(methodBlock, listName, argNames);
+	}
+
+	// Adds a callback on an object
+	private void addCallback(Block methodBlock, JavaMethod method) {
+		if (method.objectType().interfacesDefined()) {
+			JavaClass interfaceClass = method.objectType().interfaces().get(0);
+			String className = interfaceClass.className();
+			String objectName = camelize(className);
+			String objectListName = objectName + "List";
+			addForLoop(methodBlock, className, objectName, objectListName,
+					method);
 		}
 	}
 
@@ -511,20 +560,8 @@ public class JavaHelper {
 		body.setJavadoc(jc);
 	}
 
-	/**
-	 * Adds a statement that creates an object. For instance: {@code Object
-	 * object = new Object(params)}
-	 * 
-	 * @param methodBlock
-	 *            the methodblock to add the object to
-	 * @param type
-	 *            the type of the object
-	 * @param name
-	 *            the name of the object
-	 * @param arglist
-	 *            the arguments for the object instantiation
-	 */
-	public void addObject(Block methodBlock, String type, String name,
+	// Adds a statement that initializes an object
+	private void addObject(Block methodBlock, String type, String name,
 			ArrayList<String> arglist) {
 		AST ast = methodBlock.getAST();
 		VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
@@ -542,19 +579,65 @@ public class JavaHelper {
 		vdf.setInitializer(cc);
 	}
 
-	/**
-	 * Adds a method invocation to the method block
-	 * 
-	 * @param methodBlock
-	 *            The {@link Block} to add the invocation to
-	 * @param objectName
-	 *            The name of the object on which to invoke the method
-	 * @param methodName
-	 *            The name of the method to invoke
-	 * @param arglist
-	 *            The list of arguments for the method call
-	 */
-	public void addMethodInvocation(Block methodBlock, String objectName,
+	// Adds a statement that initializes an arraylist of objects to a {@link
+	// TypeDeclaration}.
+	private String addObjectList(Block methodBlock, String type, String name) {
+		String listName = name + "List";
+		AST ast = methodBlock.getAST();
+		VariableDeclarationFragment vdf = ast.newVariableDeclarationFragment();
+		vdf.setName(ast.newSimpleName(listName));
+		FieldDeclaration fd = ast.newFieldDeclaration(vdf);
+		setModifier(fd, Modifier.PRIVATE);
+		ParameterizedType paramType = ast.newParameterizedType(ast
+				.newSimpleType(ast.newSimpleName("ArrayList")));
+		paramType.typeArguments().add(
+				ast.newSimpleType(ast.newSimpleName(type)));
+		fd.setType(paramType);
+		TypeDeclaration declaration = typeDeclaration(methodBlock);
+		declaration.bodyDeclarations().add(0, fd);
+
+		ClassInstanceCreation cc = ast.newClassInstanceCreation();
+		paramType = ast.newParameterizedType(ast.newSimpleType(ast
+				.newSimpleName("ArrayList")));
+		paramType.typeArguments().add(
+				ast.newSimpleType(ast.newSimpleName(type)));
+		cc.setType(paramType);
+		vdf.setInitializer(cc);
+		return listName;
+	}
+
+	// Adds a statement that adds an object to an objectlist
+	private void addObjectToList(Block methodBlock, String listName,
+			ArrayList<String> argNames) {
+		AST ast = methodBlock.getAST();
+		MethodInvocation mi = ast.newMethodInvocation();
+		mi.setExpression(ast.newSimpleName(listName));
+		mi.setName(ast.newSimpleName("add"));
+		for (String argName : argNames)
+			mi.arguments().add(ast.newSimpleName(argName));
+		methodBlock.statements().add(ast.newExpressionStatement(mi));
+	}
+
+	// Adds a for loop to the methodblock
+	private void addForLoop(Block methodBlock, String objectClass,
+			String objectName, String objectListName, JavaMethod method) {
+		AST ast = methodBlock.getAST();
+		EnhancedForStatement forLoop = ast.newEnhancedForStatement();
+		SingleVariableDeclaration declaration = ast
+				.newSingleVariableDeclaration();
+		declaration.setName(ast.newSimpleName(objectName));
+		declaration.setType(ast.newSimpleType(ast.newSimpleName(objectClass)));
+		forLoop.setParameter(declaration);
+		forLoop.setExpression(ast.newSimpleName(objectListName));
+		MethodInvocation mi = ast.newMethodInvocation();
+		mi.setExpression(ast.newSimpleName(objectName));
+		mi.setName(ast.newSimpleName(method.name()));
+		forLoop.setBody(ast.newExpressionStatement(mi));
+		methodBlock.statements().add(forLoop);
+	}
+
+	// Adds a method invocation to the method block
+	private void addMethodInvocation(Block methodBlock, String objectName,
 			JavaMethod method) {
 		AST ast = methodBlock.getAST();
 		CompilationUnit unit = compilationUnit(methodBlock);
@@ -563,18 +646,23 @@ public class JavaHelper {
 		mi.setExpression(ast.newSimpleName(objectName));
 		mi.setName(ast.newSimpleName(method.name()));
 		methodBlock.statements().add(ast.newExpressionStatement(mi));
-		if (method.argumentsDefined()) {
+		if (method.argumentsDefined() && method.parent() instanceof JavaClass) {
 			JavaClass argument = method.arguments().get(0);
-			if (argument.packageName().equals(getPackage(methodBlock))
-					&& getInterfaces(methodBlock)
-							.contains(argument.className())) {
-				mi.arguments().add(ast.newThisExpression());
+			JavaClass javaClass = (JavaClass) method.parent();
+			if (javaClass.interfacesDefined()) {
+				JavaClass interfaceClass = javaClass.interfaces().get(0);
+				if (argument.packageName().equals(interfaceClass.packageName())
+						&& argument.className().equals(
+								interfaceClass.className())) {
+					mi.arguments().add(ast.newThisExpression());
+				}
 			}
 		}
 	}
 
 	// helper method for setting a BodyDeclaration modifier
-	private void setModifier(AST ast, BodyDeclaration classType, int modifier) {
+	private void setModifier(BodyDeclaration classType, int modifier) {
+		AST ast = classType.getAST();
 		switch (modifier) {
 		case Modifier.PUBLIC:
 			classType.modifiers().add(
@@ -676,17 +764,19 @@ public class JavaHelper {
 		JavaMethod method = null;
 		String tag = getArchiMateTag(node);
 		String type = Pattern.methodType(getArchiMateTag(node));
-		if (type.equals(JavaMethod.INVOCATION)) {
+		if (type.equals(JavaMethod.INVOCATION)
+				|| type.equals(JavaMethod.CALLBACK_INV)) {
 			ArrayList<JavaMethod> invocations = methodInvocations(node);
 			if (invocations.size() > 0) {
 				JavaMethod invocation = invocations.get(0);
 				method = new JavaMethod(invocation.name(), tag, type,
-						invocation.className(), invocation.packageName());
+						new JavaClass(invocation.packageName(), invocation
+								.className(), "", ""));
 				return method;
 			}
 		}
-		method = new JavaMethod(getName(node), tag, type, getClassName(node),
-				getPackage(node));
+		method = new JavaMethod(getName(node), tag, type, new JavaClass(
+				getPackage(node), getClassName(node), "", ""));
 		return method;
 	}
 
@@ -731,7 +821,8 @@ public class JavaHelper {
 		if (type != null) {
 			IPackageBinding packageBinding = type.getPackage();
 			return new JavaMethod(node.getName().getFullyQualifiedName(), "",
-					"", type.getName(), packageBinding.getName());
+					"", new JavaClass(packageBinding.getName(), type.getName(),
+							"", ""));
 		}
 		return null;
 	}

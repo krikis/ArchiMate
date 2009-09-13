@@ -233,7 +233,7 @@ public abstract class Pattern implements ICodeGenerator {
 			String methodName = (name.equals("") ? defaultName
 					+ (index == 0 ? "" : index) : name);
 			JavaMethod method = new JavaMethod(methodName, node.tag(), type,
-					javaClass.className(), javaClass.packageName());
+					javaClass);
 			if (name.equals(""))
 				method.setOptional(true);
 			method.setComment(comment);
@@ -245,7 +245,7 @@ public abstract class Pattern implements ICodeGenerator {
 		// if no method has been declared, the default method is declared
 		if (!hasrun && javaClass.optional()) {
 			JavaMethod method = new JavaMethod(defaultName, node.tag(), type,
-					javaClass.className(), javaClass.packageName());
+					javaClass);
 			method.setOptional(true);
 			method.setComment(comment);
 			javaClass.addChild(method);
@@ -266,7 +266,7 @@ public abstract class Pattern implements ICodeGenerator {
 			String methodName = (name.equals("") ? defaultName
 					+ (index == 0 ? "" : index) : name);
 			JavaMethod method = new JavaMethod(methodName, node.tag(), type,
-					javaClass.className(), javaClass.packageName());
+					javaClass);
 			method.addArgument(argument);
 			if (name.equals(""))
 				method.setOptional(true);
@@ -281,7 +281,7 @@ public abstract class Pattern implements ICodeGenerator {
 		// if no method has been declared, the default method is declared
 		if (!hasrun && javaClass.optional()) {
 			JavaMethod method = new JavaMethod(defaultName, node.tag(), type,
-					javaClass.className(), javaClass.packageName());
+					javaClass);
 			method.addArgument(defaultArg);
 			method.setOptional(true);
 			method.setComment(comment);
@@ -295,11 +295,11 @@ public abstract class Pattern implements ICodeGenerator {
 	// Clones the Method objects in the list, adds the given settings and adds
 	// the list to the TagNodes sourcelist
 	protected void addMethods(TagNode node, JavaClass javaClass,
-			ICodeElement interfaceClass, String type, String comment) {
+			JavaClass interfaceClass, String type, String comment) {
 		for (ICodeElement code : interfaceClass.children()) {
 			if (code instanceof JavaMethod) {
-				addMethod(node, javaClass, javaClass.className(), javaClass
-						.packageName(), (JavaMethod) code, type, comment);
+				addMethod(node, javaClass, javaClass, (JavaMethod) code, type,
+						comment);
 			}
 		}
 	}
@@ -327,8 +327,7 @@ public abstract class Pattern implements ICodeGenerator {
 					}
 					if (found && code instanceof JavaMethod) {
 						hasrun = true;
-						addMethod(invoker, javaClass, implementerClass
-								.className(), implementerClass.packageName(),
+						addMethod(invoker, javaClass, implementerClass,
 								(JavaMethod) code, type, comment);
 					}
 				}
@@ -341,10 +340,8 @@ public abstract class Pattern implements ICodeGenerator {
 					JavaClass implementerClass = (JavaClass) element;
 					for (ICodeElement code : element.children()) {
 						if (code instanceof JavaMethod && code.optional()) {
-							addMethod(invoker, javaClass, implementerClass
-									.className(), implementerClass
-									.packageName(), (JavaMethod) code, type,
-									comment);
+							addMethod(invoker, javaClass, implementerClass,
+									(JavaMethod) code, type, comment);
 						}
 						return;
 					}
@@ -357,16 +354,19 @@ public abstract class Pattern implements ICodeGenerator {
 	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
 	// method invocation, an import is added to the containing class and the
 	// invocation is added to the set of restrictions when needed
-	private void addMethod(TagNode node, JavaClass javaClass, String className,
-			String packageName, JavaMethod method, String type, String comment) {
-		if (type.equals(JavaMethod.INVOCATION)) {
-			javaClass.addImport(packageName + "." + className);
+	private void addMethod(TagNode node, JavaClass javaClass,
+			JavaClass objectType, JavaMethod method, String type, String comment) {
+		if (type.equals(JavaMethod.INVOCATION)
+				|| type.equals(JavaMethod.CALLBACK_INV)) {
+			if (type.equals(JavaMethod.INVOCATION))
+				javaClass.addImport(objectType.packageName() + "."
+						+ objectType.className());
 			if (!method.optional()) {
 				tree.addRestrictedMethod(method);
 			}
 		}
 		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
-				className, packageName);
+				objectType);
 		newMethod.addArguments(method.arguments());
 		newMethod.setOptional(method.optional());
 		newMethod.setComment(comment);

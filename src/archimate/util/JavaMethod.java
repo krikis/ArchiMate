@@ -33,17 +33,17 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	// Constants defining the methods type
 	public static final String DECLARATION = "declaration";
 	public static final String IMPLEMENTATION = "implementation";
+	public static final String CALLBACK_IMPL = "callback_impl";
 	public static final String INVOCATION = "invocation";
+	public static final String CALLBACK_INV = "callback_inv";
 	// The method name
 	private String name;
 	// The type of the method, either DECLARATION, IMPLEMENTATION or INVOCATION
 	private String type;
-	// The packagename of the class in which the method is implemented
-	private String packageName;
 	// The archiMateTag corresponding with this method
 	private String archiMateTag;
-	// The name of the class in which the method is implemented
-	private String className;
+	// Type of the object handled by the method
+	private JavaClass objectType;
 	// List of arguments
 	private ArrayList<JavaClass> args = new ArrayList<JavaClass>();
 
@@ -63,16 +63,14 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 *            The packagename of the class in which the method is
 	 *            implemented
 	 */
-	public JavaMethod(String name, String tag, String type, String className,
-			String packageName) {
+	public JavaMethod(String name, String tag, String type, JavaClass objectType) {
 		umlElements = new ArrayList<NamedElement>();
 		visited = false;
 		optional = false;
 		this.name = name;
 		archiMateTag = tag;
 		this.type = type;
-		this.className = className;
-		this.packageName = packageName;
+		this.objectType = objectType;
 		comment = "";
 	}
 
@@ -97,10 +95,24 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 		if (element instanceof JavaMethod) {
 			JavaMethod method = (JavaMethod) element;
 			return name.equals(method.name)
-					&& packageName.equals(method.packageName)
-					&& className.equals(method.className);
+					&& objectType.packageName().equals(method.packageName())
+					&& objectType.className().equals(method.className())
+					&& equal(args, method.arguments());
 		}
 		return false;
+	}
+
+	// Compares the argumentlist of two methods and returns whether they are the
+	// same
+	private boolean equal(ArrayList<JavaClass> args,
+			ArrayList<JavaClass> arguments) {
+		boolean equal = true;
+		if (args.size() != arguments.size())
+			return false;
+		for (int index = 0; index < args.size(); ++index) {
+			equal &= args.get(index).equals(arguments.get(index));
+		}
+		return equal;
 	}
 
 	// Compares itself with the given ASTNode for differences
@@ -270,16 +282,6 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	}
 
 	/**
-	 * Sets the name of the class the method is implemented in
-	 * 
-	 * @param name
-	 *            the name of the class the method is implemented in
-	 */
-	public void setClassName(String name) {
-		className = name;
-	}
-
-	/**
 	 * Returns the name of the method
 	 * 
 	 * @return the name of the method
@@ -312,7 +314,7 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 * @return the method package
 	 */
 	public String packageName() {
-		return packageName;
+		return objectType.packageName();
 	}
 
 	/**
@@ -357,22 +359,31 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 * @return the name of the class the method was implemented in
 	 */
 	public String className() {
-		return className;
+		return objectType.className();
 	}
 
 	/**
-	 * Returns the object on which the method is invoked
+	 * Returns the type of the object on which the method is invoked
 	 * 
-	 * @return the object on which the method is invoked
+	 * @return the type of the object on which the method is invoked
 	 */
-	public String invocationObject() {
-		return JavaHelper.camelize(className);
+	public JavaClass objectType() {
+		return objectType;
 	}
 
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + "#" + name
+		String arguments = "";
+		for (JavaClass argument : args) {
+			arguments += argument.className() + " "
+					+ JavaHelper.camelize(argument.className());
+			if (argument != args.get(args.size() - 1))
+				arguments += ", ";
+		}
+		out += objectType.packageName() + "." + objectType.className() + "#"
+				+ name + "(" + arguments + ")"
+				+ (optional ? " | optional" : "")
 				+ (visited ? " :: visited" : "") + "\n";
 		return out;
 	}

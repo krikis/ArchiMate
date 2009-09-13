@@ -71,14 +71,16 @@ public class ValidateCode extends ArchiMateAction {
 		MultiStatus status = new MultiStatus(Activator.PLUGIN_ID, 1,
 				"Temporary Status", null);
 		int tasks = 0;
-		int newtasks = collectPatterns(umlPackage, monitor, status, profiles, patterns);
+		int newtasks = collectPatterns(umlPackage, monitor, status, profiles,
+				patterns);
 		if (monitor.isCanceled()) { // return if cancel is requested
 			return null;
 		}
 		tasks += newtasks;
 		// If no pattern has been found, the primitives are processed separately
 		if (newtasks == 0) {
-			tasks += collectPrimitives(umlPackage, monitor, status, profiles, patterns);
+			tasks += collectPrimitives(umlPackage, monitor, status, profiles,
+					patterns);
 		}
 		if (monitor.isCanceled()) { // return if cancel is requested
 			return null;
@@ -98,8 +100,8 @@ public class ValidateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design patterns
 	private int collectPatterns(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, MultiStatus status, EList<Profile> profiles,
-			ArrayList<Pattern> patterns) {
+			final IProgressMonitor monitor, MultiStatus status,
+			EList<Profile> profiles, ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
 			if (monitor.isCanceled()) { // return if cancel is requested
@@ -120,8 +122,8 @@ public class ValidateCode extends ArchiMateAction {
 
 	// Goes through all applied profiles and collects the design primtives
 	private int collectPrimitives(org.eclipse.uml2.uml.Package umlPackage,
-			final IProgressMonitor monitor, MultiStatus status, EList<Profile> profiles,
-			ArrayList<Pattern> patterns) {
+			final IProgressMonitor monitor, MultiStatus status,
+			EList<Profile> profiles, ArrayList<Pattern> patterns) {
 		int tasks = 0;
 		for (Profile profile : profiles) {
 			if (monitor.isCanceled()) { // return if cancel is requested
