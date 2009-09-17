@@ -345,8 +345,24 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 *            the import to add
 	 */
 	public void addImport(String importName) {
+		// return if import is in same package
+		if (packageName.contains(dropLast(importName)))
+			return;
 		if (!imports.contains(importName))
 			imports.add(importName);
+	}
+	
+	// takes the package from the import 
+	private String dropLast(String importName) {
+		String[] parts = importName.split(".");
+		String out = "";
+		for (String part : parts) {
+			if (!part.equals(parts[parts.length - 1]))
+				out += part;
+			if (parts.length > 1 && !part.equals(parts[parts.length - 2]))
+				out += ".";
+		}
+		return out;
 	}
 
 	/**
