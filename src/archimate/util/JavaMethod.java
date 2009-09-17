@@ -33,9 +33,9 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	// Constants defining the methods type
 	public static final String DECLARATION = "declaration";
 	public static final String IMPLEMENTATION = "implementation";
-	public static final String CALLBACK_IMPL = "callback_impl";
+	public static final String CALLBACK_IMPL = "implementation ";
 	public static final String INVOCATION = "invocation";
-	public static final String CALLBACK_INV = "callback_inv";
+	public static final String CALLBACK_INV = "invocation ";
 	// The method name
 	private String name;
 	// The type of the method, either DECLARATION, IMPLEMENTATION or INVOCATION
@@ -94,10 +94,20 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	public boolean equals(ICodeElement element) {
 		if (element instanceof JavaMethod) {
 			JavaMethod method = (JavaMethod) element;
-			return name.equals(method.name)
-					&& objectType.packageName().equals(method.packageName())
-					&& objectType.className().equals(method.className())
-					&& equal(args, method.arguments());
+			boolean found = (objectType.packageName().equals(
+					method.packageName()) && objectType.className().equals(
+					method.className()));
+			if (!found) {
+				for (JavaClass interfaceClass : method.objectType.interfaces()) {
+					found = (objectType.packageName().equals(
+							interfaceClass.packageName()) && objectType
+							.className().equals(interfaceClass.className()));
+					if (found)
+						break;
+				}
+			}
+			return (found && name.equals(method.name) && equal(args, method
+					.arguments()));
 		}
 		return false;
 	}

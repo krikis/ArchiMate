@@ -203,6 +203,30 @@ public class JavaHelper {
 	}
 
 	/**
+	 * Returns a JavaClass object for every interface the class the
+	 * {@link ASTNode} is defined in implements
+	 * 
+	 * @param node
+	 *            the {@link ASTNode}
+	 * @return The JavaClass objects
+	 */
+	public ArrayList<JavaClass> getInterfaceClasses(ASTNode node) {
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+		TypeDeclaration declaration = typeDeclaration(node);
+		if (declaration != null) {
+			for (Object interfaceType : declaration.superInterfaceTypes()) {
+				if (interfaceType instanceof SimpleType) {
+					ITypeBinding type = ((SimpleType) interfaceType)
+							.resolveBinding();
+					interfaces.add(new JavaClass(type.getPackage().getName(),
+							type.getName(), "", ""));
+				}
+			}
+		}
+		return interfaces;
+	}
+
+	/**
 	 * Returns the name of the {@link TypeDeclaration} the node is in
 	 * 
 	 * @param node
@@ -777,8 +801,10 @@ public class JavaHelper {
 				return method;
 			}
 		}
-		method = new JavaMethod(getName(node), tag, type, new JavaClass(
-				getPackage(node), getClassName(node), "", ""));
+		JavaClass javaClass = new JavaClass(getPackage(node),
+				getClassName(node), "", "");
+		javaClass.addInterfaces(getInterfaceClasses(node));
+		method = new JavaMethod(getName(node), tag, type, javaClass);
 		addArgumentStubs(node, method);
 		return method;
 	}
@@ -986,10 +1012,19 @@ public class JavaHelper {
 				// check the type of the object on which the method is invoked
 				if (type != null) {
 					IPackageBinding packageBinding = type.getPackage();
-					if (method.type().equals(type.getName())
+					// Check if method is defined for type
+					if (method.className().equals(type.getName())
 							&& method.packageName().equals(
 									packageBinding.getName())) {
 						checkRestricted(node, tagnode, method);
+					}
+					// Check if method is defined for an interface type
+					for (ITypeBinding interfaceType : type.getInterfaces()) {
+						if (method.className().equals(interfaceType.getName())
+								&& method.packageName().equals(
+										interfaceType.getPackage().getName())) {
+							checkRestricted(node, tagnode, method);
+						}
 					}
 				}
 			}
