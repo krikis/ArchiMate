@@ -886,8 +886,9 @@ public class JavaHelper {
 						type.getName(), "", "");
 				// Add interfaces to argument
 				for (ITypeBinding interfaceType : type.getInterfaces()) {
-					argument.addInterface(new JavaClass(interfaceType.getPackage().getName(),
-							interfaceType.getName(), "", ""));
+					argument.addInterface(new JavaClass(interfaceType
+							.getPackage().getName(), interfaceType.getName(),
+							"", ""));
 				}
 				method.arguments().add(argument);
 			}

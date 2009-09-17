@@ -298,8 +298,8 @@ public abstract class Pattern implements ICodeGenerator {
 			JavaClass interfaceClass, String type, String comment) {
 		for (ICodeElement code : interfaceClass.children()) {
 			if (code instanceof JavaMethod) {
-				addMethod(node, javaClass, interfaceClass, (JavaMethod) code, type,
-						comment);
+				addMethod(node, javaClass, interfaceClass, (JavaMethod) code,
+						type, comment);
 			}
 		}
 	}

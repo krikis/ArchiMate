@@ -111,8 +111,8 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 			if (!found) {
 				for (JavaClass interfaceClass : objectType.interfaces()) {
 					found = (method.packageName().equals(
-							interfaceClass.packageName()) && method
-							.className().equals(interfaceClass.className()));
+							interfaceClass.packageName()) && method.className()
+							.equals(interfaceClass.className()));
 					if (found)
 						break;
 				}
