@@ -793,12 +793,7 @@ public class JavaHelper {
 		if (type.equals(JavaMethod.INVOCATION)) {
 			ArrayList<JavaMethod> invocations = methodInvocations(node);
 			if (invocations.size() > 0) {
-				JavaMethod invocation = invocations.get(0);
-				method = new JavaMethod(invocation.name(), tag, type,
-						new JavaClass(invocation.packageName(), invocation
-								.className(), "", ""));
-				method.arguments().addAll(invocation.arguments());
-				return method;
+				return invocations.get(0);
 			}
 		}
 		JavaClass javaClass = new JavaClass(getPackage(node),
@@ -889,6 +884,11 @@ public class JavaHelper {
 				IPackageBinding packageBinding = type.getPackage();
 				JavaClass argument = new JavaClass(packageBinding.getName(),
 						type.getName(), "", "");
+				// Add interfaces to argument
+				for (ITypeBinding interfaceType : type.getInterfaces()) {
+					argument.addInterface(new JavaClass(interfaceType.getPackage().getName(),
+							interfaceType.getName(), "", ""));
+				}
 				method.arguments().add(argument);
 			}
 		}

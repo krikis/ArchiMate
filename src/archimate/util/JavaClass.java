@@ -93,8 +93,18 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	public boolean equals(ICodeElement element) {
 		if (element instanceof JavaClass) {
 			JavaClass javaClass = (JavaClass) element;
-			return className.equals(javaClass.className)
+			boolean found = className.equals(javaClass.className)
 					&& this.packageName.equals(javaClass.packageName);
+			if (!found) {
+				for (JavaClass interfaceClass : javaClass.interfaces) {
+					found = className.equals(interfaceClass.className)
+							&& this.packageName
+									.equals(interfaceClass.packageName);
+					if (found)
+						break;
+				}
+			}
+			return found;
 		}
 		return false;
 	}
@@ -346,23 +356,25 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 */
 	public void addImport(String importName) {
 		// return if import is in same package
-		if (packageName.contains(dropLast(importName)))
+		if (samePackage(importName, packageName))
 			return;
 		if (!imports.contains(importName))
 			imports.add(importName);
 	}
-	
-	// takes the package from the import 
-	private String dropLast(String importName) {
-		String[] parts = importName.split(".");
+
+	// takes the package from the import
+	private boolean samePackage(String importName, String packageName) {
+		String[] parts = importName.split("\\.");
 		String out = "";
 		for (String part : parts) {
 			if (!part.equals(parts[parts.length - 1]))
 				out += part;
+			if (out.equals(packageName))
+				return true;
 			if (parts.length > 1 && !part.equals(parts[parts.length - 2]))
 				out += ".";
 		}
-		return out;
+		return false;
 	}
 
 	/**

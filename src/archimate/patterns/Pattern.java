@@ -353,53 +353,6 @@ public abstract class Pattern implements ICodeGenerator {
 
 	// Creates methods that invoke methods from the implementer class and adds
 	// them to the javaclass
-	protected void addCallerMethods(TagNode invoker, String stereotype,
-			JavaClass javaClass, TagNode implementer, String type,
-			String comment) {
-		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
-		for (NamedElement umlElement : javaClass.umlElements()) {
-			messages.addAll(umlReader.getSent(umlElement, stereotype));
-		}
-		boolean hasrun = false;
-		for (ICodeElement element : implementer.source()) {
-			if (element instanceof JavaClass) {
-				JavaClass implementerClass = (JavaClass) element;
-				for (ICodeElement code : element.children()) {
-					boolean found = false;
-					for (NamedElement umlElement : code.umlElements()) {
-						if (messages.contains(umlElement)) {
-							found = true;
-							break;
-						}
-					}
-					if (found && code instanceof JavaMethod) {
-						hasrun = true;
-						addMethod(invoker, javaClass, implementerClass,
-								(JavaMethod) code, javaClass, type, comment);
-					}
-				}
-			}
-		}
-		// if no method has been invoked, the default method invocation is added
-		if (!hasrun) {
-			for (ICodeElement element : implementer.source()) {
-				if (element instanceof JavaClass) {
-					JavaClass implementerClass = (JavaClass) element;
-					for (ICodeElement code : element.children()) {
-						if (code instanceof JavaMethod && code.optional()) {
-							addMethod(invoker, javaClass, implementerClass,
-									(JavaMethod) code, javaClass, type, comment);
-						}
-						return;
-					}
-
-				}
-			}
-		}
-	}
-
-	// Creates methods that invoke methods from the implementer class and adds
-	// them to the javaclass
 	protected void addInterfaceMethods(TagNode invoker, String stereotype,
 			JavaClass javaClass, TagNode implementer, String type,
 			String comment) {

@@ -310,7 +310,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		caller.addChild(subscriptionInvocation);
 		for (ICodeElement element : caller.source()) {
 			if (element instanceof JavaClass) {
-				addCallerMethods(
+				addMethods(
 						subscriptionInvocation,
 						TagNode.inStereo(SUBSCRIPTION_MESSAGE),
 						(JavaClass) element,
