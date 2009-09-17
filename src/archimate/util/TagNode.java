@@ -210,7 +210,7 @@ public class TagNode {
 	 */
 	public void addSource(ICodeElement code) {
 		for (ICodeElement element : source) {
-			if (element.equals(code)) {
+			if (element.isInstanceof(code)) {
 				element.addUmlElements(code.umlElements());
 				return;
 			}
@@ -284,7 +284,7 @@ public class TagNode {
 	public ICodeElement getSource(JavaMethod method) {
 		for (Iterator<ICodeElement> iter = source.iterator(); iter.hasNext();) {
 			ICodeElement element = iter.next();
-			if (element.equals(method)) {
+			if (element.isInstanceof(method)) {
 				return element;
 			}
 		}

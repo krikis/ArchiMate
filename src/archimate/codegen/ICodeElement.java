@@ -60,7 +60,7 @@ public interface ICodeElement {
 	 *            a source element
 	 * @return Whether the source element matches the given source
 	 */
-	public boolean equals(ICodeElement element);
+	public boolean isInstanceof(ICodeElement element);
 
 	/**
 	 * Compares itself to the {@link ASTNode} and writes the eventual

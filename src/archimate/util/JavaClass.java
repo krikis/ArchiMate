@@ -90,7 +90,7 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	}
 
 	// Method defining whether the java class matches the given code element
-	public boolean equals(ICodeElement element) {
+	public boolean isInstanceof(ICodeElement element) {
 		if (element instanceof JavaClass) {
 			JavaClass javaClass = (JavaClass) element;
 			boolean found = className.equals(javaClass.className)

@@ -91,16 +91,27 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	}
 
 	// Method defining whether the java method matches the given source element
-	public boolean equals(ICodeElement element) {
+	public boolean isInstanceof(ICodeElement element) {
 		if (element instanceof JavaMethod) {
 			JavaMethod method = (JavaMethod) element;
 			boolean found = (objectType.packageName().equals(
 					method.packageName()) && objectType.className().equals(
 					method.className()));
+			// Check element interfaces
 			if (!found) {
 				for (JavaClass interfaceClass : method.objectType.interfaces()) {
 					found = (objectType.packageName().equals(
 							interfaceClass.packageName()) && objectType
+							.className().equals(interfaceClass.className()));
+					if (found)
+						break;
+				}
+			}
+			// Check own interfaces
+			if (!found) {
+				for (JavaClass interfaceClass : objectType.interfaces()) {
+					found = (method.packageName().equals(
+							interfaceClass.packageName()) && method
 							.className().equals(interfaceClass.className()));
 					if (found)
 						break;
@@ -120,7 +131,7 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 		if (args.size() != arguments.size())
 			return false;
 		for (int index = 0; index < args.size(); ++index) {
-			equal &= args.get(index).equals(arguments.get(index));
+			equal &= args.get(index).isInstanceof(arguments.get(index));
 		}
 		return equal;
 	}

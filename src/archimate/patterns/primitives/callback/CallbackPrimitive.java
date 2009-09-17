@@ -327,7 +327,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		callee.addChild(eventInvocation);
 		for (ICodeElement element : callee.source()) {
 			if (element instanceof JavaClass) {
-				addInterfaceMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
+				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
 						(JavaClass) element, caller, JavaMethod.CALLBACK_INV,
 						"This method calls back to all objects that handle an event from the callee.");
 			}

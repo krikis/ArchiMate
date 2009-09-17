@@ -351,61 +351,6 @@ public abstract class Pattern implements ICodeGenerator {
 		}
 	}
 
-	// Creates methods that invoke methods from the implementer class and adds
-	// them to the javaclass
-	protected void addInterfaceMethods(TagNode invoker, String stereotype,
-			JavaClass javaClass, TagNode implementer, String type,
-			String comment) {
-		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
-		for (NamedElement umlElement : javaClass.umlElements()) {
-			messages.addAll(umlReader.getSent(umlElement, stereotype));
-		}
-		boolean hasrun = false;
-		for (ICodeElement element : implementer.source()) {
-			if (element instanceof JavaClass) {
-				JavaClass implementerClass = (JavaClass) element;
-				if (implementerClass.interfacesDefined()) {
-					JavaClass interfaceClass = implementerClass.interfaces()
-							.get(0);
-					for (ICodeElement code : element.children()) {
-						boolean found = false;
-						for (NamedElement umlElement : code.umlElements()) {
-							if (messages.contains(umlElement)) {
-								found = true;
-								break;
-							}
-						}
-						if (found && code instanceof JavaMethod) {
-							hasrun = true;
-							addMethod(invoker, javaClass, interfaceClass,
-									(JavaMethod) code, type, comment);
-						}
-					}
-				}
-			}
-		}
-		// if no method has been invoked, the default method invocation is added
-		if (!hasrun) {
-			for (ICodeElement element : implementer.source()) {
-				if (element instanceof JavaClass) {
-					JavaClass implementerClass = (JavaClass) element;
-					if (implementerClass.interfacesDefined()) {
-						JavaClass interfaceClass = implementerClass
-								.interfaces().get(0);
-						for (ICodeElement code : element.children()) {
-							if (code instanceof JavaMethod && code.optional()) {
-								addMethod(invoker, javaClass, interfaceClass,
-										(JavaMethod) code, type, comment);
-							}
-							return;
-						}
-					}
-
-				}
-			}
-		}
-	}
-
 	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
 	// method invocation, an import is added to the containing class and the
 	// invocation is added to the set of restrictions when needed
