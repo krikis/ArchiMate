@@ -379,33 +379,4 @@ public abstract class Pattern implements ICodeGenerator {
 		node.addSource(newMethod);
 	}
 
-	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
-	// method invocation, an import is added to the containing class and the
-	// invocation is added to the set of restrictions when needed
-	private void addMethod(TagNode node, JavaClass javaClass,
-			JavaClass objectType, JavaMethod method, JavaClass argument,
-			String type, String comment) {
-		if (type.equals(JavaMethod.INVOCATION)
-				|| type.equals(JavaMethod.CALLBACK_INV)) {
-			if (type.equals(JavaMethod.INVOCATION))
-				javaClass.addImport(objectType.packageName() + "."
-						+ objectType.className());
-			if (!method.optional()) {
-				tree.addRestrictedMethod(method);
-			}
-		}
-		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
-				objectType);
-		newMethod.addArgument(argument);
-		newMethod.setOptional(method.optional());
-		newMethod.setComment(comment);
-		newMethod.addUmlElements(method.umlElements());
-		javaClass.addChild(newMethod);		
-		for (JavaClass arg : method.arguments()) {
-			javaClass.addImport(arg.packageName() + "."
-					+ arg.className());
-		}
-		node.addSource(newMethod);
-	}
-
 }
