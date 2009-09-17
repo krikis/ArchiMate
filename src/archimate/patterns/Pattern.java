@@ -351,6 +351,108 @@ public abstract class Pattern implements ICodeGenerator {
 		}
 	}
 
+	// Creates methods that invoke methods from the implementer class and adds
+	// them to the javaclass
+	protected void addCallerMethods(TagNode invoker, String stereotype,
+			JavaClass javaClass, TagNode implementer, String type,
+			String comment) {
+		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
+		for (NamedElement umlElement : javaClass.umlElements()) {
+			messages.addAll(umlReader.getSent(umlElement, stereotype));
+		}
+		boolean hasrun = false;
+		for (ICodeElement element : implementer.source()) {
+			if (element instanceof JavaClass) {
+				JavaClass implementerClass = (JavaClass) element;
+				for (ICodeElement code : element.children()) {
+					boolean found = false;
+					for (NamedElement umlElement : code.umlElements()) {
+						if (messages.contains(umlElement)) {
+							found = true;
+							break;
+						}
+					}
+					if (found && code instanceof JavaMethod) {
+						hasrun = true;
+						addMethod(invoker, javaClass, implementerClass,
+								(JavaMethod) code, javaClass, type, comment);
+					}
+				}
+			}
+		}
+		// if no method has been invoked, the default method invocation is added
+		if (!hasrun) {
+			for (ICodeElement element : implementer.source()) {
+				if (element instanceof JavaClass) {
+					JavaClass implementerClass = (JavaClass) element;
+					for (ICodeElement code : element.children()) {
+						if (code instanceof JavaMethod && code.optional()) {
+							addMethod(invoker, javaClass, implementerClass,
+									(JavaMethod) code, javaClass, type, comment);
+						}
+						return;
+					}
+
+				}
+			}
+		}
+	}
+
+	// Creates methods that invoke methods from the implementer class and adds
+	// them to the javaclass
+	protected void addInterfaceMethods(TagNode invoker, String stereotype,
+			JavaClass javaClass, TagNode implementer, String type,
+			String comment) {
+		ArrayList<NamedElement> messages = new ArrayList<NamedElement>();
+		for (NamedElement umlElement : javaClass.umlElements()) {
+			messages.addAll(umlReader.getSent(umlElement, stereotype));
+		}
+		boolean hasrun = false;
+		for (ICodeElement element : implementer.source()) {
+			if (element instanceof JavaClass) {
+				JavaClass implementerClass = (JavaClass) element;
+				if (implementerClass.interfacesDefined()) {
+					JavaClass interfaceClass = implementerClass.interfaces()
+							.get(0);
+					for (ICodeElement code : element.children()) {
+						boolean found = false;
+						for (NamedElement umlElement : code.umlElements()) {
+							if (messages.contains(umlElement)) {
+								found = true;
+								break;
+							}
+						}
+						if (found && code instanceof JavaMethod) {
+							hasrun = true;
+							addMethod(invoker, javaClass, interfaceClass,
+									(JavaMethod) code, type, comment);
+						}
+					}
+				}
+			}
+		}
+		// if no method has been invoked, the default method invocation is added
+		if (!hasrun) {
+			for (ICodeElement element : implementer.source()) {
+				if (element instanceof JavaClass) {
+					JavaClass implementerClass = (JavaClass) element;
+					if (implementerClass.interfacesDefined()) {
+						JavaClass interfaceClass = implementerClass
+								.interfaces().get(0);
+						for (ICodeElement code : element.children()) {
+							if (code instanceof JavaMethod && code.optional()) {
+								addMethod(invoker, javaClass, interfaceClass,
+										(JavaMethod) code, type, comment);
+							}
+							return;
+						}
+					}
+
+				}
+			}
+		}
+	}
+
 	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
 	// method invocation, an import is added to the containing class and the
 	// invocation is added to the set of restrictions when needed
@@ -375,6 +477,35 @@ public abstract class Pattern implements ICodeGenerator {
 		for (JavaClass argument : method.arguments()) {
 			javaClass.addImport(argument.packageName() + "."
 					+ argument.className());
+		}
+		node.addSource(newMethod);
+	}
+
+	// Creates a JavaMethod and adds it to the TagNode. When it concerns a
+	// method invocation, an import is added to the containing class and the
+	// invocation is added to the set of restrictions when needed
+	private void addMethod(TagNode node, JavaClass javaClass,
+			JavaClass objectType, JavaMethod method, JavaClass argument,
+			String type, String comment) {
+		if (type.equals(JavaMethod.INVOCATION)
+				|| type.equals(JavaMethod.CALLBACK_INV)) {
+			if (type.equals(JavaMethod.INVOCATION))
+				javaClass.addImport(objectType.packageName() + "."
+						+ objectType.className());
+			if (!method.optional()) {
+				tree.addRestrictedMethod(method);
+			}
+		}
+		JavaMethod newMethod = new JavaMethod(method.name(), node.tag(), type,
+				objectType);
+		newMethod.addArgument(argument);
+		newMethod.setOptional(method.optional());
+		newMethod.setComment(comment);
+		newMethod.addUmlElements(method.umlElements());
+		javaClass.addChild(newMethod);		
+		for (JavaClass arg : method.arguments()) {
+			javaClass.addImport(arg.packageName() + "."
+					+ arg.className());
 		}
 		node.addSource(newMethod);
 	}

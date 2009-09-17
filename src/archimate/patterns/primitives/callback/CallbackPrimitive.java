@@ -202,7 +202,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		}
 		createClasses(subscriptionInterface, TagNode.inStereo(CALLEE_INSTANCE),
 				calleePackage, null, false, JavaClass.INTERFACE,
-				"IMySubscription", "ISubscription#", superClass, null,
+				"IMySubscription", "I#Subscription", superClass, null,
 				"This interface specifies the #name#interface of the Callback primitive");
 		// Create interface method declarations
 		TagNode subscriptionMessage = new TagNode(SUBSCRIPTION_MESSAGE);
@@ -310,7 +310,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		caller.addChild(subscriptionInvocation);
 		for (ICodeElement element : caller.source()) {
 			if (element instanceof JavaClass) {
-				addMethods(
+				addCallerMethods(
 						subscriptionInvocation,
 						TagNode.inStereo(SUBSCRIPTION_MESSAGE),
 						(JavaClass) element,
@@ -327,7 +327,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		callee.addChild(eventInvocation);
 		for (ICodeElement element : callee.source()) {
 			if (element instanceof JavaClass) {
-				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
+				addInterfaceMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
 						(JavaClass) element, caller, JavaMethod.CALLBACK_INV,
 						"This method calls back to all objects that handle an event from the callee.");
 			}
@@ -362,12 +362,18 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		ArrayList<JavaClass> args = new ArrayList<JavaClass>();
 		for (NamedElement message : messages) {
 			for (ICodeElement sourceElement : invoker.source()) {
-				if (sourceElement instanceof JavaClass
-						&& ((JavaClass) sourceElement).interfacesDefined()) {
-					JavaClass interfaceClass = ((JavaClass) sourceElement)
-							.interfaces().get(0);
-					for (ICodeElement code : sourceElement.children()) {
-						if (code.umlElements().contains(message)) {
+				if (sourceElement instanceof JavaClass) {
+					JavaClass invokerClass = (JavaClass) sourceElement;
+					if (invokerClass.interfacesDefined()) {
+						ArrayList<NamedElement> sentMessages = new ArrayList<NamedElement>();
+						for (NamedElement umlElement : invokerClass
+								.umlElements()) {
+							sentMessages.addAll(umlReader.getSent(umlElement,
+									node.stereotype()));
+						}
+						if (sentMessages.contains(message)) {
+							JavaClass interfaceClass = ((JavaClass) sourceElement)
+									.interfaces().get(0);
 							args.add(interfaceClass);
 							usedMessages.add(message);
 						}

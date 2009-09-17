@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -588,6 +589,7 @@ public class JavaHelper {
 		vdf.setName(ast.newSimpleName(listName));
 		FieldDeclaration fd = ast.newFieldDeclaration(vdf);
 		setModifier(fd, Modifier.PRIVATE);
+		setModifier(fd, Modifier.STATIC);
 		ParameterizedType paramType = ast.newParameterizedType(ast
 				.newSimpleType(ast.newSimpleName("ArrayList")));
 		paramType.typeArguments().add(
@@ -764,19 +766,20 @@ public class JavaHelper {
 		JavaMethod method = null;
 		String tag = getArchiMateTag(node);
 		String type = Pattern.methodType(getArchiMateTag(node));
-		if (type.equals(JavaMethod.INVOCATION)
-				|| type.equals(JavaMethod.CALLBACK_INV)) {
+		if (type.equals(JavaMethod.INVOCATION)) {
 			ArrayList<JavaMethod> invocations = methodInvocations(node);
 			if (invocations.size() > 0) {
 				JavaMethod invocation = invocations.get(0);
 				method = new JavaMethod(invocation.name(), tag, type,
 						new JavaClass(invocation.packageName(), invocation
 								.className(), "", ""));
+				method.arguments().addAll(invocation.arguments());
 				return method;
 			}
 		}
 		method = new JavaMethod(getName(node), tag, type, new JavaClass(
 				getPackage(node), getClassName(node), "", ""));
+		addArgumentStubs(node, method);
 		return method;
 	}
 
@@ -786,11 +789,17 @@ public class JavaHelper {
 		Block methodBlock = node.getBody();
 		if (methodBlock != null) {
 			for (Object element : methodBlock.statements()) {
-				if (element instanceof ExpressionStatement
-						&& ((ExpressionStatement) element).getExpression() instanceof MethodInvocation) {
-					MethodInvocation invocation = (MethodInvocation) ((ExpressionStatement) element)
+				Object newElement = element;
+				if (element instanceof EnhancedForStatement) {
+					newElement = ((EnhancedForStatement) element).getBody();
+				}
+				if (newElement instanceof ExpressionStatement
+						&& ((ExpressionStatement) newElement).getExpression() instanceof MethodInvocation) {
+					MethodInvocation invocation = (MethodInvocation) ((ExpressionStatement) newElement)
 							.getExpression();
-					invocations.add(methodInvocations(invocation));
+					JavaMethod method = methodInvocations(invocation);
+					if (method != null)
+						invocations.add(method);
 				}
 			}
 		}
@@ -820,11 +829,43 @@ public class JavaHelper {
 		}
 		if (type != null) {
 			IPackageBinding packageBinding = type.getPackage();
-			return new JavaMethod(node.getName().getFullyQualifiedName(), "",
-					"", new JavaClass(packageBinding.getName(), type.getName(),
-							"", ""));
+			JavaMethod method = new JavaMethod(node.getName()
+					.getFullyQualifiedName(), "", "", new JavaClass(
+					packageBinding.getName(), type.getName(), "", ""));
+			addArgumentStubs(node, method);
+			return method;
 		}
 		return null;
+	}
+
+	// Adds a javaClass to the javaMethod for every argument in the method
+	// declaration
+	private void addArgumentStubs(MethodDeclaration node, JavaMethod method) {
+		for (Object expression : node.parameters()) {
+			if (expression instanceof SingleVariableDeclaration) {
+				SingleVariableDeclaration declaration = (SingleVariableDeclaration) expression;
+				ITypeBinding type = declaration.getType().resolveBinding();
+				IPackageBinding packageBinding = type.getPackage();
+				JavaClass argument = new JavaClass(packageBinding.getName(),
+						type.getName(), "", "");
+				method.arguments().add(argument);
+			}
+		}
+	}
+
+	// Adds a javaClass to the javaMethod for every argument in the method
+	// invocation
+	private void addArgumentStubs(MethodInvocation node, JavaMethod method) {
+		for (Object expression : node.arguments()) {
+			if (expression instanceof ThisExpression) {
+				ThisExpression thisExpression = (ThisExpression) expression;
+				ITypeBinding type = thisExpression.resolveTypeBinding();
+				IPackageBinding packageBinding = type.getPackage();
+				JavaClass argument = new JavaClass(packageBinding.getName(),
+						type.getName(), "", "");
+				method.arguments().add(argument);
+			}
+		}
 	}
 
 	/**
