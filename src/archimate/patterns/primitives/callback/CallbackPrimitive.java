@@ -2,9 +2,7 @@ package archimate.patterns.primitives.callback;
 
 import java.util.ArrayList;
 
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.uml2.uml.NamedElement;
 
 import archimate.codegen.ICodeElement;
@@ -43,8 +41,178 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	// Names of the packages in the primitive
 	private String callerPackage;
 	private String calleePackage;
-	// The status
-	private MultiStatus status;
+
+	/**
+	 * Constructor adding the Callback {@link TagNode} elements to the given
+	 * tree
+	 * 
+	 * @param tree
+	 *            the {@link TagTree} to add the {@link TagNode}s to
+	 */
+	public CallbackPrimitive(org.eclipse.uml2.uml.Package umlPackage,
+			TagTree tree, MultiStatus status) {
+		// Set the TagTree
+		this.tree = tree;
+		// Set the status
+		this.status = status;
+		// Set the UML reader
+		umlReader = new UMLAdapter(umlPackage, "CallBack");
+		// Set the pattern name
+		name = "Callback primitive";
+		// Set some configuration variables
+		setVariables();
+		// Update the TagTree
+		updateTree();
+	}
+
+	// Updates the TagTree to make it contain the callback primitive
+	private void updateTree() {
+		System.out.println(tree);
+
+		TagNode root = tree.root();
+
+		// Find or create EventInterface 
+		TagNode eventInterface = eventInterface(tree);
+		// Find or create SubscriptionInterface 
+		TagNode subscriptionInterface = subscriptionInterface(tree);
+
+		// Find Caller Class and remove
+		TagNode callerClass = callerClass(tree);
+		if (callerClass != null) {
+			callerPackage = getPackage(callerClass);
+			tree.dropNode(callerClass);
+		}
+		// Update Caller Class
+		updateCallerClass(callerClass, eventInterface);
+		// Find Callee Class and remove
+		TagNode calleeClass = calleeClass(tree);
+		if (calleeClass != null) {
+			calleePackage = getPackage(calleeClass);
+		}
+		// Update Callee Class
+		updateCalleeClass(calleeClass, subscriptionInterface);
+
+		// Find EventInterface instance and remove
+		tree.dropNode(eventInterfaceInstance(tree));
+		// Recreate EventInterface instance
+		TagNode eventInterfaceInstance = eventInterfaceInstance(root,
+				eventInterface);
+		// Find Caller instance Class and remove
+		TagNode callerInstanceClass = callerInstanceClass(tree);
+		if (callerInstanceClass != null) {
+			callerPackage = getPackage(callerInstanceClass);
+			tree.dropNode(callerInstanceClass);
+		}
+		// Recreate Caller instance Class
+		callerInstanceClass = callerInstanceClass(root, eventInterfaceInstance,
+				callerClass);
+
+		// Find SubscriptionInterface instance and remove
+		tree.dropNode(subscriptionInterfaceInstance(tree));
+		// Recreate SubscriptionInterface instance
+		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
+				root, subscriptionInterface, callerInstanceClass);
+		// Find Callee instance Class and remove
+		TagNode calleeInstanceClass = calleeInstanceClass(tree);
+		if (calleeInstanceClass != null) {
+			calleePackage = getPackage(calleeInstanceClass);
+			tree.dropNode(calleeInstanceClass);
+		}
+		// Recreate Callee instance Class
+		calleeInstanceClass = calleeInstanceClass(root,
+				subscriptionInterfaceInstance, calleeClass);
+
+		// Add subscriptionInvocationMethods
+		subscriptionInvocationMethods(callerInstanceClass, calleeInstanceClass);
+		// Add eventInvocationMethods
+		eventInvocationMethods(calleeInstanceClass, callerInstanceClass);
+		
+
+		System.out.println(tree);
+	}
+
+	// Find EventInterface
+	private TagNode eventInterface(TagTree tree) {
+		ArrayList<TagNode> eventInterfaces = tree.getNodeByStereotype(TagNode
+				.inStereo(EVENT_INTERFACE));
+		if (eventInterfaces.size() > 0)
+			return eventInterfaces.get(0);
+		else 
+			return eventInterface(tree.root());
+	}
+
+	// Find SubscriptionInterface
+	private TagNode subscriptionInterface(TagTree tree) {
+		ArrayList<TagNode> subscriptionInterfaces = tree
+				.getNodeByStereotype(TagNode.inStereo(SUBSCRIPTION_INTERFACE));
+		if (subscriptionInterfaces.size() > 0)
+			return subscriptionInterfaces.get(0);
+		else
+			return subscriptionInterface(tree.root());
+	}
+
+	// Find Caller Class
+	private TagNode callerClass(TagTree tree) {
+		ArrayList<TagNode> callers = tree.getNodeByStereotype(TagNode
+				.inStereo(CALLER));
+		if (callers.size() > 0)
+			return callers.get(0);
+		return null;
+	}
+
+	// Find Callee Class
+	private TagNode calleeClass(TagTree tree) {
+		ArrayList<TagNode> callees = tree.getNodeByStereotype(TagNode
+				.inStereo(CALLEE));
+		if (callees.size() > 0)
+			return callees.get(0);
+		return null;
+	}
+
+	// Find EventInterface instance
+	private TagNode eventInterfaceInstance(TagTree tree) {
+		ArrayList<TagNode> eventInterfaces = tree.getNodeByStereotype(TagNode
+				.inStereo(EVENT_INTERFACE_INSTANCE));
+		if (eventInterfaces.size() > 0)
+			return eventInterfaces.get(0);
+		return null;
+	}
+
+	// Find SubscriptionInterface instance
+	private TagNode subscriptionInterfaceInstance(TagTree tree) {
+		ArrayList<TagNode> subscriptionInterfaces = tree
+				.getNodeByStereotype(TagNode
+						.inStereo(SUBSCRIPTION_INTERFACE_INSTANCE));
+		if (subscriptionInterfaces.size() > 0)
+			return subscriptionInterfaces.get(0);
+		else
+			return subscriptionInterface(tree.root());
+	}
+
+	// Find Caller instance Class
+	private TagNode callerInstanceClass(TagTree tree) {
+		ArrayList<TagNode> callerInstances = tree.getNodeByStereotype(TagNode
+				.inStereo(CALLER_INSTANCE));
+		if (callerInstances.size() > 0)
+			return callerInstances.get(0);
+		return null;
+	}
+
+	// Find Callee instance Class
+	private TagNode calleeInstanceClass(TagTree tree) {
+		ArrayList<TagNode> calleeInstances = tree.getNodeByStereotype(TagNode
+				.inStereo(CALLEE_INSTANCE));
+		if (calleeInstances.size() > 0)
+			return calleeInstances.get(0);
+		return null;
+	}
+
+	// Helper method returning the package a TagNode was defined for
+	private String getPackage(TagNode node) {
+		if (node.sourceDefined())
+			return node.source().get(0).packageName();
+		return "";
+	}
 
 	/**
 	 * Constructor for the Callback primitive. Initializes a <TagTree> object
@@ -151,20 +319,50 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		return caller;
 	}
 
+	// Update Caller class implementing EventInterface
+	private void updateCallerClass(TagNode caller, TagNode eventInterface) {
+		for (ICodeElement element : caller.getCodeByStereotype(TagNode
+				.inStereo(CALLER))) {
+			if (element instanceof JavaClass) {
+				JavaClass javaClass = (JavaClass) element;
+				ICodeElement code = eventInterface
+						.getSourceByTag(EVENT_INTERFACE);
+				if (code instanceof JavaClass) {
+					javaClass.addInterface((JavaClass) code);
+				}
+			}
+		}
+	}
+
 	// Create Callee class implementing SubscriptionInterface
 	private TagNode calleeClass(TagNode root, TagNode subscriptionInterface) {
-		TagNode Callee = new TagNode(CALLEE);
+		TagNode callee = new TagNode(CALLEE);
 		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
 		ICodeElement element = subscriptionInterface
 				.getSourceByTag(SUBSCRIPTION_INTERFACE);
 		if (element instanceof JavaClass) {
 			interfaces.add((JavaClass) element);
 		}
-		createClasses(Callee, "", calleePackage, null, true, JavaClass.CLASS,
+		createClasses(callee, "", calleePackage, null, true, JavaClass.CLASS,
 				"Callee", "", null, interfaces,
 				"This class implements the Callee of the Callback primitive");
-		root.addChild(Callee);
-		return Callee;
+		root.addChild(callee);
+		return callee;
+	}
+
+	// Update Callee class implementing SubscriptionInterface
+	private void updateCalleeClass(TagNode callee, TagNode subscriptionInterface) {
+		for (ICodeElement element : callee.getCodeByStereotype(TagNode
+				.inStereo(CALLEE))) {
+			if (element instanceof JavaClass) {
+				JavaClass javaClass = (JavaClass) element;
+				ICodeElement code = subscriptionInterface
+						.getSourceByTag(SUBSCRIPTION_INTERFACE);
+				if (code instanceof JavaClass) {
+					javaClass.addInterface((JavaClass) code);
+				}
+			}
+		}
 	}
 
 	// Create EventInterface instance

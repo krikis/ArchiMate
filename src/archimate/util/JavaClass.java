@@ -591,13 +591,21 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	}
 
 	/**
-	 * Adds an interface to the list of interfaces
+	 * Adds an interface to the list of interfaces, unless it is already there
 	 * 
-	 * @param interfaceName
+	 * @param newInterface
 	 *            the interface to add
 	 */
-	public void addInterface(JavaClass interfaceName) {
-		interfaces.add(interfaceName);
+	public void addInterface(JavaClass newInterface) {
+		boolean found = false;
+		for (JavaClass interfaceClass : interfaces) {
+			if (interfaceClass.isInstanceof(newInterface)) {
+				found = true;
+				break;
+			}
+		}
+		if (!found)
+			interfaces.add(newInterface);
 	}
 
 	/**
@@ -607,7 +615,9 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	 *            the collection of interfaces to add
 	 */
 	public void addInterfaces(ArrayList<JavaClass> interfaces) {
-		this.interfaces.addAll(interfaces);
+		for (JavaClass interfaceClass : interfaces) {
+			addInterface(interfaceClass);
+		}
 	}
 
 	/**

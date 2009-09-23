@@ -3,6 +3,9 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.uml2.uml.NamedElement;
+import org.eclipse.uml2.uml.Stereotype;
+
 import archimate.codegen.ICodeElement;
 
 /**
@@ -329,16 +332,6 @@ public class TagNode {
 		return archimateTag.split("_")[1];
 	}
 
-	// Returns the state of the node for debug purposes
-	public String toString() {
-		String out = "";
-		out += tag + (visited ? " :: visited" : "") + "\n";
-		for (ICodeElement element : source) {
-			out += "---" + element.toString();
-		}
-		return out;
-	}
-
 	/**
 	 * Records the identifier for the archiMateTag
 	 * 
@@ -352,6 +345,49 @@ public class TagNode {
 				((JavaClass) element).recordIdentifier(identifier, packageName,
 						tag);
 		}
+	}
+
+	/**
+	 * Searches the nodes code and returns the {@link ICodeElement}s for which a
+	 * UML element stereotyped by the given stereotype can be found
+	 * 
+	 * @param node
+	 *            the node to search
+	 * @param stereotype
+	 *            the stereotype to match
+	 * @return a list of matched {@link ICodeElement}s
+	 */
+	public ArrayList<ICodeElement> getCodeByStereotype(String stereotype) {
+		ArrayList<ICodeElement> code = new ArrayList<ICodeElement>();
+		for (ICodeElement element : source) {
+			if (checkCode(element, stereotype)) {
+				code.add(element);
+			}
+		}
+		return code;
+	}
+
+	// Checks whether the {@link ICodeElement} has a UML element associated with
+	// it that is stereotyped by the given stereotype
+	private boolean checkCode(ICodeElement element, String stereotypeName) {
+		for (NamedElement umlElement : element.umlElements()) {
+			for (Stereotype stereotype : umlElement.getAppliedStereotypes()) {
+				if (stereotype.getName().equals(stereotypeName)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	// Returns the state of the node for debug purposes
+	public String toString() {
+		String out = "";
+		out += tag + (visited ? " :: visited" : "") + "\n";
+		for (ICodeElement element : source) {
+			out += "---" + element.toString();
+		}
+		return out;
 	}
 
 }

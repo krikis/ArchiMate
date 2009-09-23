@@ -3,6 +3,9 @@ package archimate.util;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.eclipse.uml2.uml.NamedElement;
+import org.eclipse.uml2.uml.Stereotype;
+
 import archimate.codegen.ICodeElement;
 
 /**
@@ -227,6 +230,64 @@ public class TagTree {
 		for (Iterator<TagNode> iter = node.children().iterator(); iter
 				.hasNext();) {
 			resetVisited(iter.next());
+		}
+	}
+
+	/**
+	 * Seaches the {@link TagTree} for nodes containing an {@link ICodeElement}
+	 * with a UML element stereotyped by the given stereotype
+	 * 
+	 * @param stereotype
+	 *            the stereotype to match
+	 * @return the list of found nodes
+	 */
+	public ArrayList<TagNode> getNodeByStereotype(String stereotype) {
+		return getNodeByStereotype(root, stereotype);
+	}
+
+	// Seaches the TagTree recursively for nodes containing source with a UML
+	// element stereotyped by the given stereotype
+	private ArrayList<TagNode> getNodeByStereotype(TagNode node,
+			String stereotype) {
+		ArrayList<TagNode> nodes = new ArrayList<TagNode>();
+		for (TagNode child : node.children()) {
+			if (checkNode(child, stereotype)) {
+				nodes.add(child);
+			}
+			// recursively search the childs children
+			nodes.addAll(getNodeByStereotype(child, stereotype));
+		}
+		return nodes;
+	}
+
+	// Checks whether the node contains source with a UML element stereotyped by
+	// the given stereotype
+	private boolean checkNode(TagNode node, String stereotypeName) {
+		for (ICodeElement element : node.source()) {
+			for (NamedElement umlElement : element.umlElements()) {
+				for (Stereotype stereotype : umlElement.getAppliedStereotypes()) {
+					if (stereotype.getName().equals(stereotypeName)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Deletes a node from the tree
+	 * 
+	 * @param node
+	 *            the node to delete
+	 */
+	public void dropNode(TagNode node) {
+		if (node != null) {
+			TagNode parent = node.parent();
+			if (parent != null) {
+				parent.children().remove(node);
+			}
+			node.setParent(null);
 		}
 	}
 

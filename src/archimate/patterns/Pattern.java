@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.uml2.uml.NamedElement;
+import org.eclipse.uml2.uml.Profile;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
+import archimate.patterns.primitives.callback.CallbackPrimitive;
 import archimate.uml.UMLAdapter;
 import archimate.util.FileHandler;
 import archimate.util.JavaClass;
@@ -37,6 +39,15 @@ public abstract class Pattern implements ICodeGenerator {
 	protected MultiStatus status;
 	// UML reader
 	protected UMLAdapter umlReader;
+	
+	protected void addPrimitives(org.eclipse.uml2.uml.Package umlPackage) {
+		for (Profile profile : umlPackage.getAppliedProfiles()) {
+			String name = profile.getName();
+			if (name.equals("Callback")) {
+				new CallbackPrimitive(umlPackage, tree, status);
+			}
+		}		
+	}
 
 	// Returns the name of the pattern
 	public String name() {

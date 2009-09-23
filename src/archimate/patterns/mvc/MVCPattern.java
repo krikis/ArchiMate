@@ -49,8 +49,6 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 	private String modelPackage;
 	private String viewPackage;
 	private String controllerPackage;
-	// The status
-	private MultiStatus status;
 
 	/**
 	 * Constructor for the MVC pattern. Initializes a <TagTree> object and a
@@ -72,6 +70,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 		name = "MVC Pattern";
 		// Setup the tag tree
 		constructTree();
+		addPrimitives(umlPackage);
 	}
 
 	// Sets the package names
