@@ -234,30 +234,31 @@ public class TagTree {
 	}
 
 	/**
-	 * Seaches the {@link TagTree} for nodes containing an {@link ICodeElement}
+	 * Searches the {@link TagTree} for a node containing an {@link ICodeElement}
 	 * with a UML element stereotyped by the given stereotype
 	 * 
 	 * @param stereotype
 	 *            the stereotype to match
 	 * @return the list of found nodes
 	 */
-	public ArrayList<TagNode> getNodeByStereotype(String stereotype) {
+	public TagNode getNodeByStereotype(String stereotype) {
 		return getNodeByStereotype(root, stereotype);
 	}
 
-	// Seaches the TagTree recursively for nodes containing source with a UML
+	// Searches the TagTree recursively for a node containing source with a UML
 	// element stereotyped by the given stereotype
-	private ArrayList<TagNode> getNodeByStereotype(TagNode node,
+	private TagNode getNodeByStereotype(TagNode node,
 			String stereotype) {
-		ArrayList<TagNode> nodes = new ArrayList<TagNode>();
 		for (TagNode child : node.children()) {
 			if (checkNode(child, stereotype)) {
-				nodes.add(child);
+				return child;
 			}
 			// recursively search the childs children
-			nodes.addAll(getNodeByStereotype(child, stereotype));
+			TagNode foundNode = getNodeByStereotype(child, stereotype);
+			if (foundNode != null)
+				return foundNode;
 		}
-		return nodes;
+		return null;
 	}
 
 	// Checks whether the node contains source with a UML element stereotyped by
