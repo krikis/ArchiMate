@@ -1,5 +1,6 @@
 package archimate.patterns;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -24,6 +25,13 @@ import archimate.util.TagTree;
  * @author Samuel Esposito
  */
 public abstract class Pattern implements ICodeGenerator {
+	
+	// Constants for the key source types of a pattern
+	public static final String INTERFACE = "Interface";
+	public static final String INSTANCE = "Instance";
+	public static final String METHOD = "Method";
+	public static final String MESSAGE = "Message";
+	public static final String INVOCATION = "Invocation";	
 
 	// Nr. of estimated tasks
 	protected int tasks = 0;
@@ -63,13 +71,13 @@ public abstract class Pattern implements ICodeGenerator {
 	public static String methodType(String archiMateTag) {
 		try {
 			if (archiMateTag.substring(archiMateTag.length() - 7,
-					archiMateTag.length()).equals("Message")) {
+					archiMateTag.length()).equals(MESSAGE)) {
 				return JavaMethod.DECLARATION;
 			} else if (archiMateTag.substring(archiMateTag.length() - 6,
-					archiMateTag.length()).equals("Method")) {
+					archiMateTag.length()).equals(METHOD)) {
 				return JavaMethod.IMPLEMENTATION;
 			} else if (archiMateTag.substring(archiMateTag.length() - 10,
-					archiMateTag.length()).equals("Invocation")) {
+					archiMateTag.length()).equals(INVOCATION)) {
 				return JavaMethod.INVOCATION;
 			}
 		} catch (Exception e) {

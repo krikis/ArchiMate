@@ -22,29 +22,29 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the MVC pattern
 	// Model Package
-	public static final String DATA_INTERFACE = "MVC_DataInterface";
-	public static final String DATA_INTERFACE_INSTANCE = "MVC_DataInterfaceInstance";
-	public static final String DATA_MESSAGE = "MVC_DataMessage";
+	public static final String DATA_INTERFACE = "MVC_Data" + INTERFACE;
+	public static final String DATA_INTERFACE_INSTANCE = "MVC_Data" + INTERFACE + INSTANCE;
+	public static final String DATA_MESSAGE = "MVC_Data" + MESSAGE;
 	public static final String MODEL = "MVC_Model";
-	public static final String MODEL_INSTANCE = "MVC_ModelInstance";
-	public static final String DATA_METHOD = "MVC_DataMethod";
-	public static final String UPDATE_INVOCATION = "MVC_UpdateInvocation";
+	public static final String MODEL_INSTANCE = "MVC_Model" + INSTANCE;
+	public static final String DATA_METHOD = "MVC_Data" + METHOD;
+	public static final String UPDATE_INVOCATION = "MVC_Update" + INVOCATION;
 	// View Package
-	public static final String UPDATE_INTERFACE = "MVC_UpdateInterface";
-	public static final String UPDATE_INTERFACE_INSTANCE = "MVC_UpdateInterfaceInstance";
-	public static final String UPDATE_MESSAGE = "MVC_UpdateMessage";
+	public static final String UPDATE_INTERFACE = "MVC_Update" + INTERFACE;
+	public static final String UPDATE_INTERFACE_INSTANCE = "MVC_Update" + INTERFACE + INSTANCE;
+	public static final String UPDATE_MESSAGE = "MVC_Update" + MESSAGE;
 	public static final String VIEW = "MVC_View";
-	public static final String VIEW_INSTANCE = "MVC_ViewInstance";
-	public static final String UPDATE_METHOD = "MVC_UpdateMethod";
-	public static final String COMMAND_INVOCATION = "MVC_CommandInvocation";
+	public static final String VIEW_INSTANCE = "MVC_View" + INSTANCE;
+	public static final String UPDATE_METHOD = "MVC_Update" + METHOD;
+	public static final String COMMAND_INVOCATION = "MVC_Command" + INVOCATION;
 	// Controller Package
-	public static final String COMMAND_INTERFACE = "MVC_CommandInterface";
-	public static final String COMMAND_INTERFACE_INSTANCE = "MVC_CommandInterfaceInstance";
-	public static final String COMMAND_MESSAGE = "MVC_CommandMessage";
+	public static final String COMMAND_INTERFACE = "MVC_Command" + INTERFACE;
+	public static final String COMMAND_INTERFACE_INSTANCE = "MVC_Command" + INTERFACE + INSTANCE;
+	public static final String COMMAND_MESSAGE = "MVC_Command" + MESSAGE;
 	public static final String CONTROLLER = "MVC_Controller";
-	public static final String CONTROLLER_INSTANCE = "MVC_ControllerInstance";
-	public static final String COMMAND_METHOD = "MVC_CommandMethod";
-	public static final String DATA_INVOCATION = "MVC_DataInvocation";
+	public static final String CONTROLLER_INSTANCE = "MVC_Controller" + INSTANCE;
+	public static final String COMMAND_METHOD = "MVC_Command" + METHOD;
+	public static final String DATA_INVOCATION = "MVC_Data" + INVOCATION;
 	// Names of the packages in the pattern
 	private String modelPackage;
 	private String viewPackage;

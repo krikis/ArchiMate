@@ -23,21 +23,27 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 
 	// Constants for the key source elements of the Callback primitive
 	// Caller Package
-	public static final String EVENT_INTERFACE = "Callback_EventInterface";
-	public static final String EVENT_INTERFACE_INSTANCE = "Callback_EventInterfaceInstance";
-	public static final String EVENT_MESSAGE = "Callback_EventMessage";
+	public static final String EVENT_INTERFACE = "Callback_Event" + INTERFACE;
+	public static final String EVENT_INTERFACE_INSTANCE = "Callback_Event"
+			+ INTERFACE + INSTANCE;
+	public static final String EVENT_MESSAGE = "Callback_Event" + MESSAGE;
 	public static final String CALLER = "Callback_Caller";
-	public static final String CALLER_INSTANCE = "Callback_CallerInstance";
-	public static final String EVENT_METHOD = "Callback_EventMethod";
-	public static final String SUBSCRIPTION_INVOCATION = "Callback_SubscriptionInvocation";
+	public static final String CALLER_INSTANCE = "Callback_Caller" + INSTANCE;
+	public static final String EVENT_METHOD = "Callback_Event" + METHOD;
+	public static final String SUBSCRIPTION_INVOCATION = "Callback_Subscription"
+			+ INVOCATION;
 	// Callee Package
-	public static final String SUBSCRIPTION_INTERFACE = "Callback_SubscriptionInterface";
-	public static final String SUBSCRIPTION_INTERFACE_INSTANCE = "Callback_SubscriptionInterfaceInstance";
-	public static final String SUBSCRIPTION_MESSAGE = "Callback_SubscriptionMessage";
+	public static final String SUBSCRIPTION_INTERFACE = "Callback_Subscription"
+			+ INTERFACE;
+	public static final String SUBSCRIPTION_INTERFACE_INSTANCE = "Callback_Subscription"
+			+ INTERFACE + INSTANCE;
+	public static final String SUBSCRIPTION_MESSAGE = "Callback_Subscription"
+			+ MESSAGE;
 	public static final String CALLEE = "Callback_Callee";
-	public static final String CALLEE_INSTANCE = "Callback_CalleeInstance";
-	public static final String SUBSCRIPTION_METHOD = "Callback_SubscriptionMethod";
-	public static final String EVENT_INVOCATION = "Callback_EventInvocation";
+	public static final String CALLEE_INSTANCE = "Callback_Callee" + INSTANCE;
+	public static final String SUBSCRIPTION_METHOD = "Callback_Subscription"
+			+ METHOD;
+	public static final String EVENT_INVOCATION = "Callback_Event" + INVOCATION;
 	// Names of the packages in the primitive
 	private String callerPackage;
 	private String calleePackage;
@@ -72,23 +78,37 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		TagNode root = tree.root();
 		// Find Caller Class and set the package
 		TagNode callerClass = callerClass(tree);
+		TagNode callerInstanceClass = null;
 		if (callerClass != null) {
 			callerPackage = getPackage(callerClass);
+			callerInstanceClass = tree.getNode(root, callerClass.tag()
+					+ INSTANCE);
 		}
 		// Find Callee Class and set the package
 		TagNode calleeClass = calleeClass(tree);
+		TagNode calleeInstanceClass = null;
 		if (calleeClass != null) {
 			calleePackage = getPackage(calleeClass);
+			calleeInstanceClass = tree.getNode(root, calleeClass.tag()
+					+ INSTANCE);
 		}
-		// Find Caller instance Class and set the package
-		TagNode callerInstanceClass = callerInstanceClass(tree);
-		if (callerInstanceClass != null) {
-			callerPackage = getPackage(callerInstanceClass);
+		// Find Caller instance Class if undefined and set the package
+		if (callerInstanceClass == null) {
+			callerInstanceClass = callerInstanceClass(tree);
+			if (callerInstanceClass != null) {
+				callerPackage = getPackage(callerInstanceClass);
+				callerClass = tree.getNode(root, callerInstanceClass.tag()
+						.split(INSTANCE)[0]);
+			}
 		}
-		// Find Callee instance Class and set the package
-		TagNode calleeInstanceClass = calleeInstanceClass(tree);
-		if (calleeInstanceClass != null) {
-			calleePackage = getPackage(calleeInstanceClass);
+		// Find Callee instance Class if undefined and set the package
+		if (calleeInstanceClass == null) {
+			calleeInstanceClass = calleeInstanceClass(tree);
+			if (calleeInstanceClass != null) {
+				calleePackage = getPackage(calleeInstanceClass);
+				calleeClass = tree.getNode(root, calleeInstanceClass.tag()
+						.split(INSTANCE)[0]);
+			}
 		}
 
 		// Find or create EventInterface
@@ -101,24 +121,27 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		updateCalleeClass(calleeClass, subscriptionInterface);
 
 		// Create EventInterface instance
-		TagNode eventInterfaceInstance = eventInterfaceInstance(root, eventInterface);
-		// Recreate Caller instance Class
-		callerInstanceClass = callerInstanceClass(root, eventInterfaceInstance,
+		TagNode eventInterfaceInstance = eventInterfaceInstance(root,
+				eventInterface);
+		// Update Caller instance Class
+		updateCallerInstanceClass(callerInstanceClass, eventInterfaceInstance,
 				callerClass);
 
-		// Create SubscriptionInterface instance
-		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
-				root, subscriptionInterface, callerInstanceClass);
-		// Recreate Callee instance Class
-		calleeInstanceClass = calleeInstanceClass(root,
-				subscriptionInterfaceInstance, calleeClass);
+		// // Create SubscriptionInterface instance
+		// TagNode subscriptionInterfaceInstance =
+		// subscriptionInterfaceInstance(
+		// root, subscriptionInterface, callerInstanceClass);
+		// // Recreate Callee instance Class
+		// calleeInstanceClass = calleeInstanceClass(root,
+		// subscriptionInterfaceInstance, calleeClass);
+		//
+		// // Add subscriptionInvocationMethods
+		// subscriptionInvocationMethods(callerInstanceClass,
+		// calleeInstanceClass);
+		// // Add eventInvocationMethods
+		// eventInvocationMethods(calleeInstanceClass, callerInstanceClass);
 
-		// Add subscriptionInvocationMethods
-		subscriptionInvocationMethods(callerInstanceClass, calleeInstanceClass);
-		// Add eventInvocationMethods
-		eventInvocationMethods(calleeInstanceClass, callerInstanceClass);
-
-		 System.out.println(tree);
+		System.out.println(tree);
 	}
 
 	// Find EventInterface
@@ -279,17 +302,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 					.inStereo(CALLER))) {
 				if (element instanceof JavaClass) {
 					JavaClass javaClass = (JavaClass) element;
-					ArrayList<JavaClass> toRemove = new ArrayList<JavaClass>();
-					for (JavaClass interfaceClass : javaClass.interfaces()) {
-						if (interfaceClass.optional()
-								&& interfaceClass.intendedName().equals(
-										interfaceClass.className())) {
-							tree.dropNode(tree.getNode(tree.root(),
-									interfaceClass.archiMateTag()));
-							toRemove.add(interfaceClass);
-						}
-					}
-					javaClass.interfaces().removeAll(toRemove);
+					removeSuperfluousInterfaces(javaClass);
 					ICodeElement code = eventInterface
 							.getSourceByTag(EVENT_INTERFACE);
 					if (code instanceof JavaClass) {
@@ -328,17 +341,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 					.inStereo(CALLEE))) {
 				if (element instanceof JavaClass) {
 					JavaClass javaClass = (JavaClass) element;
-					ArrayList<JavaClass> toRemove = new ArrayList<JavaClass>();
-					for (JavaClass interfaceClass : javaClass.interfaces()) {
-						if (interfaceClass.optional()
-								&& interfaceClass.intendedName().equals(
-										interfaceClass.className())) {
-							tree.dropNode(tree.getNode(tree.root(),
-									interfaceClass.archiMateTag()));
-							toRemove.add(interfaceClass);
-						}
-					}
-					javaClass.interfaces().removeAll(toRemove);
+					removeSuperfluousInterfaces(javaClass);
 					ICodeElement code = subscriptionInterface
 							.getSourceByTag(SUBSCRIPTION_INTERFACE);
 					if (code instanceof JavaClass) {
@@ -410,38 +413,98 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		for (ICodeElement element : eventInterface.source()) {
 			if (element instanceof JavaClass) {
 				JavaClass eventInterfaceClass = (JavaClass) element;
-				String name = "";
-				if (eventInterfaceClass.umlElements().size() > 0) {
-					name = eventInterfaceClass.umlElements().get(0).getName();
-				}
-				String className = (name.equals("") ? "MyCaller"
-						+ (count == 0 ? "" : count) : name);
-				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-				interfaces.add(eventInterfaceClass);
-				JavaClass superClassType = null;
-				ICodeElement codeElement = superClass.getSourceByTag(CALLER);
-				if (codeElement instanceof JavaClass) {
-					superClassType = (JavaClass) codeElement;
-				}
-				JavaClass javaClass = createClass(
-						caller,
-						eventInterfaceClass.umlElements(),
-						callerPackage,
-						null,
-						JavaClass.CLASS,
-						className,
-						superClassType,
-						interfaces,
-						"This class implements a Caller of the Callback primitive",
-						name.equals(""));
-				// Create class methods
-				addMethods(eventMethods, javaClass, eventInterfaceClass,
-						JavaMethod.IMPLEMENTATION,
-						"This method implements handling an event.");
+				callerClass(eventInterfaceClass, count, superClass, caller,
+						eventMethods);
 				++count;
 			}
 		}
 		return caller;
+	}
+
+	// Update Caller instance class implementing EventInterface instance
+	private void updateCallerInstanceClass(TagNode caller,
+			TagNode eventInterface, TagNode superClass) {
+		if (caller != null && caller.hasChildren()) {
+			TagNode eventMethods = caller.children().get(0);
+			int count = 0;
+			for (ICodeElement element : eventInterface.source()) {
+				if (element instanceof JavaClass) {
+					JavaClass eventInterfaceClass = (JavaClass) element;
+					if (caller.onlyOptional()) {
+						JavaClass javaClass = (JavaClass) caller
+								.getSourceByTag(caller.tag());
+						if (javaClass != null) {
+							removeSuperfluousInterfaces(javaClass);
+							javaClass.addInterface(eventInterfaceClass);
+							// Create class methods
+							addMethods(eventMethods, javaClass,
+									eventInterfaceClass,
+									JavaMethod.IMPLEMENTATION,
+									"This method implements handling an event.");
+						}
+					} else {
+						JavaClass javaClass = getExistingClass(
+								eventInterfaceClass, caller
+										.getCodeByStereotype(TagNode
+												.inStereo(CALLER)));
+						if (javaClass != null) {
+							// Create class methods
+							addMethods(eventMethods, javaClass,
+									eventInterfaceClass,
+									JavaMethod.IMPLEMENTATION,
+									"This method implements handling an event.");
+						} else {
+							callerClass(eventInterfaceClass, count, superClass,
+									caller, eventMethods);
+						}
+					}
+					++count;
+				}
+			}
+		}
+	}
+
+	// Searches the code for a class implementing the same UML element as the
+	// given class
+	private JavaClass getExistingClass(JavaClass javaClass,
+			ArrayList<ICodeElement> code) {
+		for (ICodeElement classElement : code) {
+			if (classElement instanceof JavaClass
+					&& classElement.umlElements().contains(
+							javaClass.umlElements())) {
+				JavaClass foundClass = (JavaClass) classElement;
+				removeSuperfluousInterfaces(javaClass);
+				return foundClass;
+			}
+		}
+		return null;
+	}
+
+	// Creates the Caller class and its methods
+	private void callerClass(JavaClass eventInterfaceClass, int count,
+			TagNode superClass, TagNode caller, TagNode eventMethods) {
+		String name = "";
+		if (eventInterfaceClass.umlElements().size() > 0) {
+			name = eventInterfaceClass.umlElements().get(0).getName();
+		}
+		String className = (name.equals("") ? "MyCaller"
+				+ (count == 0 ? "" : count) : name);
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+		interfaces.add(eventInterfaceClass);
+		JavaClass superClassType = null;
+		ICodeElement codeElement = superClass.getSourceByTag(CALLER);
+		if (codeElement instanceof JavaClass) {
+			superClassType = (JavaClass) codeElement;
+		}
+		JavaClass javaClass = createClass(caller, eventInterfaceClass
+				.umlElements(), callerPackage, null, JavaClass.CLASS,
+				className, superClassType, interfaces,
+				"This class implements a Caller of the Callback primitive",
+				name.equals(""));
+		// Create class methods
+		addMethods(eventMethods, javaClass, eventInterfaceClass,
+				JavaMethod.IMPLEMENTATION,
+				"This method implements handling an event.");
 	}
 
 	// Create Callee instance class implementing SubscriptionInterface instance
@@ -577,5 +640,19 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 						interfaceClass, type, comment);
 			}
 		}
+	}
+
+	private void removeSuperfluousInterfaces(JavaClass javaClass) {
+		ArrayList<JavaClass> toRemove = new ArrayList<JavaClass>();
+		for (JavaClass interfaceClass : javaClass.interfaces()) {
+			if (interfaceClass.optional()
+					&& interfaceClass.intendedName().equals(
+							interfaceClass.className())) {
+				tree.dropNode(tree.getNode(tree.root(), interfaceClass
+						.archiMateTag()));
+				toRemove.add(interfaceClass);
+			}
+		}
+		javaClass.interfaces().removeAll(toRemove);
 	}
 }
