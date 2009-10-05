@@ -149,7 +149,19 @@ public class TagTree {
 	}
 
 	/**
-	 * Searches for a node with a certain tag in the nodes children
+	 * Searches for a node with a certain tag
+	 * 
+	 * @param tag
+	 *            The tag to match
+	 * @return A child having a matching tag
+	 */
+	public TagNode getNode(String tag) {
+		return getNode(root, tag);
+	}
+
+	/**
+	 * Searches for a node with a certain tag in the nodes children. If the node
+	 * is not found in the children, the children's children are searched.
 	 * 
 	 * @param node
 	 *            The node which children are searched
@@ -158,12 +170,14 @@ public class TagTree {
 	 * @return A child having a matching tag
 	 */
 	public TagNode getNode(TagNode node, String tag) {
-		for (Iterator<TagNode> iter = node.children().iterator(); iter
-				.hasNext();) {
-			TagNode child = iter.next();
-			if (child.tag().equals(tag)) {
+		for (TagNode child : node.children()) {
+			if (child.tag().equals(tag))
 				return child;
-			}
+		}
+		for (TagNode child : node.children()) {
+			TagNode found = getNode(child, tag);
+			if (found != null)
+				return found;
 		}
 		return null;
 	}
@@ -234,8 +248,9 @@ public class TagTree {
 	}
 
 	/**
-	 * Searches the {@link TagTree} for a node containing an {@link ICodeElement}
-	 * with a UML element stereotyped by the given stereotype
+	 * Searches the {@link TagTree} for a node containing an
+	 * {@link ICodeElement} with a UML element stereotyped by the given
+	 * stereotype
 	 * 
 	 * @param stereotype
 	 *            the stereotype to match
@@ -247,8 +262,7 @@ public class TagTree {
 
 	// Searches the TagTree recursively for a node containing source with a UML
 	// element stereotyped by the given stereotype
-	private TagNode getNodeByStereotype(TagNode node,
-			String stereotype) {
+	private TagNode getNodeByStereotype(TagNode node, String stereotype) {
 		for (TagNode child : node.children()) {
 			if (checkNode(child, stereotype)) {
 				return child;
@@ -289,7 +303,29 @@ public class TagTree {
 				parent.children().remove(node);
 			}
 			node.setParent(null);
+			dropCode(node);
 		}
+	}
+
+	// Removes the source elements in the node from their parents
+	private void dropCode(TagNode node) {
+		for (ICodeElement code : node.source()) {
+			if (code.parent() != null) {
+				ICodeElement parent = code.parent();
+				parent.children().remove(code);
+				code.setParent(null);
+			}
+		}
+	}
+
+	/**
+	 * Deletes an {@link TagNode} from the {@link TagTree}
+	 * 
+	 * @param archiMateTag
+	 *            the archiMateTag of the {@link TagNode} to delete
+	 */
+	public void dropNode(String tag) {
+		dropNode(getNode(tag));
 	}
 
 	// Returns a list of all tree nodes and their state for debug purposes

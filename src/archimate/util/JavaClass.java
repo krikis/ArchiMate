@@ -654,9 +654,22 @@ public class JavaClass extends CodeElement implements ICodeElement {
 	// Returns the specifications for debug purposes
 	public String toString() {
 		String out = "";
-		out += packageName + "." + className + (visited ? " :: visited" : "")
-				+ (optional ? " | optional -> " + intendedName() : "") + "\n";
+		String interfaces = " implements ";
+		for (JavaClass interfaceClass : this.interfaces) {
+			interfaces += interfaceClass.intendedName();
+			if (interfaceClass != this.interfaces
+					.get(this.interfaces.size() - 1))
+				interfaces += ", ";
+		}
+		out += packageName
+				+ "."
+				+ className
+				+ (superClass != null ? " extends " + superClass.intendedName()
+						: "")
+				+ (interfacesDefined() ? interfaces : "")
+				+ (visited ? " :: visited" : "")
+				+ (optional ? (intendedName().equals(className) ? " | optional"
+						: " -> " + intendedName()) : "") + "\n";
 		return out;
 	}
-
 }

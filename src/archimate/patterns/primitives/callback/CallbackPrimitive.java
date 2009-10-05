@@ -127,21 +127,20 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		updateCallerInstanceClass(callerInstanceClass, eventInterfaceInstance,
 				callerClass);
 
-		// // Create SubscriptionInterface instance
-		// TagNode subscriptionInterfaceInstance =
-		// subscriptionInterfaceInstance(
-		// root, subscriptionInterface, callerInstanceClass);
-		// // Recreate Callee instance Class
-		// calleeInstanceClass = calleeInstanceClass(root,
-		// subscriptionInterfaceInstance, calleeClass);
-		//
-		// // Add subscriptionInvocationMethods
-		// subscriptionInvocationMethods(callerInstanceClass,
-		// calleeInstanceClass);
-		// // Add eventInvocationMethods
-		// eventInvocationMethods(calleeInstanceClass, callerInstanceClass);
+		// Create SubscriptionInterface instance
+		TagNode subscriptionInterfaceInstance = subscriptionInterfaceInstance(
+				root, subscriptionInterface, callerInstanceClass);
+		// Update Callee instance Class
+		updateCalleeInstanceClass(calleeInstanceClass,
+				subscriptionInterfaceInstance, calleeClass);
 
-		System.out.println(tree);
+		// Add subscriptionInvocationMethods
+		addSubscriptionInvocationMethods(callerInstanceClass,
+				calleeInstanceClass);
+		// Add eventInvocationMethods
+		addEventInvocationMethods(calleeInstanceClass, callerInstanceClass);
+
+		// System.out.println(tree);
 	}
 
 	// Find EventInterface
@@ -425,7 +424,8 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	private void updateCallerInstanceClass(TagNode caller,
 			TagNode eventInterface, TagNode superClass) {
 		if (caller != null && caller.hasChildren()) {
-			TagNode eventMethods = caller.children().get(0);
+			TagNode eventMethods = new TagNode(EVENT_METHOD);
+			caller.addChild(eventMethods);
 			int count = 0;
 			for (ICodeElement element : eventInterface.source()) {
 				if (element instanceof JavaClass) {
@@ -448,6 +448,7 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 										.getCodeByStereotype(TagNode
 												.inStereo(CALLER)));
 						if (javaClass != null) {
+							removeSuperfluousInterfaces(javaClass);
 							// Create class methods
 							addMethods(eventMethods, javaClass,
 									eventInterfaceClass,
@@ -462,22 +463,6 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				}
 			}
 		}
-	}
-
-	// Searches the code for a class implementing the same UML element as the
-	// given class
-	private JavaClass getExistingClass(JavaClass javaClass,
-			ArrayList<ICodeElement> code) {
-		for (ICodeElement classElement : code) {
-			if (classElement instanceof JavaClass
-					&& classElement.umlElements().contains(
-							javaClass.umlElements())) {
-				JavaClass foundClass = (JavaClass) classElement;
-				removeSuperfluousInterfaces(javaClass);
-				return foundClass;
-			}
-		}
-		return null;
 	}
 
 	// Creates the Caller class and its methods
@@ -511,46 +496,90 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 	private TagNode calleeInstanceClass(TagNode root,
 			TagNode subscriptionInterface, TagNode superClass) {
 		TagNode callee = new TagNode(CALLEE_INSTANCE);
-		TagNode subscriptionMethod = new TagNode(SUBSCRIPTION_METHOD);
-		callee.addChild(subscriptionMethod);
+		TagNode subscriptionMethods = new TagNode(SUBSCRIPTION_METHOD);
+		callee.addChild(subscriptionMethods);
 		root.addChild(callee);
 		int count = 0;
 		for (ICodeElement element : subscriptionInterface.source()) {
 			if (element instanceof JavaClass) {
 				JavaClass subscriptionInterfaceClass = (JavaClass) element;
-				String name = "";
-				if (subscriptionInterfaceClass.umlElements().size() > 0) {
-					name = subscriptionInterfaceClass.umlElements().get(0)
-							.getName();
-				}
-				String className = (name.equals("") ? "MyCallee"
-						+ (count == 0 ? "" : count) : name);
-				ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
-				interfaces.add(subscriptionInterfaceClass);
-				JavaClass superClassType = null;
-				ICodeElement codeElement = superClass.getSourceByTag(CALLEE);
-				if (codeElement instanceof JavaClass) {
-					superClassType = (JavaClass) codeElement;
-				}
-				JavaClass javaClass = createClass(
-						callee,
-						subscriptionInterfaceClass.umlElements(),
-						calleePackage,
-						null,
-						JavaClass.CLASS,
-						className,
-						superClassType,
-						interfaces,
-						"This class implements a Callee of the Callback primitive",
-						name.equals(""));
-				// Create class methods
-				addMethods(subscriptionMethod, javaClass,
-						subscriptionInterfaceClass, JavaMethod.CALLBACK_IMPL,
-						"This method implements subscribing a caller to an event.");
+				calleeClass(subscriptionInterfaceClass, count, superClass,
+						callee, subscriptionMethods);
 				++count;
 			}
 		}
 		return callee;
+	}
+
+	// Update Callee instance class implementing SubscriptionInterface instance
+	private void updateCalleeInstanceClass(TagNode callee,
+			TagNode subscriptionInterface, TagNode superClass) {
+		if (callee != null && callee.hasChildren()) {
+			TagNode subscriptionMethods = new TagNode(SUBSCRIPTION_METHOD);
+			callee.addChild(subscriptionMethods);
+			int count = 0;
+			for (ICodeElement element : subscriptionInterface.source()) {
+				if (element instanceof JavaClass) {
+					JavaClass subscriptionInterfaceClass = (JavaClass) element;
+					if (callee.onlyOptional()) {
+						JavaClass javaClass = (JavaClass) callee
+								.getSourceByTag(callee.tag());
+						if (javaClass != null) {
+							javaClass.addInterface(subscriptionInterfaceClass);
+							// Create class methods
+							addMethods(subscriptionMethods, javaClass,
+									subscriptionInterfaceClass,
+									JavaMethod.CALLBACK_IMPL,
+									"This method implements subscribing a caller to an event.");
+						}
+					} else {
+						JavaClass javaClass = getExistingClass(
+								subscriptionInterfaceClass, callee
+										.getCodeByStereotype(TagNode
+												.inStereo(CALLEE)));
+						if (javaClass != null) {
+							// Create class methods
+							addMethods(subscriptionMethods, javaClass,
+									subscriptionInterfaceClass,
+									JavaMethod.CALLBACK_IMPL,
+									"This method implements subscribing a caller to an event.");
+						} else {
+							calleeClass(subscriptionInterfaceClass, count,
+									superClass, callee, subscriptionMethods);
+						}
+					}
+					++count;
+				}
+			}
+		}
+	}
+
+	// Creates the Callee class and its methods
+	private void calleeClass(JavaClass subscriptionInterfaceClass, int count,
+			TagNode superClass, TagNode callee, TagNode subscriptionMethods) {
+		String name = "";
+		if (subscriptionInterfaceClass.umlElements().size() > 0) {
+			name = subscriptionInterfaceClass.umlElements().get(0).getName();
+		}
+		String className = (name.equals("") ? "MyCallee"
+				+ (count == 0 ? "" : count) : name);
+		ArrayList<JavaClass> interfaces = new ArrayList<JavaClass>();
+		interfaces.add(subscriptionInterfaceClass);
+		JavaClass superClassType = null;
+		ICodeElement codeElement = superClass.getSourceByTag(CALLEE);
+		if (codeElement instanceof JavaClass) {
+			superClassType = (JavaClass) codeElement;
+		}
+		JavaClass javaClass = createClass(callee, subscriptionInterfaceClass
+				.umlElements(), calleePackage, null, JavaClass.CLASS,
+				className, superClassType, interfaces,
+				"This class implements a Callee of the Callback primitive",
+				name.equals(""));
+		// Create class methods
+		addMethods(subscriptionMethods, javaClass, subscriptionInterfaceClass,
+				JavaMethod.CALLBACK_IMPL,
+				"This method implements subscribing a caller to an event.");
+
 	}
 
 	// Create subscription invocation methods
@@ -570,8 +599,38 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		}
 	}
 
+	// Add subscription invocation methods
+	private void addSubscriptionInvocationMethods(TagNode caller, TagNode callee) {
+		TagNode subscriptionInvocation = new TagNode(SUBSCRIPTION_INVOCATION);
+		caller.addChild(subscriptionInvocation);
+		for (ICodeElement element : caller.source()) {
+			if (element instanceof JavaClass) {
+				addMethods(
+						subscriptionInvocation,
+						TagNode.inStereo(SUBSCRIPTION_MESSAGE),
+						(JavaClass) element,
+						callee,
+						JavaMethod.INVOCATION,
+						"This method invokes a method that subscribes the caller to an event at the callee.");
+			}
+		}
+	}
+
 	// Create event invocation methods
 	private void eventInvocationMethods(TagNode callee, TagNode caller) {
+		TagNode eventInvocation = new TagNode(EVENT_INVOCATION);
+		callee.addChild(eventInvocation);
+		for (ICodeElement element : callee.source()) {
+			if (element instanceof JavaClass) {
+				addMethods(eventInvocation, TagNode.inStereo(EVENT_MESSAGE),
+						(JavaClass) element, caller, JavaMethod.CALLBACK_INV,
+						"This method calls back to all objects that handle an event from the callee.");
+			}
+		}
+	}
+
+	// Add event invocation methods
+	private void addEventInvocationMethods(TagNode callee, TagNode caller) {
 		TagNode eventInvocation = new TagNode(EVENT_INVOCATION);
 		callee.addChild(eventInvocation);
 		for (ICodeElement element : callee.source()) {
@@ -642,14 +701,64 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 		}
 	}
 
+	// Searches the code for a class implementing the same UML element as the
+	// given class
+	private JavaClass getExistingClass(JavaClass javaClass,
+			ArrayList<ICodeElement> code) {
+		for (ICodeElement classElement : code) {
+			if (classElement instanceof JavaClass
+					&& classElement.umlElements().contains(
+							javaClass.umlElements())) {
+				JavaClass foundClass = (JavaClass) classElement;
+				return foundClass;
+			}
+		}
+		return null;
+	}
+
+	// Removes optional interfaces from the TagTree and from a JavaClass
 	private void removeSuperfluousInterfaces(JavaClass javaClass) {
 		ArrayList<JavaClass> toRemove = new ArrayList<JavaClass>();
 		for (JavaClass interfaceClass : javaClass.interfaces()) {
 			if (interfaceClass.optional()
 					&& interfaceClass.intendedName().equals(
 							interfaceClass.className())) {
+				// Remove interface from restricted interfaces
+				tree.restrictedInterfaces().remove(interfaceClass);
+				// Remove the interface node
 				tree.dropNode(tree.getNode(tree.root(), interfaceClass
 						.archiMateTag()));
+				// Remove the methods
+				for (ICodeElement declaration : interfaceClass.children()) {
+					ArrayList<ICodeElement> methods2Remove = new ArrayList<ICodeElement>();
+					for (ICodeElement implementation : javaClass.children()) {
+						if (implementation instanceof JavaMethod
+								&& declaration.isInstanceof(implementation)) {
+							if (((JavaMethod) implementation).type().equals(
+									JavaMethod.IMPLEMENTATION)) {
+								// Remove the method implementation
+								methods2Remove.add(implementation);
+								// Remove the method invocation
+								tree.dropNode(implementation.archiMateTag()
+										.split(METHOD)[0]
+										+ INVOCATION);
+							}
+							TagNode node = tree.getNode(tree.root(), javaClass
+									.archiMateTag());
+							ArrayList<TagNode> nodes2Drop = new ArrayList<TagNode>();
+							for (TagNode child : node.children()) {
+								if (child.source().remove(implementation)
+										&& !child.sourceDefined()) {
+									// Remove the method node
+									nodes2Drop.add(child);
+								}
+							}
+							node.children().removeAll(nodes2Drop);
+						}
+					}
+					javaClass.children().removeAll(methods2Remove);
+				}
+				// Remove the interface class
 				toRemove.add(interfaceClass);
 			}
 		}

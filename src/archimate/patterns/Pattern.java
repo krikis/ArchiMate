@@ -25,13 +25,13 @@ import archimate.util.TagTree;
  * @author Samuel Esposito
  */
 public abstract class Pattern implements ICodeGenerator {
-	
+
 	// Constants for the key source types of a pattern
 	public static final String INTERFACE = "Interface";
 	public static final String INSTANCE = "Instance";
 	public static final String METHOD = "Method";
 	public static final String MESSAGE = "Message";
-	public static final String INVOCATION = "Invocation";	
+	public static final String INVOCATION = "Invocation";
 
 	// Nr. of estimated tasks
 	protected int tasks = 0;
@@ -47,14 +47,14 @@ public abstract class Pattern implements ICodeGenerator {
 	protected MultiStatus status;
 	// UML reader
 	protected UMLAdapter umlReader;
-	
+
 	protected void addPrimitives(org.eclipse.uml2.uml.Package umlPackage) {
 		for (Profile profile : umlPackage.getAppliedProfiles()) {
 			String name = profile.getName();
 			if (name.equals("Callback")) {
 				new CallbackPrimitive(umlPackage, tree, status);
 			}
-		}		
+		}
 	}
 
 	// Returns the name of the pattern
@@ -357,12 +357,17 @@ public abstract class Pattern implements ICodeGenerator {
 			for (ICodeElement element : implementer.source()) {
 				if (element instanceof JavaClass) {
 					JavaClass implementerClass = (JavaClass) element;
-					for (ICodeElement code : element.children()) {
-						if (code instanceof JavaMethod && code.optional()) {
+					for (ICodeElement code : implementerClass.children()) {
+						if (code instanceof JavaMethod
+								&& code.optional()
+								&& TagNode.inStereo(code.archiMateTag())
+										.equals(
+												stereotype.split(MESSAGE)[0]
+														+ METHOD)) {
 							addMethod(invoker, javaClass, implementerClass,
 									(JavaMethod) code, type, comment);
+							return;
 						}
-						return;
 					}
 
 				}

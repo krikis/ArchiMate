@@ -95,14 +95,15 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 		if (element instanceof JavaMethod) {
 			JavaMethod method = (JavaMethod) element;
 			boolean found = (objectType.packageName().equals(
-					method.packageName()) && objectType.className().equals(
-					method.className()));
+					method.packageName()) && objectType.intendedName().equals(
+					method.intendedName()));
 			// Check element interfaces
 			if (!found) {
 				for (JavaClass interfaceClass : method.objectType.interfaces()) {
 					found = (objectType.packageName().equals(
 							interfaceClass.packageName()) && objectType
-							.className().equals(interfaceClass.className()));
+							.intendedName().equals(
+									interfaceClass.intendedName()));
 					if (found)
 						break;
 				}
@@ -111,8 +112,9 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 			if (!found) {
 				for (JavaClass interfaceClass : objectType.interfaces()) {
 					found = (method.packageName().equals(
-							interfaceClass.packageName()) && method.className()
-							.equals(interfaceClass.className()));
+							interfaceClass.packageName()) && method
+							.intendedName().equals(
+									interfaceClass.intendedName()));
 					if (found)
 						break;
 				}
@@ -381,6 +383,15 @@ public class JavaMethod extends CodeElement implements ICodeElement {
 	 */
 	public String className() {
 		return objectType.className();
+	}
+
+	/**
+	 * Returns the intended name of the class the method was implemented in
+	 * 
+	 * @return the intended name of the class the method was implemented in
+	 */
+	public String intendedName() {
+		return objectType.intendedName();
 	}
 
 	/**
