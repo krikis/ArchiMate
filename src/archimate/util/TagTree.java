@@ -330,15 +330,16 @@ public class TagTree {
 
 	// Returns a list of all tree nodes and their state for debug purposes
 	public String toString() {
-		return printRestrictions() + printNodes(root.children(), "");
+		return printRestrictions() + "\nTagTree:\n" + printNodes(root.children(), " ");
 	}
 
 	// Returns a list of all restrictions for debug purposes
 	private String printRestrictions() {
-		String out = "";
+		String out = "\nRestricted Interfaces:\n";
 		for (JavaClass interfaceRestriction : interfaces) {
 			out += interfaceRestriction.toString();
 		}
+		out += "\nRestrictedMethods:\n";
 		for (JavaMethod methodRestriction : methods) {
 			out += methodRestriction.toString();
 		}
@@ -351,7 +352,7 @@ public class TagTree {
 		for (Iterator<TagNode> iter = children.iterator(); iter.hasNext();) {
 			TagNode node = iter.next();
 			out += prefix + node.toString();
-			out += printNodes(node.children(), prefix + "-");
+			out += printNodes(node.children(), prefix + "- ");
 		}
 		return out;
 	}

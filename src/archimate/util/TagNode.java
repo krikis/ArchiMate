@@ -385,7 +385,7 @@ public class TagNode {
 		String out = "";
 		out += tag + (visited ? " :: visited" : "") + "\n";
 		for (ICodeElement element : source) {
-			out += "---" + element.toString();
+			out += "\t" + element.toString();
 		}
 		return out;
 	}

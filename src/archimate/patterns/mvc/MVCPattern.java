@@ -3,6 +3,7 @@ package archimate.patterns.mvc;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.MultiStatus;
+import org.eclipse.uml2.uml.NamedElement;
 
 import archimate.codegen.ICodeElement;
 import archimate.codegen.ICodeGenerator;
@@ -308,6 +309,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 						className, superClassType, interfaces,
 						"This class implements a Model of the MVC Pattern",
 						name.equals(""));
+				dataInterfaceClass.resetUmlElements();
 				// Create class methods
 				addMethods(dataMethods, javaClass, dataInterfaceClass,
 						JavaMethod.IMPLEMENTATION,
@@ -347,6 +349,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 						className, superClassType, interfaces,
 						"This class implements a View of the MVC Pattern", name
 								.equals(""));
+				updateInterfaceClass.resetUmlElements();
 				// Create class methods
 				addMethods(updateMethod, javaClass, updateInterfaceClass,
 						JavaMethod.IMPLEMENTATION,
@@ -393,6 +396,7 @@ public class MVCPattern extends Pattern implements ICodeGenerator {
 						interfaces,
 						"This class implements a Controller of the MVC Pattern",
 						name.equals(""));
+				commandInterfaceClass.resetUmlElements();
 				// Create class methods
 				addMethods(commandMethod, javaClass, commandInterfaceClass,
 						JavaMethod.IMPLEMENTATION,
