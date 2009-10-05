@@ -73,8 +73,6 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 
 	// Updates the TagTree to make it contain the callback primitive
 	private void updateTree() {
-//		 System.out.println(tree);
-
 		TagNode root = tree.root();
 		// Find Caller Class and set the package
 		TagNode callerClass = callerClass(tree);
@@ -139,8 +137,6 @@ public class CallbackPrimitive extends Pattern implements ICodeGenerator {
 				calleeInstanceClass);
 		// Add eventInvocationMethods
 		addEventInvocationMethods(calleeInstanceClass, callerInstanceClass);
-
-		 System.out.println(tree);
 	}
 
 	// Find EventInterface
