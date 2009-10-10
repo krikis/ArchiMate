@@ -330,7 +330,8 @@ public class TagTree {
 
 	// Returns a list of all tree nodes and their state for debug purposes
 	public String toString() {
-		return printRestrictions() + "\nTagTree:\n" + printNodes(root.children(), " ");
+		return printRestrictions() + "\nTagTree:\n"
+				+ printNodes(root.children(), " ");
 	}
 
 	// Returns a list of all restrictions for debug purposes

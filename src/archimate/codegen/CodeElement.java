@@ -35,7 +35,7 @@ public abstract class CodeElement implements ICodeElement {
 	public ArrayList<NamedElement> umlElements() {
 		return umlElements;
 	}
-	
+
 	// Resets the list of UML elements
 	public void resetUmlElements() {
 		umlElements = new ArrayList<NamedElement>();

@@ -218,8 +218,9 @@ public class JavaHelper {
 				if (interfaceType instanceof SimpleType) {
 					ITypeBinding type = ((SimpleType) interfaceType)
 							.resolveBinding();
-					interfaces.add(new JavaClass(type.getPackage().getName(),
-							type.getName(), "", ""));
+					if (type != null)
+						interfaces.add(new JavaClass(type.getPackage()
+								.getName(), type.getName(), "", ""));
 				}
 			}
 		}
